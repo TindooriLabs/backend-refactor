@@ -1,2 +1,2 @@
-# backend-refraction
-Refraction of the current backend to be single database
+# backend-refactor
+Refactor of the current backend to be single database

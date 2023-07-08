@@ -38,6 +38,7 @@ jspm_packages/
 
 # Build
 build/
+deployable/
 
 # Secret keys
 keys/
@@ -69,3 +70,7 @@ typings/
 # Config files from local OS and IDEs
 .vscode
 .DS_Store
+
+# TS/ESLint avoid rebuild/re-lint when tracked files have not changed
+# See also package.json, automations/*
+.file_hash

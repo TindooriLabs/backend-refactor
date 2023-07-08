@@ -2,9 +2,14 @@
   "name": "backend-refactor",
   "version": "0.0.1",
   "description": "Tindoori Backend Refactor (original: tindoori-api)",
-  "main": "index.js",
+  "main": "deployable/index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build-debug": "tsc --outDir build \\\n  && eslint server/ --ext .ts \\\n  && (rm -rf deployable 2>/dev/null || true) && mv build deployable \\\n  && (./automations/get-hash.sh >.file_hash)",
+    "build-release": "echo 'Unspecified: build-release' && exit 1",
+    "check": "tsc --noEmit && eslint server/ --ext .ts",
+    "start": "(./automations/check-hash.sh \\\n    && echo 'Files have not changed; skipping build.' \\\n    || npm run build-debug) \\\n  && node deployable/index.js",
+    "test": "echo 'Unspecified: test' && exit 1"
   },
   "repository": {
     "type": "git",
@@ -20,6 +25,17 @@
     "express": "^4.18.2"
   },
   "devDependencies": {
-    "typescript": "^5.1.6"
+    "@tsconfig/node18": "^18.2.0",
+    "@types/express": "^4.17.17",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "eslint": "^8.44.0",
+    "eslint-config-standard-with-typescript": "^36.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.7.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
   }
 }

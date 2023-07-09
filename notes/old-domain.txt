@@ -1,0 +1,440 @@
+[domain/conversation]
+
+/// Get page of conversation given ID, page length, page number; return the
+/// convo rendered in the from-user's (default/chosen?) language
+async
+getConversation (
+    fromUserId, conversationId,
+    pageLength = config.conversation.pageLength,
+    page = 1,
+);
+
+/// Get all conversations belonging to a user, substituting participant
+/// user-IDs with their ~~names~~ { id, name } entries.
+async
+getUserConversations ( userId );
+/*
+    Note that the lastMessage field contains an entry meeting the mongo Message
+    schema with its conversationId field removed.
+*/
+
+/// Send a message (tagged with a language), as a specified sender to a list of
+/// specified receivers, while attempting to do so within an existing
+/// conversation.
+async
+sendMessage (
+    fromUserId, toUserIds,
+    existingConversationId?,
+    message, language,
+);
+/*
+    The function will first try to look up the existing conversation with the
+    specified ID; if this works, the said convo will be updated with the
+    participant list [fromUserId, ...toUserIds].
+
+    If the convo ID is not specified, the function will then try to find an
+    exact match with the same participants and send the message there.
+    [Implication] A conversation cannot be directly created with all the same
+    participants as another existing one, but can be created by first creating
+    a new convo with unique participants and then updating the participants
+    list, taking a total of 2 messages instead of 1.
+
+    [Flag API for revision]
+
+    This makes very little sense. Why can't we just have a separate createConvo
+    endpoint?
+
+    [Potential bug: line 124]
+
+    ```javascript
+    const conversationId = existingConversationId || conversation.id;
+    ```
+
+    This code overrides the returned convo ID with the client-supplied one.
+    Suppose a non-existent convo ID has been supplied by the client, e.g. in
+    the case of a deleted convo; a new convo would have already been created
+    with the specified participants, but the dangling convo ID would have been
+    used to send the message, causing a failure.
+
+    This is not a bug if it is not possible to access this function with a
+    dangling convo ID.
+
+    [Optimization: line 143]
+
+    `getParticipantName` called twice.
+
+    [Bug: line 163 locally fixed]
+
+    ```javascript
+    sendNotification(notification);
+    ```
+
+    Notification is never sent due to `async` function `sendNotification` being
+    called without `await`.
+*/
+
+/// For messages specified in messageIds, translate all of them to the desired
+/// language (if different), using cache if exists and unexpired. Translation
+/// cache expiration is not automatically renewed.
+async
+translateMessages ( messageIds, targetLanguage );
+/*
+    [Flag code for revision]
+
+    Just because it has to do with translation doesn't mean the one-use helper
+    function `getCachedTranslationForMessage` should be in `domain/translate`
+    or should exist at all.
+
+    [Optimization: line 219 to 221]
+
+    So, you have just looked up the cached translation which is a property
+    within the `message` itself, in the right place; it doesn't need to be
+    re-updated. These three lines can go.
+*/
+
+/// Given the user and the conversation, return the default language with which
+/// to render the conversation. If there is none, the query is still deemed
+/// successful and `null` is returned.
+async
+getDefaultTargetLanguage ( conversation, fromUserId );
+/*
+    [Flag code for revision: `const targetLanguages =...`]
+
+    This is like, equivalent to being nondeterministic in in terms of
+    comparison within `languageId`s. The `languageLevelId`s are also assumed to
+    be ordered.
+
+    The goal seems to be to select the language that the current user is
+    interested in and in which another user has more fluency than any other
+    pairs of non-self user and language.
+
+    Maybe consider having a user preference for the default language?
+*/
+
+
+[domain/language]
+
+/// Override all existing entries of the user's in-system languages with the
+/// newly supplied ones.
+async
+setLanguages ( userId, userLanguages );
+/*
+    [Flag code for revision: this function]
+
+    Two SQL queries not transactionalized.
+*/
+
+
+[domain/location]
+
+/// Simply sets the user's location within the database.
+async
+setLocation ( userId, lat, lon );
+/*
+    [Flag code for revision: this function]
+
+    Why does this particular function check for the existence of the supplied
+    user ID?
+*/
+
+
+[domain/notification]
+
+/// Given designated recipients, notification type (string), and notification
+/// content (json), send notification using SocketIO to all recipients who are
+/// "online" (connected through SocketIO), and using APN to all whose
+/// "offline".
+async
+sendNotification ( notification )
+/*
+    [Flag code for review]
+
+    Yes, this is business logic; but it is *not* an API endpoint.
+
+    [Flag code for review]
+
+    Helper function `getSocketConnectionsForRoom` should be eliminated, as it
+    is a one-liner aliasing `io.in(roomId).fetchSockets()`.
+
+    [Bug]
+
+    `io.to(room).emit(...)` cannot be decomposed into separate calls of `io.to`
+    and `io.emit`. Check the types: the `Promise.all` returns an array
+    corresponding to recipients, and for every recipient connected via
+    SocketIO, the type is `socketio.BroadcastOperator<_, _>`.
+
+    [Potential bug]
+
+    Return type inconsistencies in helper `sendPushNotificationToUser`.
+
+    [Potential bug]
+
+    Multi-server scenario using SocketIO rooms. See
+    https://socket.io/docs/v4/rooms/
+    and
+    https://socket.io/docs/v4/using-multiple-nodes/
+*/
+
+
+[domain/preferences]
+
+/// Get the preferences of a specific user given a single user ID; return a
+/// non-OK value when the user is not found.
+async
+getPreferences ( userId );
+
+
+[domain/profile]
+
+/// Upsert new user profile by user ID; query result is supposed to have a
+/// `profile` entry which is updated with the result itself and then removed of
+/// mongoDB `_id` and then returned.
+async
+setProfile ( userId, profile );
+/*
+    [Potential bug]
+
+    `ProfileSchema.static.upsert` returns a `{ ok: bool }` and nothing else; it
+    is unlikely that a `profile` field or any original query result will make
+    it here -- unless the `mongoose` package itself is implemented in some
+    very insensible manner. I'm pretty certain we can flag a bug; it's just
+    that I'm not yet fluent at typescript. Maybe I should check its JS files
+    instead.
+*/
+
+/// Get prompt texts; returns { ok: bool, prompts: {text: string}[] };
+/// somehow assuming this is not fallible.
+async
+getPrompts ();
+
+/// Add prompt response as user, given user ID, response, and one of prompt ID
+/// or text. Returns { ok: bool }
+async
+addPromptResponse ( userId, promptId?, prompt, response );
+
+/// Remove prompt response by user ID and prompt ID. Returns nothing useful.
+async
+removePromptResponse ( userId, promptId );
+
+/// Add interests by user ID. Returns nothing useful. Are interests strings?
+async
+addInterests ( userId, interests );
+
+/// Remove interests by user ID. Returns nothing useful.
+async
+removeInterests ( userId, interests );
+
+/// For a premium-enabled user's ID, get "follower" list based on the given
+/// filters; this uses the Postgres `<@>` point-based earth distance operator,
+/// so can be considered correct I guess. Then the "follower" user list is
+/// borrowed for querying their profiles from Mongo, and the result is merged
+/// into the user list and then returned.
+async
+findProfiles ( userId, minAge, maxAge, maxResults = 10, maxDistance );
+
+/*
+    [Bug]
+
+    The return type from `ProfileSchema.static.getByIds` is garbage, and so is
+    the if-condition in this function trying to case on its failure.
+*/
+
+/// Given the user ID and image, tagged with the file extension, if the user
+/// has not used up their maxProfileImages limit, the image will be compressed
+/// with JPEG (currently at quality 70) and uploaded using whatever file
+/// extension it came with, potentially causing a front-end error later when
+/// a JPEG image gets loaded with a non-JPEG file extension; if the user has
+/// already used up their limit, then they will receive an error instead.
+async
+addImageToProfile ( userId, fileBuffer, fileMeta );
+/*
+    [Potential bug] The potential outcome of image having been uploaded to S3
+    but metadata failing to be registered in the DB. Can we just store the
+    image also in the DB?
+
+    [Note] Generally, the non-transactionalized state of data actions is
+    concerning. There is a runTransactionalizedQuery helper but it doesn't seem
+    like anyone is using it.
+*/
+
+/// Tries to delete image by user ID and ordinal (an image metadata field set
+/// by the front-end.
+async
+deleteImage ( userId, ordinal);
+
+/// Looks like many images can use the same ordinal, but given user ID and
+/// ordinal, this function returns up to 1 image. WTF? The sorting is useless,
+/// because all images in the array have the same ordinal; it's
+/// non-deterministic then. Why use an array while the max returned number of
+/// images is not a config value? Why err on all images when at least one
+/// failed to be returned by S3?
+async
+getImagesByUserId ( userId, ordinal );
+
+/// Update recorded ordinals for specified user ID and image IDs. It will look
+/// like it's updating all image metadata from here, but it's not.
+async
+updateImageMetaData ( userId, imageMetaData );
+
+
+[domain/relationship]
+
+/// Given a pair of users (action initiator specified), check the agent user's
+/// subscription level for swipe limit as well as the end and remaining swipes
+/// for their current swipe time window. New time windows don't immediately
+/// start after the end of old ones; instead, they start with the first swipe
+/// after the previous window. This can lead to confusing behavior. It is also
+/// noted that number of swipes is tracked by swipes remaining instead of
+/// swipes performed; suppose a future subscription tier has a finite swipe
+/// limit that is larger than that of free tier, upgrading will result in
+/// swipes not replenishing within that day. Other problems include aggregate
+/// relationship type computation being very asymmetric.
+async
+createRelationship ( agentUserId, relationshipTypeName, patientUserId );
+
+/// Simple wrapper around a Postgres query to get all aggregate relationships
+/// where one user is the specified user and the type is the designated type.
+/// The design is weird because the aggregate relationship table doesn't have a
+/// guarantee that entries are stored symmetrically... then why have it? Both
+/// the aggregate relationship table and the plain directional relationship
+/// table are sparse, anyway.
+async
+getRelationshipsByType ( userId, relationshipType );
+
+
+[domain/sexuality]
+/*
+    Note: the word "sexuality" here is both used to describe the general idea
+    of a person's entire experience of gender and attraction, and used to
+    specifically mean sexual/romantic orientation. It's kind of confusing.
+
+    General comment: these functions are pretty self-explanatory; on an
+    implementation level, it's worth noting that (1) somehow a user can have
+    multiple sexualities but only one gender identity, and (2) sexualities and
+    genders-of-interest are deleted from DB first before being reinserted.
+
+    (The over-simplicity and lack of thoughtfulness of this section relative
+    to others is exactly what I don't like about it.)
+*/
+
+async
+setGenderIdentity ( userId, genderIdentityId );
+
+async
+setSexualities ( userId, sexualityIds );
+
+async
+setGenderInterested ( userId, genderIdentityIds );
+
+
+[domain/translate]
+/*
+    Remark: this file seems to be filled with helper functions and strive to
+    look like they're all non-async, but `translateMessage` wraps
+    `translator.translate` which is async, meaning that it returns a promise
+    despite not being marked so.
+
+    Remark: the purpose of this file is generally confusing. Let's not take its
+    paradigm super seriously.
+
+    Remark: this file being in domain/ really adds a noise point to the
+    dependency patterns in this repo.
+*/
+
+async
+translateMessage ( message, targetLanguage );
+
+/// This is the only confusing function here. What it does: in the old MongoDB
+/// there is a list of translation entries attached to each message, and this
+/// function is a helper that creates a translation entry, but it gets the
+/// translation text and language from its inputs and simply supplies the date.
+/// This function isn't used outside this module and doesn't really need to be
+/// exported.
+configureTranslationForMessage ( translationText, translationLanguage );
+
+joinTranslationToMessage ( message, translation );
+
+/// To differentiate `addTranslationToMessage` from `joinTranslationToMessage`,
+/// `join` is used to obtain a new message entry given the old one plus a
+/// complete translation entry generated by `configure` (from above), whereas
+/// `add` is basically the composition of the two, with the addition of
+/// committing change to MongoDB.
+addTranslationToMessage ( message, translationText, translationLanguage );
+
+/// Contrary to what it looks like, this function doesn't access the DBs
+/// because a message is already a rich object containing cached translations.
+getCachedTranslationForMessage ( message, targetLanguage );
+
+
+[domain/users]
+/*
+    This file has everything about the user that other files have not handled.
+    This means it's mostly authentication but also tracks subscription and sets
+    user ethnicity, birth date, and karma (inter-user rating).
+*/
+
+/// The argument `userDetails` is a very large structure with everything
+/// necessary to create a Postgres users entry, a Mongo User (auth) entry, and
+/// a Mongo Profile entry. In that order. Strangely, there is code handling
+/// Postgres users entry orphaned by Mongo auth entry failure, but no handling
+/// of orphaning of the former two by failure to create a Profile entry. Oh and
+/// maybe not so obviously, it also sends an SMS verification code, but that
+/// comes at the end. The one-time code is generated with the auth entry tho,
+/// so there's no additional call to Mongo; it is however possible that failure
+/// to create Profile entry causes the user to never be able to verify their
+/// mobile number.
+async
+createUser ( userDetails );
+
+/// This function is only more complicated than it seems because there are two
+/// DBs and because the postgres query is done twice in order to get the
+/// locations of the other user and thus get the distance between them. It is
+/// also the only place where Erik's hand-coded earth distance function is
+/// used.
+async
+getUser ( userId, requestingUserId );
+
+/// Not as what the name might suggest; the user statuses are 'active',
+/// 'paused', and 'deleted'. This is in no way explicitly performed by the user
+/// independent of say closing the app or deleting their account. But that
+/// aside, this function does exactly what it says it does.
+async
+setStatus ( userId, statusId );
+
+/// This function doesn't check the user's email and password because those
+/// have been handled in the controllers/ layer. I don't entirely get the
+/// separation between the domain and the controller.
+async
+verifyMobile ( userId, code );
+
+/// Exactly what it says it does.
+async
+setSubscription ( userId, subscriptionTierId );
+
+/// Exactly what it says it does. Note: it seems that each user can only
+/// identify with a single ethnicity. Is this overly limiting?
+async
+setEthnicity ( userId, ethnicityId );
+/*
+    Answering the above question: yes, it is extremely limiting. There are in
+    total only 6 selectable ethnicities in the current Postgres DB. Inspect via
+    DBeaver.
+*/
+
+/// Exactly what it says it does.
+async
+setDob ( userId, dob );
+
+/// Almost exactly what it says it does; also updates an overall karma score
+/// to always equal the average of all individual ratings for that user.
+async
+setKarmaResponses ( userId, ratingUserId, karmaResponse );
+/*
+    Remark: transactionalized queries is used here, *once*, in probably the
+    place among all places least requiring a transactionalized query.
+
+    Remark: the current karma scheme is very mechanical and unforgiving. It's
+    just an average of all responses. I haven't checked how it handles new
+    users yet. It seems that new users can be easily trolled by someone
+    intentionally giving a low score.
+*/

@@ -1,6 +1,5 @@
 module.exports = {
   env: {
-    browser: true,
     es2021: true,
     node: true,
   },
@@ -25,5 +24,14 @@ module.exports = {
       'caughtErrorsIgnorePattern': '^\_',
       'destructuredArrayIgnorePattern': '^\_',
     } ],
+    'no-restricted-exports': [ 'error', {
+      restrictDefaultExports: {
+        direct: true,
+        named: true,
+        defaultFrom: true,
+        namedFrom: true,
+        namespaceFrom: true,
+      },
+    } ]
   },
 }

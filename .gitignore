@@ -38,7 +38,9 @@ jspm_packages/
 
 # Build
 build/
-deployable/
+
+# Dist -- this is idiomatic; just in case
+dist/
 
 # Secret keys
 keys/
@@ -71,6 +73,5 @@ typings/
 .vscode
 .DS_Store
 
-# TS/ESLint avoid rebuild/re-lint when tracked files have not changed
-# See also package.json, automations/*
-.file_hash
+# In order to simplify commands and automations/ scripts,
+/.git/

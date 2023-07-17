@@ -7,6 +7,8 @@ Old API server code: https://github.com/TindooriLabs/tindoori-api.git
 
 /// Get page of conversation given ID, page length, page number; return the
 /// convo rendered in the from-user's (default/chosen?) language
+/// Currently using: chats, userinfo
+/// Should be using: chats
 async
 getConversation (
     fromUserId, conversationId,
@@ -16,6 +18,7 @@ getConversation (
 
 /// Get all conversations belonging to a user, substituting participant
 /// user-IDs with their ~~names~~ { id, name } entries.
+/// Using: chats
 async
 getUserConversations ( userId );
 /*
@@ -26,6 +29,7 @@ getUserConversations ( userId );
 /// Send a message (tagged with a language), as a specified sender to a list of
 /// specified receivers, while attempting to do so within an existing
 /// conversation.
+/// Using: chats, notifications (userinfo)
 async
 sendMessage (
     fromUserId, toUserIds,
@@ -81,6 +85,7 @@ sendMessage (
 /// For messages specified in messageIds, translate all of them to the desired
 /// language (if different), using cache if exists and unexpired. Translation
 /// cache expiration is not automatically renewed.
+/// Using: chats, translation
 async
 translateMessages ( messageIds, targetLanguage );
 /*
@@ -100,6 +105,8 @@ translateMessages ( messageIds, targetLanguage );
 /// Given the user and the conversation, return the default language with which
 /// to render the conversation. If there is none, the query is still deemed
 /// successful and `null` is returned.
+/// Currently using: chats, userinfo
+/// Shouldn't exist.
 async
 getDefaultTargetLanguage ( conversation, fromUserId );
 /*
@@ -121,6 +128,7 @@ getDefaultTargetLanguage ( conversation, fromUserId );
 
 /// Override all existing entries of the user's in-system languages with the
 /// newly supplied ones.
+/// Using: userinfo
 async
 setLanguages ( userId, userLanguages );
 /*
@@ -134,6 +142,7 @@ setLanguages ( userId, userLanguages );
 
 /// Simply sets the user's location within the database.
 async
+/// Using: userinfo
 setLocation ( userId, lat, lon );
 /*
     [Flag code for revision: this function]
@@ -149,6 +158,7 @@ setLocation ( userId, lat, lon );
 /// content (json), send notification using SocketIO to all recipients who are
 /// "online" (connected through SocketIO), and using APN to all whose
 /// "offline".
+/// Using: notification (userinfo)
 async
 sendNotification ( notification )
 /*
@@ -185,6 +195,7 @@ sendNotification ( notification )
 
 /// Get the preferences of a specific user given a single user ID; return a
 /// non-OK value when the user is not found.
+/// Using: userinfo
 async
 getPreferences ( userId );
 
@@ -194,6 +205,7 @@ getPreferences ( userId );
 /// Upsert new user profile by user ID; query result is supposed to have a
 /// `profile` entry which is updated with the result itself and then removed of
 /// mongoDB `_id` and then returned.
+/// Using: userinfo
 async
 setProfile ( userId, profile );
 /*
@@ -209,23 +221,28 @@ setProfile ( userId, profile );
 
 /// Get prompt texts; returns { ok: bool, prompts: {text: string}[] };
 /// somehow assuming this is not fallible.
+/// Using: static
 async
 getPrompts ();
 
 /// Add prompt response as user, given user ID, response, and one of prompt ID
 /// or text. Returns { ok: bool }
+/// Using: userinfo, static
 async
 addPromptResponse ( userId, promptId?, prompt, response );
 
 /// Remove prompt response by user ID and prompt ID. Returns nothing useful.
+/// Using: userinfo
 async
 removePromptResponse ( userId, promptId );
 
 /// Add interests by user ID. Returns nothing useful. Are interests strings?
+/// Using: userinfo
 async
 addInterests ( userId, interests );
 
 /// Remove interests by user ID. Returns nothing useful.
+/// Using: userinfo
 async
 removeInterests ( userId, interests );
 
@@ -234,6 +251,7 @@ removeInterests ( userId, interests );
 /// so can be considered correct I guess. Then the "follower" user list is
 /// borrowed for querying their profiles from Mongo, and the result is merged
 /// into the user list and then returned.
+/// Using: userinfo, matching
 async
 findProfiles ( userId, minAge, maxAge, maxResults = 10, maxDistance );
 /*
@@ -249,6 +267,7 @@ findProfiles ( userId, minAge, maxAge, maxResults = 10, maxDistance );
 /// extension it came with, potentially causing a front-end error later when
 /// a JPEG image gets loaded with a non-JPEG file extension; if the user has
 /// already used up their limit, then they will receive an error instead.
+/// Using: userinfo
 async
 addImageToProfile ( userId, fileBuffer, fileMeta );
 /*
@@ -263,6 +282,7 @@ addImageToProfile ( userId, fileBuffer, fileMeta );
 
 /// Tries to delete image by user ID and ordinal (an image metadata field set
 /// by the front-end.
+/// Using: userinfo
 async
 deleteImage ( userId, ordinal);
 
@@ -272,11 +292,13 @@ deleteImage ( userId, ordinal);
 /// non-deterministic then. Why use an array while the max returned number of
 /// images is not a config value? Why err on all images when at least one
 /// failed to be returned by S3?
+/// Using: userinfo
 async
 getImagesByUserId ( userId, ordinal );
 
 /// Update recorded ordinals for specified user ID and image IDs. It will look
 /// like it's updating all image metadata from here, but it's not.
+/// Using: userinfo
 async
 updateImageMetaData ( userId, imageMetaData );
 
@@ -293,6 +315,7 @@ updateImageMetaData ( userId, imageMetaData );
 /// limit that is larger than that of free tier, upgrading will result in
 /// swipes not replenishing within that day. Other problems include aggregate
 /// relationship type computation being very asymmetric.
+/// Using: userinfo, match
 async
 createRelationship ( agentUserId, relationshipTypeName, patientUserId );
 
@@ -302,6 +325,7 @@ createRelationship ( agentUserId, relationshipTypeName, patientUserId );
 /// guarantee that entries are stored symmetrically... then why have it? Both
 /// the aggregate relationship table and the plain directional relationship
 /// table are sparse, anyway.
+/// Using: match
 async
 getRelationshipsByType ( userId, relationshipType );
 
@@ -321,12 +345,15 @@ getRelationshipsByType ( userId, relationshipType );
     to others is exactly what I don't like about it.)
 */
 
+/// Using: userinfo
 async
 setGenderIdentity ( userId, genderIdentityId );
 
+/// Using: userinfo
 async
 setSexualities ( userId, sexualityIds );
 
+/// Using: userinfo
 async
 setGenderInterested ( userId, genderIdentityIds );
 
@@ -345,6 +372,8 @@ setGenderInterested ( userId, genderIdentityIds );
     dependency patterns in this repo.
 */
 
+/// Currently using: translate
+/// Should not exist on this level
 async
 translateMessage ( message, targetLanguage );
 
@@ -354,8 +383,12 @@ translateMessage ( message, targetLanguage );
 /// translation text and language from its inputs and simply supplies the date.
 /// This function isn't used outside this module and doesn't really need to be
 /// exported.
+/// Currently using: (none)
+/// Should not exist on this level
 configureTranslationForMessage ( translationText, translationLanguage );
 
+/// Currently using: (none)
+/// Should not exist on this level
 joinTranslationToMessage ( message, translation );
 
 /// To differentiate `addTranslationToMessage` from `joinTranslationToMessage`,
@@ -363,10 +396,14 @@ joinTranslationToMessage ( message, translation );
 /// complete translation entry generated by `configure` (from above), whereas
 /// `add` is basically the composition of the two, with the addition of
 /// committing change to MongoDB.
+/// Currently using: chats
+/// Should (probably) not exist on this level
 addTranslationToMessage ( message, translationText, translationLanguage );
 
 /// Contrary to what it looks like, this function doesn't access the DBs
 /// because a message is already a rich object containing cached translations.
+/// Currently using: (none)
+/// Should (probably) not exist on this level
 getCachedTranslationForMessage ( message, targetLanguage );
 
 
@@ -387,6 +424,7 @@ getCachedTranslationForMessage ( message, targetLanguage );
 /// so there's no additional call to Mongo; it is however possible that failure
 /// to create Profile entry causes the user to never be able to verify their
 /// mobile number.
+/// Using: userinfo, sms
 async
 createUser ( userDetails );
 
@@ -395,6 +433,7 @@ createUser ( userDetails );
 /// locations of the other user and thus get the distance between them. It is
 /// also the only place where Erik's hand-coded earth distance function is
 /// used.
+/// Using: userinfo
 async
 getUser ( userId, requestingUserId );
 
@@ -402,21 +441,25 @@ getUser ( userId, requestingUserId );
 /// 'paused', and 'deleted'. This is in no way explicitly performed by the user
 /// independent of say closing the app or deleting their account. But that
 /// aside, this function does exactly what it says it does.
+/// Using: userinfo
 async
 setStatus ( userId, statusId );
 
 /// This function doesn't check the user's email and password because those
 /// have been handled in the controllers/ layer. I don't entirely get the
 /// separation between the domain and the controller.
+/// Using: userinfo
 async
 verifyMobile ( userId, code );
 
 /// Exactly what it says it does.
+/// Using: userinfo
 async
 setSubscription ( userId, subscriptionTierId );
 
 /// Exactly what it says it does. Note: it seems that each user can only
 /// identify with a single ethnicity. Is this overly limiting?
+/// Using: userinfo
 async
 setEthnicity ( userId, ethnicityId );
 /*
@@ -426,11 +469,13 @@ setEthnicity ( userId, ethnicityId );
 */
 
 /// Exactly what it says it does.
+/// Using: userinfo
 async
 setDob ( userId, dob );
 
 /// Almost exactly what it says it does; also updates an overall karma score
 /// to always equal the average of all individual ratings for that user.
+/// Using: matching (?)
 async
 setKarmaResponses ( userId, ratingUserId, karmaResponse );
 /*

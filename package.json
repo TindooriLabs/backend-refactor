@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc -b && eslint --cache server/ --ext .ts",
     "start": "npm run build; node build/server/index.js",
+    "dev": "npx tsc -w & nodemon build/server/index.js",
     "test": "echo 'Unspecified: test' && exit 1"
   },
   "repository": {
@@ -33,6 +34,7 @@
     "eslint-plugin-n": "^15.7.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "nodemon": "^3.0.1",
     "typescript": "^5.1.6"
   }
 }

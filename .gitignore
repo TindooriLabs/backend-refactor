@@ -39,9 +39,6 @@ jspm_packages/
 # Build
 build/
 
-# Dist -- this is idiomatic; just in case
-dist/
-
 # Secret keys
 keys/
 
@@ -65,6 +62,8 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.*
+!.env.template
 
 # next.js build output
 .next
@@ -72,6 +71,11 @@ typings/
 # Config files from local OS and IDEs
 .vscode
 .DS_Store
+*.sublime-project
+*.sublime-workspace
+.vimrc
+Session*.vim
 
-# In order to simplify commands and automations/ scripts,
-/.git/
+# Being able to manually ignore things is nice
+*.ignore
+*.ignore.*

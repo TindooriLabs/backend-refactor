@@ -4,7 +4,8 @@
 // import profileQueries from "./queries/profile";
 // import relationshipQueries from "./queries/relationship";
 // import sexualityQueries from "./queries/sexuality";
-import usersQueries from "./queries/users.js";
+// import usersQueries from "./queries/users.js";
+
 
 const queries = {
   // ...languageQueries,
@@ -13,7 +14,7 @@ const queries = {
   // ...profileQueries,
   // ...relationshipQueries,
   // ...sexualityQueries,
-  ...usersQueries
+  // ...usersQueries
 };
 
 export default queries;

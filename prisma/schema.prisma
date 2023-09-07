@@ -1,0 +1,301 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// MARK: Account
+
+model Account {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id])
+
+  email        String @unique
+  mobile       String @unique
+  passwordHash String
+}
+
+// MARK: Metadata per user
+
+enum AccountStatus {
+  ACTIVE
+  PAUSED
+  DELETED
+}
+
+enum DeviceKind {
+  IOS
+  ANDROID
+}
+
+model DeviceRecord {
+  id            String       @id
+  userId        String
+  metadataEntry UserMetadata @relation(fields: [userId], references: [userId])
+
+  // Identifier for iOS: APN device ID, for Android: FCM token
+  kind       DeviceKind
+  identifier String
+}
+
+model UserMetadata {
+  userId String @id
+  user   User   @relation(fields: [userId], references: [id])
+
+  creationTime  DateTime       @default(now()) @db.Timestamptz(0) // NOTE: means being precise to 10^0 seconds
+  accountStatus AccountStatus  @default(ACTIVE)
+  lastLogin     DateTime       @default(now()) @db.Timestamptz(0)
+  devices       DeviceRecord[]
+}
+
+// MARK: Profile
+
+enum Ethnicity {
+  ASIAN
+  AFRICAN_AMERICAN
+  ALASKA_NATIVE
+  PACIFIC_ISLANDER
+  WHITE
+  LATIN_AMERICAN
+}
+
+enum GenderIdentity {
+  MAN
+  WOMAN
+  NONBINARY
+}
+
+enum LanguageProficiencyLevel {
+  BEGINNER
+  INTERMEDIATE
+  FLUENT
+}
+
+enum Sexuality {
+  STRAIGHT
+  GAY
+  LESBIAN
+  BISEXUAL
+  PANSEXUAL
+  PREFER_NOT_TO_SAY
+}
+
+model Profile {
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  firstName String
+  lastName  String?
+  // "display name" is called "first name" or just "name" in code, but it's
+  // impossible as of now to keep people from using nicknames etc.
+z
+  birthDate         DateTime?        @db.Date
+  genderIdentity    GenderIdentity?
+  sexuality         Sexuality[]
+  gendersOfInterest GenderIdentity[]
+  ethnicity         Ethnicity?
+  longitude         Float? // TODO figure out Prisma complex queries
+  latitude          Float?
+  hometown          String?
+
+  bio             String             @default("")
+  interests       String[]
+  promptResponses PromptResponse[]
+  imageUploads    ImageUpload[]
+  languages       LanguageAndLevel[]
+}
+
+model PromptResponse {
+  userId     String
+  questionId Int
+  profile    Profile        @relation(fields: [userId], references: [userId])
+  question   PromptQuestion @relation(fields: [questionId], references: [id])
+
+  response String
+
+  @@id([userId, questionId])
+}
+
+model PromptQuestion {
+  id        Int              @id @default(autoincrement())
+  text      String
+  responses PromptResponse[]
+}
+
+model ImageUpload {
+  id                   String  @id
+  userId               String
+  profile              Profile @relation(fields: [userId], references: [userId])
+  ordinal              Int
+  s3Path               String
+  nameWithoutExtension String
+  extension            String
+
+  @@unique([userId, ordinal])
+}
+
+model LanguageAndLevel {
+  userId  String
+  profile Profile @relation(fields: [userId], references: [userId])
+  // QUESTION where does the current backend get its list of supported langs?
+  // ANSWER it doesn't
+
+  languageName  String // determined by ios app
+  languageLevel LanguageProficiencyLevel
+  isLearning    Boolean
+
+  @@id([userId, languageName])
+}
+
+// MARK: Matching-related
+
+enum UserImpressionKind {
+  // Implicit NULL
+  LIKE
+  SKIP
+  UNMATCH
+}
+
+model UserImpressionBallot {
+  fromUserId String
+  toUserId   String
+  fromUser   User               @relation(name: "ImpressionOnVoter", fields: [fromUserId], references: [id])
+  toUser     User               @relation(name: "ImpressionOnSubject", fields: [toUserId], references: [id])
+  impression UserImpressionKind
+
+  @@id([fromUserId, toUserId])
+}
+
+// MARK: Messaging-related
+
+model Chat {
+  id           String    @id
+  participants User[]
+  messages     Message[]
+}
+
+model Message {
+  id                   String   @id
+  chatId               String
+  chat                 Chat     @relation(fields: [chatId], references: [id])
+  senderId             String
+  sender               User     @relation(fields: [senderId], references: [id])
+  text                 String
+  sendTime             DateTime @db.Timestamptz(3)
+  originalLanguageName String
+}
+
+// MARK: Translation-related
+
+model CachedTranslation {
+  fromLanguageName String
+  toLanguageName   String
+  sourceText       String
+
+  targetText     String
+  lastUpdated    DateTime @default(now()) @db.Timestamptz(0)
+  translatorName String
+
+  @@id([fromLanguageName, toLanguageName])
+}
+
+// MARK: Karma-related
+
+model KarmaBallot {
+  fromUserId    String
+  toUserId      String
+  questionIndex Int
+  fromUser      User   @relation(name: "KarmaOnVoter", fields: [fromUserId], references: [id])
+  toUser        User   @relation(name: "KarmaOnSubject", fields: [toUserId], references: [id])
+  // questionIndex  is currently supplied directly by frontend, but it ought to
+  // have corresponding entries in the database. (this is why its name doesn't
+  // have id as suffix)
+
+  score Int
+
+  @@id([fromUserId, toUserId, questionIndex])
+}
+
+model KarmaScore {
+  userId        String
+  user          User   @relation(fields: [userId], references: [id])
+  questionIndex Int
+  // questionIndex  is currently supplied directly by frontend, but it ought to
+  // have corresponding entries in the database. (this is why its name doesn't
+  // have id as suffix)
+
+  // WHY: avg = sum / count; a new rating adds score to sum and 1 to count;
+  // this avoids recomputing filters and summations
+  sum   BigInt @db.BigInt
+  count BigInt @db.BigInt
+
+  // WHY per question: it is easy to go with either option among (1) averaging
+  // directly and (2) averaging between question averages.
+
+  @@id([userId, questionIndex])
+}
+
+// MARK: Registration-related
+
+model RegistrationAttempt {
+  id Int @id @default(autoincrement()) // NOTE: placeholder to pass `prisma validate`
+
+  email        String
+  mobile       String @unique
+  passwordHash String
+
+  firstName        String
+  birthDate        DateTime   @db.Date
+  deviceKind       DeviceKind
+  deviceIdentifier String
+
+  verificationCodeHash String
+  attemptMadeAt        DateTime @db.Timestamptz(3)
+  // WHY: a verification code is "locked" for a duration (i.e. no new requests
+  // from the same mobile number) and "valid" for a different duration, but
+  // those could all be computed from configured durations and a start time.
+}
+
+// MARK: Premium and subscription
+// WHY: made this model ahead of when it's absolutely necessary; but in the
+// future, we should not allow an API client to arbitrarily set its
+// subscription status. Then we'll need some kind of "proof of purchase" to
+// save with the subscription status.
+
+// You might want more variants in the future; this datatype is thus declared
+// ahead of necessity so that future variants can be simply added.
+enum SubscriptionKind {
+  FREE
+  PREMIUM
+}
+
+model SubscriptionEntry {
+  userId           String
+  user             User             @relation(fields: [userId], references: [id])
+  subscriptionKind SubscriptionKind
+
+  @@id([userId, subscriptionKind])
+}
+
+// MARK: `model User`
+
+model User {
+  id                  String                 @id
+  account             Account?
+  metadata            UserMetadata?
+  profile             Profile?
+  impressionsGiven    UserImpressionBallot[] @relation(name: "ImpressionOnVoter")
+  impressionsReceived UserImpressionBallot[] @relation(name: "ImpressionOnSubject")
+  chats               Chat[]
+  sentMessages        Message[]
+  karmasGiven         KarmaBallot[]          @relation(name: "KarmaOnVoter")
+  karmasReceived      KarmaBallot[]          @relation(name: "KarmaOnSubject")
+  karmaAvgPerQuestion KarmaScore[]
+  subscriptions       SubscriptionEntry[]
+}

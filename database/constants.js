@@ -41,6 +41,7 @@ export const statusIds = {
     FLUENT: 3
   }
   export const subscriptionTierIds = {
-    PREMIUM: 1
+    FREE:1,
+    PREMIUM: 2
   }
   

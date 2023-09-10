@@ -94,7 +94,6 @@ model Profile {
   lastName  String?
   // "display name" is called "first name" or just "name" in code, but it's
   // impossible as of now to keep people from using nicknames etc.
-z
   birthDate         DateTime?        @db.Date
   genderIdentity    GenderIdentity?
   sexuality         Sexuality[]

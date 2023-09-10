@@ -279,3 +279,46 @@ ALTER TABLE "_ChatToUser" ADD CONSTRAINT "_ChatToUser_A_fkey" FOREIGN KEY ("A") 
 
 -- AddForeignKey
 ALTER TABLE "_ChatToUser" ADD CONSTRAINT "_ChatToUser_B_fkey" FOREIGN KEY ("B") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+--Karma Score Computation Procedure
+CREATE OR REPLACE FUNCTION compute_karma_score() 
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    INSERT INTO "KarmaScore"
+    VALUES (NEW."toUserId", NEW."questionIndex", NEW.score, 1)
+    ON CONFLICT ("userId", "questionIndex") DO
+    UPDATE SET sum = "KarmaScore".sum + NEW.score, 
+    count = "KarmaScore".count + 1;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE PLPGSQL;
+
+--Karma Score Update Procedure
+CREATE OR REPLACE FUNCTION update_karma_score() 
+    RETURNS TRIGGER
+AS $$
+BEGIN
+    UPDATE "KarmaScore"
+    SET sum = sum + (NEW.score - OLD.score)
+    WHERE "userId" = NEW."toUserId" AND "questionIndex" = NEW."questionIndex";
+
+    RETURN NEW;
+END;
+$$ LANGUAGE PLPGSQL;
+
+-- Karma Score Trigger
+CREATE TRIGGER karma_score_insert
+AFTER INSERT
+ON "KarmaBallot" 
+FOR EACH ROW 
+EXECUTE PROCEDURE compute_karma_score();
+
+-- Karma Score Trigger
+CREATE TRIGGER karma_score_update
+AFTER UPDATE
+ON "KarmaBallot" 
+FOR EACH ROW 
+EXECUTE PROCEDURE update_karma_score();
+

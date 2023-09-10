@@ -35,7 +35,7 @@ export const statusIds = {
     PANSEXUAL: 5,
     PREFER_NOT_TO_SAY: 6
   }
-  export const langugaeLevelIds = {
+  export const languageLevelIds = {
     BEGINNER: 1,
     INTERMEDIATE: 2,
     FLUENT: 3

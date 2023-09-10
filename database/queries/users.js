@@ -170,7 +170,7 @@ export const updateLocation = async (userId, lat, lon) => {
         return {
           ok: false,
           reason: "not-found",
-          message: "Could not find the user location in the SQL database.",
+          message: "Could not find the user in the SQL database.",
         };
       }
     }
@@ -193,7 +193,7 @@ export const updateEthnicity = async (userId, ethnicity) => {
         return {
           ok: false,
           reason: "not-found",
-          message: "Could not find the user location in the SQL database.",
+          message: "Could not find the user in the SQL database.",
         };
       }
     }
@@ -216,7 +216,7 @@ export const updateDob = async (userId, dob) => {
         return {
           ok: false,
           reason: "not-found",
-          message: "Could not find the user location in the SQL database.",
+          message: "Could not find the user in the SQL database.",
         };
       }
     }

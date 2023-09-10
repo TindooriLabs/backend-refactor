@@ -11,6 +11,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser())
 
-app.use('/users', userRouter);
+app.use('/user', userRouter);
 
 export default app;

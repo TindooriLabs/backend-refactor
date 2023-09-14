@@ -90,8 +90,8 @@ model Profile {
   userId String @unique
   user   User   @relation(fields: [userId], references: [id])
 
-  firstName String
-  lastName  String?
+  firstName         String
+  lastName          String?
   // "display name" is called "first name" or just "name" in code, but it's
   // impossible as of now to keep people from using nicknames etc.
   birthDate         DateTime?        @db.Date
@@ -128,13 +128,14 @@ model PromptQuestion {
 }
 
 model ImageUpload {
-  id                   String  @id
+  id                   String   @id
   userId               String
-  profile              Profile @relation(fields: [userId], references: [userId])
+  profile              Profile  @relation(fields: [userId], references: [userId])
   ordinal              Int
   s3Path               String
   nameWithoutExtension String
   extension            String
+  uploaded             DateTime @db.Timestamptz(3)
 
   @@unique([userId, ordinal])
 }
@@ -161,6 +162,14 @@ enum UserImpressionKind {
   UNMATCH
 }
 
+enum UserImpressionAggregateKind {
+  // Implicit NULL
+  INCOMPLETE
+  MATCH
+  NONMATCH
+  UNMATCH
+}
+
 model UserImpressionBallot {
   fromUserId String
   toUserId   String
@@ -169,6 +178,16 @@ model UserImpressionBallot {
   impression UserImpressionKind
 
   @@id([fromUserId, toUserId])
+}
+
+model UserImpressionArchive {
+  id         Int                @id @default(autoincrement())
+  fromUserId String
+  toUserId   String
+  fromUser   User               @relation(name: "ImpressionOnVoterArchive", fields: [fromUserId], references: [id])
+  toUser     User               @relation(name: "ImpressionOnSubjectArchive", fields: [toUserId], references: [id])
+  impression UserImpressionKind
+  updated    DateTime           @default(now()) @db.Timestamptz(0)
 }
 
 // MARK: Messaging-related
@@ -188,6 +207,7 @@ model Message {
   text                 String
   sendTime             DateTime @db.Timestamptz(3)
   originalLanguageName String
+  ordinal              Int
 }
 
 // MARK: Translation-related
@@ -285,16 +305,18 @@ model SubscriptionEntry {
 // MARK: `model User`
 
 model User {
-  id                  String                 @id
-  account             Account?
-  metadata            UserMetadata?
-  profile             Profile?
-  impressionsGiven    UserImpressionBallot[] @relation(name: "ImpressionOnVoter")
-  impressionsReceived UserImpressionBallot[] @relation(name: "ImpressionOnSubject")
-  chats               Chat[]
-  sentMessages        Message[]
-  karmasGiven         KarmaBallot[]          @relation(name: "KarmaOnVoter")
-  karmasReceived      KarmaBallot[]          @relation(name: "KarmaOnSubject")
-  karmaAvgPerQuestion KarmaScore[]
-  subscriptions       SubscriptionEntry[]
+  id                         String                  @id
+  account                    Account?
+  metadata                   UserMetadata?
+  profile                    Profile?
+  impressionsGiven           UserImpressionBallot[]  @relation(name: "ImpressionOnVoter")
+  impressionsReceived        UserImpressionBallot[]  @relation(name: "ImpressionOnSubject")
+  chats                      Chat[]
+  sentMessages               Message[]
+  karmasGiven                KarmaBallot[]           @relation(name: "KarmaOnVoter")
+  karmasReceived             KarmaBallot[]           @relation(name: "KarmaOnSubject")
+  karmaAvgPerQuestion        KarmaScore[]
+  subscriptions              SubscriptionEntry[]
+  impressionsGivenArchive    UserImpressionArchive[] @relation(name: "ImpressionOnVoterArchive")
+  impressionsReceivedArchive UserImpressionArchive[] @relation(name: "ImpressionOnSubjectArchive")
 }

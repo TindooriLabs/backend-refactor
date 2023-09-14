@@ -20,6 +20,9 @@ CREATE TYPE "Sexuality" AS ENUM ('STRAIGHT', 'GAY', 'LESBIAN', 'BISEXUAL', 'PANS
 CREATE TYPE "UserImpressionKind" AS ENUM ('LIKE', 'SKIP', 'UNMATCH');
 
 -- CreateEnum
+CREATE TYPE "UserImpressionAggregateKind" AS ENUM ('INCOMPLETE', 'MATCH', 'NONMATCH', 'UNMATCH');
+
+-- CreateEnum
 CREATE TYPE "SubscriptionKind" AS ENUM ('FREE', 'PREMIUM');
 
 -- CreateTable
@@ -94,6 +97,7 @@ CREATE TABLE "ImageUpload" (
     "s3Path" TEXT NOT NULL,
     "nameWithoutExtension" TEXT NOT NULL,
     "extension" TEXT NOT NULL,
+    "uploaded" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "ImageUpload_pkey" PRIMARY KEY ("id")
 );
@@ -118,6 +122,17 @@ CREATE TABLE "UserImpressionBallot" (
 );
 
 -- CreateTable
+CREATE TABLE "UserImpressionArchive" (
+    "id" SERIAL NOT NULL,
+    "fromUserId" TEXT NOT NULL,
+    "toUserId" TEXT NOT NULL,
+    "impression" "UserImpressionKind" NOT NULL,
+    "updated" TIMESTAMPTZ(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "UserImpressionArchive_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Chat" (
     "id" TEXT NOT NULL,
 
@@ -132,6 +147,7 @@ CREATE TABLE "Message" (
     "text" TEXT NOT NULL,
     "sendTime" TIMESTAMPTZ(3) NOT NULL,
     "originalLanguageName" TEXT NOT NULL,
+    "ordinal" INTEGER NOT NULL,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
@@ -257,6 +273,12 @@ ALTER TABLE "UserImpressionBallot" ADD CONSTRAINT "UserImpressionBallot_fromUser
 ALTER TABLE "UserImpressionBallot" ADD CONSTRAINT "UserImpressionBallot_toUserId_fkey" FOREIGN KEY ("toUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "UserImpressionArchive" ADD CONSTRAINT "UserImpressionArchive_fromUserId_fkey" FOREIGN KEY ("fromUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserImpressionArchive" ADD CONSTRAINT "UserImpressionArchive_toUserId_fkey" FOREIGN KEY ("toUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -322,3 +344,54 @@ ON "KarmaBallot"
 FOR EACH ROW 
 EXECUTE PROCEDURE update_karma_score();
 
+--User Relationships Archive Insert Procedure
+create or replace function user_relationship_archive_fn()
+  returns trigger as
+$$
+begin
+
+    insert into "UserImpressionArchive" ( "fromUserId", "impression", "toUserId", "updated")
+ 	values(new."fromUserId", new."impression", new."toUserId", new.updated);
+
+return new;
+end;
+$$
+language PLPGSQL;
+
+--User Relationships Archive Trigger
+create trigger user_relationship_archive_trigger
+  after insert
+  on public."UserImpressionBallot"
+  for each row
+  execute procedure user_relationship_archive_fn();
+
+--User Relationships Aggregate View Creation
+create view UserImpressionAggregate as
+	select *,
+		case --Evaluates the two user relationships and returns an aggregate relationship ID
+			--NonMatch (Skip)
+			when uib.impression_1 = 'SKIP' or uib.impression_2 = 'SKIP' then 'NONMATCH'
+			--UnMatch
+			when uib.impression_1 = 'UNMATCH' or uib.impression_2 = 'UNMATCH' then 'UNMATCH'
+			--Incomplete (One-way like, uib -> uib2)
+			when uib.impression_1 = 'LIKE' and uib.impression_2 is null then 'INCOMPLETE'
+			--Incomplete (One-way like, uib2 -> uib)
+			when uib.impression_2 = 'LIKE' and uib.impression_1 is null then 'INCOMPLETE'
+			--Match
+			when uib.impression_1 = 'LIKE' and uib.impression_2 = 'LIKE' then 'MATCH'
+			else null end 
+			as "userImpressionAggregateType"
+	from (
+		select distinct 
+		case when uib."fromUserId" > uib."toUserId" then uib."fromUserId" else uib."toUserId" end as "userId_A",
+		case when uib."fromUserId" < uib."toUserId" then uib."fromUserId" else uib."toUserId" end as "userId_B",
+		uib.impression impression_1, 
+		uib2.impression impression_2 
+		from "UserImpressionBallot" uib
+		--Reciprocal relationship
+		left join "UserImpressionBallot" uib2 on 
+			uib."toUserId" = uib2."fromUserId" and 
+			uib."fromUserId" = uib2."toUserId") uib;
+
+create extension if not exists cube;
+create extension if not exists earthdistance;

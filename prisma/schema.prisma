@@ -176,6 +176,7 @@ model UserImpressionBallot {
   fromUser   User               @relation(name: "ImpressionOnVoter", fields: [fromUserId], references: [id])
   toUser     User               @relation(name: "ImpressionOnSubject", fields: [toUserId], references: [id])
   impression UserImpressionKind
+  updated    DateTime           @default(now()) @db.Timestamptz(0)
 
   @@id([fromUserId, toUserId])
 }
@@ -302,6 +303,13 @@ model SubscriptionEntry {
   @@id([userId, subscriptionKind])
 }
 
+model UserSwipeCache {
+  userId          String   @id
+  user            User     @relation(fields: [userId], references: [id])
+  windowEnd       DateTime @db.Timestamptz(3)
+  remainingSwipes Int
+}
+
 // MARK: `model User`
 
 model User {
@@ -319,4 +327,5 @@ model User {
   subscriptions              SubscriptionEntry[]
   impressionsGivenArchive    UserImpressionArchive[] @relation(name: "ImpressionOnVoterArchive")
   impressionsReceivedArchive UserImpressionArchive[] @relation(name: "ImpressionOnSubjectArchive")
+  UserSwipeCache             UserSwipeCache[]
 }

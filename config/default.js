@@ -7,9 +7,9 @@ const config = {
       compressionQuality: 70
     },
     subscriptionToggles: {
-      previewRelationshipType: ["Premium"],
+      previewRelationshipType: ["PREMIUM"],
       swipeLimit: {
-        Free: {
+        FREE: {
           windowLength: 24, //hours
           numSwipes: 30
         }

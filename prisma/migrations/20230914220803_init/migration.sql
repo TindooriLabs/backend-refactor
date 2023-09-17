@@ -117,6 +117,7 @@ CREATE TABLE "UserImpressionBallot" (
     "fromUserId" TEXT NOT NULL,
     "toUserId" TEXT NOT NULL,
     "impression" "UserImpressionKind" NOT NULL,
+    "updated" TIMESTAMPTZ(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "UserImpressionBallot_pkey" PRIMARY KEY ("fromUserId","toUserId")
 );
@@ -209,6 +210,15 @@ CREATE TABLE "SubscriptionEntry" (
 );
 
 -- CreateTable
+CREATE TABLE "UserSwipeCache" (
+    "userId" TEXT NOT NULL,
+    "windowEnd" TIMESTAMPTZ(3) NOT NULL,
+    "remainingSwipes" INTEGER NOT NULL,
+
+    CONSTRAINT "UserSwipeCache_pkey" PRIMARY KEY ("userId")
+);
+
+-- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
 
@@ -295,6 +305,9 @@ ALTER TABLE "KarmaScore" ADD CONSTRAINT "KarmaScore_userId_fkey" FOREIGN KEY ("u
 
 -- AddForeignKey
 ALTER TABLE "SubscriptionEntry" ADD CONSTRAINT "SubscriptionEntry_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "UserSwipeCache" ADD CONSTRAINT "UserSwipeCache_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_ChatToUser" ADD CONSTRAINT "_ChatToUser_A_fkey" FOREIGN KEY ("A") REFERENCES "Chat"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -1,7 +1,7 @@
 import twilio from "twilio";
-import { secretsClient } from "./secrets-manager";
-import config from "../config/default";
-import { featureToggle } from "../config/deps";
+import { secretsClient } from "./secrets-manager.js";
+import config from "../config/default.js";
+import { featureToggle } from "../config/deps.js";
 
 export default class SMS {
   constructor(accountSid, authToken, twilioPhoneNumber) {

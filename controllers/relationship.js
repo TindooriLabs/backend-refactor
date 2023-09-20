@@ -18,15 +18,15 @@ import {
     // if (!paramsValidation.ok) {
     //   return getFailureBody(paramsValidation);
     // }
-    // const { userId } = req.user;
-    const userId = 1;
+    const { userId } = req.user;
+   
     const { relationshipType: relationshipTypeName } = req.body;
     const { patientUserId } = req.params;
   
     const result = await createRelationshipDomain(
       userId,
       relationshipTypeName,
-      parseInt(patientUserId)
+      patientUserId
     );
   
     //Return success
@@ -44,8 +44,8 @@ import {
     //   return getFailureBody(bodyValidation);
     // }
   
-    // const { userId } = req.user;
-    const userId = 1;
+    const { userId } = req.user;
+   
     const { relationshipType } = req.params;
   
     const result = await getRelationshipsByTypeDomain(userId, relationshipType);

@@ -20,8 +20,8 @@ export const setProfile = async (req) => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   const result = await setProfileDomain(userId, req.body);
 
@@ -34,8 +34,8 @@ export const setProfile = async (req) => {
 };
 
 export const getPrompts = async (req) => {
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
   const result = await getPromptsDomain(userId);
 
   //Return success
@@ -55,8 +55,8 @@ export const addPromptResponse = async (req) => {
   //   if (!validation.ok) {
   //     return getFailureBody(validation);
   //   }
-  //   const { userId } = req.user;
-  const userId = 1;
+    const { userId } = req.user;
+ 
   const { promptId, prompt, response } = req.body;
 
   const result = await addPromptResponseDomain(
@@ -80,8 +80,8 @@ export const removePromptResponse = async (req) => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+ 
   const { promptId } = req.body;
 
   const result = await removePromptResponseDomain(userId, promptId);
@@ -100,8 +100,8 @@ export const addInterests = async req => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+ 
   const { interests } = req.body;
 
   const result = await addInterestsDomain(userId, interests);
@@ -120,11 +120,11 @@ export const removeInterests = async req => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+ 
   const { interests } = req.body;
 
-  const result = await removeInterestsDomain(parseInt(userId), interests);
+  const result = await removeInterestsDomain(userId, interests);
 
   //Return success
   if (result.ok) {
@@ -140,8 +140,8 @@ export const findProfiles = async req => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
   const { minAge, maxAge, maxDistance, maxResults } = req.query;
 
   const result = await findProfilesDomain(
@@ -179,8 +179,8 @@ export const uploadImage = async req => {
     return getFailureBody(fileValidationError);
   }
 
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
   const regexPattern = /^(\d+)-(.+)\.(\w+)$/; // ordinal-filename.ext
   const match = originalName.match(regexPattern);
   if (!match) {
@@ -216,8 +216,8 @@ export const deleteImage = async req => {
   //   return getFailureBody(validation);
   // }
 
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+ 
   const { ordinal } = req.body;
 
   const result = await deleteImageDomain(userId, ordinal);
@@ -250,8 +250,8 @@ export const updateImageMetaData = async req => {
   //   return getFailureBody(validation);
   // }
 
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+ 
   const imageMetaData = req.body;
 
   const result = await updateImageMetaDataDomain(userId, imageMetaData);

@@ -14,7 +14,6 @@ import { statusIds, ethnicityIds } from "../database/constants.js";
 export const getUser = async (userId, requestingUserId) => {
   //Get data from Postgres
   let sqlResult = await getUserInfo(userId);
-
   if (sqlResult.length < 1) {
     return {
       ok: false,

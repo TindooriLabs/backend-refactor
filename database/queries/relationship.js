@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const getUserSwipeSubscriptionInfo = async (userId) => {
   const result = await prisma.$queryRaw`
-    SELECT usc."userId"::integer,
+    SELECT usc."userId",
     se."subscriptionKind",
     usc."windowEnd",
     usc."remainingSwipes"

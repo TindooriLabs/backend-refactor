@@ -22,7 +22,7 @@ export const setProfile = async (userId, profile) => {
   try {
     const result = await createOrUpdateProfile(userId, profile);
   } catch (e) {
-    console.log(e);
+   
     return {
       ok: false,
       reason: "not-found",
@@ -183,7 +183,7 @@ export const getImagesByUserId = async (userId, ordinal) => {
     );
     return { ok: true, images };
   } catch (error) {
-    console.log(error);
+    
     return {
       ok: false,
       reason: "server-error",

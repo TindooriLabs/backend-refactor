@@ -211,7 +211,7 @@ export const findUsers = async (
   const result = await prisma.$queryRaw`
   with base_profile as (select * from "Profile" where "userId" = ${userIdStr} limit 1),
   base_profile_interested_in_genders as (select "userId", "gendersOfInterest" from "Profile" pr where "userId" = ${userIdStr})
-  select pr."userId"::integer "id", pr."firstName" "name", date_part('year', age(now(), pr."birthDate")) age,
+  select pr."userId" "id", pr."firstName" "name", date_part('year', age(now(), pr."birthDate")) age,
   pr."genderIdentity", pr.ethnicity, ROUND(km.sum::decimal/km.count, 2)::float8 "karmaScore",
   round(point(pr.longitude,pr.latitude) <@> point((select longitude from base_profile),(select latitude from base_profile))) "distance",
   case when ${showRelationshipInfo} then uib.impression else null end "existingRelationshipType",

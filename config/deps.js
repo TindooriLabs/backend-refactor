@@ -1,10 +1,10 @@
-// import SMS from "../clients/sms";
+import SMS from "../clients/sms.js";
 // import ApnClient from "../clients/apn";
 import { connectPostgres } from "../database/postgres.js";
 // import { getConstants } from "../database/constants.js";
 // import { connectMongo } from "../database/mongo/mongo";
 // import { setSchemas } from "../util/schemas";
-// import addDateFunctions from "../util/datetime";
+import addDateFunctions from "../util/datetime.js";
 //import app from "../app";
 
 const buildDeps = async app => {
@@ -18,11 +18,11 @@ const buildDeps = async app => {
   //await buildUnleashClient(app, env);
 
   //Modify date object with additional functions
-//   addDateFunctions();
+  addDateFunctions();
 
   //Build Twilio SMS client
-//   const smsClient = await SMS.build();
-//   app.set("smsClient", smsClient);
+  const smsClient = await SMS.build();
+  app.set("smsClient", smsClient);
 
   //Build AWS Secrets Manager
 //   const apnClient = await ApnClient.build();

@@ -8,8 +8,8 @@ import {
 import { getFailureBody } from "./controller-helper.js";
 
 export const getPreferences = async (req) => {
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   const result = await getPreferencesDomain(userId);
 
@@ -28,8 +28,8 @@ export const setGenderIdentity = async (req) => {
   //   return getFailureBody(validation);
   // }
   const { genderIdentityId } = req.body;
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   const result = await setGenderIdentityDomain(userId, genderIdentityId);
 
@@ -48,8 +48,8 @@ export const setGendersInterested = async req => {
     //   return getFailureBody(validation);
     // }
     const { genderIdentityIds } = req.body;
-    // const { userId } = req.user;
-    const userId = 1;
+    const { userId } = req.user;
+   
   
     const result = await setGendersInterestedDomain(userId, genderIdentityIds);
   
@@ -68,8 +68,8 @@ export const setGendersInterested = async req => {
     //   return getFailureBody(validation);
     // }
     const { sexualityIds } = req.body;
-    // const { userId } = req.user;
-    const userId = 1;
+    const { userId } = req.user;
+    
   
     const result = await setSexualitiesDomain(userId, sexualityIds);
   
@@ -88,8 +88,8 @@ export const setGendersInterested = async req => {
     //   return getFailureBody(validation);
     // }
     const { userLanguages } = req.body;
-    // const { userId } = req.user;
-    const userId = 1;
+    const { userId } = req.user;
+    
   
     const result = await setLanguagesDomain(userId, userLanguages);
   

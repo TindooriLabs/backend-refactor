@@ -10,10 +10,11 @@ import {
 } from "../domain/users.js";
 import { validateSchema } from "../util/schemas.js";
 export const getOwnUser = async (req) => {
-  // const { userId } = req.user;
-  const userId = 1;
+ 
+  const { userId } = req.user;
+  
 
-  const result = await getUserDomain(parseInt(userId), 2);
+  const result = await getUserDomain(userId);
 
   //Return success
   if (result.ok) {
@@ -29,11 +30,11 @@ export const getUser = async (req) => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  // const { userId: requestingUserId } = req.user;
-  const requestingUserId = 1;
+  const { userId: requestingUserId } = req.user;
+
   const { userId } = req.params;
 
-  const result = await getUserDomain(parseInt(userId), requestingUserId);
+  const result = await getUserDomain(userId, requestingUserId);
 
   //Return success
   if (result.ok) {
@@ -50,8 +51,8 @@ export const setStatus = async (req) => {
   //   return getFailureBody(validation);
   // }
   const { status: statusLabel } = req.body;
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   // const statusId = statusIds[statusLabel];
 
@@ -72,8 +73,8 @@ export const setSubscription = async (req) => {
   //   return getFailureBody(validation);
   // }
   const { subscriptionTier } = req.body;
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   const result = await setSubscriptionDomain(userId, subscriptionTier);
 
@@ -92,8 +93,8 @@ export const setLocation = async (req) => {
   //   return getFailureBody(validation);
   // }
   const { lat, lon } = req.body;
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   const result = await setLocationDomain(userId, lat, lon);
 
@@ -112,8 +113,8 @@ export const setEthnicity = async (req) => {
   //   return getFailureBody(validation);
   // }
   const { ethnicity } = req.body;
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+  
 
   const result = await setEthnicityDomain(userId, ethnicity);
 
@@ -132,8 +133,8 @@ export const setDob = async (req) => {
   //   return getFailureBody(validation);
   // }
   const { dob } = req.body;
-  // const { userId } = req.user;
-  const userId = 1;
+  const { userId } = req.user;
+ 
 
   const result = await setDobDomain(userId, dob);
 
@@ -153,8 +154,8 @@ export const setKarmaResponses = async (req) => {
   // }
   const { karmaResponses } = req.body;
   const { userId } = req.params;
-  // const { userId: ratingUserId } = req.user;
-  const ratingUserId = 4;
+  const { userId: ratingUserId } = req.user;
+  
 
   const result = await setKarmaResponsesBody(
     userId,

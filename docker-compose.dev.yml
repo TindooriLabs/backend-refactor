@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  db-dev:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: ${PRISMA_POSTGRES_DB}
+      POSTGRES_PASSWORD: ${PRISMA_POSTGRES_PASSWORD}
+      POSTGRES_USER: ${PRISMA_POSTGRES_USER}
+    ports:
+      - '${PRISMA_POSTGRES_PORT}:5432'
+    volumes:
+      - ./pgdata.ignore:/var/lib/postgresql/data

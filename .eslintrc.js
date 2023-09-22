@@ -1,37 +1,30 @@
 module.exports = {
   env: {
     es2021: true,
-    node: true,
+    node: true
   },
-  extends: 'standard-with-typescript',
+  extends: "eslint:recommended",
   parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: './tsconfig.json',
+    ecmaVersion: "latest",
+    sourceType: "module"
   },
-  ignorePatterns: [ '*.js' ], // TS-only plz!
   rules: {
-    'linebreak-style': [ 'error', 'unix' ], // deploy to Docker (Alpine Linux)
-    yoda: [ 'error', 'never', { exceptRange: true } ],
-    '@typescript-eslint/semi': [ 'error', 'always' ], // avoid ambiguity
-    '@typescript-eslint/comma-dangle': [ 'error', 'only-multiline' ],
-    '@typescript-eslint/no-unused-vars': [ 'error', {
-      'vars': 'all',
-      'varsIgnorePattern': '^\_',
-      'args': 'all',
-      'argsIgnorePattern': '^\_',
-      'caughtErrors': 'all',
-      'caughtErrorsIgnorePattern': '^\_',
-      'destructuredArrayIgnorePattern': '^\_',
-    } ],
-    'no-restricted-exports': [ 'error', {
-      restrictDefaultExports: {
-        direct: true,
-        named: true,
-        defaultFrom: true,
-        namedFrom: true,
-        namespaceFrom: true,
-      },
-    } ]
+    "linebreak-style": ["error", "unix"],
+    quotes: ["error", "double"],
+    semi: ["error", "always"],
+    "no-useless-escape": "off",
+    "no-unused-vars": "error",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        vars: "all",
+        varsIgnorePattern: "^\_",
+        args: "all",
+        argsIgnorePattern: "^\_" //This might be broken https://github.com/eslint/eslint/issues/13999
+      }
+    ]
   },
-}
+  plugins: ["unused-imports"],
+  ignorePatterns: ["**/build/index.js", "*.test.js", "*.ts"],
+};

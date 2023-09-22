@@ -28,12 +28,12 @@ router.post(
 );
 
 //Get translated messages
-// router.post(
-//   "/message/translate",
-//   errorWrapper(async (req, res) => {
-//     const { status, body } = await translateMessages(req);
-//     res.status(status).send(body);
-//   })
-// );
+router.post(
+  "/message/translate",
+  errorWrapper(async (req, res) => {
+    const { status, body } = await translateMessages(req);
+    res.status(status).send(body);
+  })
+);
 
 export default router;

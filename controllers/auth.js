@@ -38,10 +38,10 @@ export const verifyMobile = async req => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  const { userId, mobile } = req.user;
+  const { userId } = req.user;
   const { code } = req.body;
  
-  const result = await verifyMobileDomain(userId, code, mobile);
+  const result = await verifyMobileDomain(userId, code);
 
   //Return success
   if (result.ok) {

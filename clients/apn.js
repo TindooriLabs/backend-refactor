@@ -1,5 +1,5 @@
 import apn from "apn";
-import { secretsClient } from "./secrets-manager";
+import { secretsClient } from "./secrets-manager.js";
 import fs from "fs";
 
 export default class ApnClient {

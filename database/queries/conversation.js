@@ -13,8 +13,7 @@ export const getChatById = async (chatId, pageLength, page) => {
         orderBy: {
           sendTime: "desc",
         },
-        skip: pageLengthInt * (pageInt - 1),
-        take: pageLengthInt,
+        take: 1,
       },
     },
   });
@@ -109,4 +108,60 @@ export const getMessagesByIds = async (messageIds) => {
     where: { id: { in: messageIds } },
   });
   return result;
+};
+
+export const getUsersLanguages = async (userIds) => {
+  const result = await prisma.languageAndLevel.findMany({
+    where: {
+      userId: {
+        in: userIds,
+      },
+    },
+  });
+  return result;
+};
+
+export const getTranslation = async (
+  id,
+  originalLanguage,
+  targetLanguage,
+  text
+) => {
+  const result = await prisma.cachedTranslation.findFirst({
+    where: {
+      messageId: id.toString(),
+      fromLanguageName: originalLanguage,
+      toLanguageName: targetLanguage,
+    },
+  });
+  return result;
+};
+
+export const getUserName = async (userId) => {
+  const userNames = await prisma.profile.findFirst({
+    where: {
+      userId: userId.toString(),
+    },
+    select: {
+      userId: true,
+      firstName: true,
+    },
+  });
+
+  return userNames;
+};
+
+export const insertCachedTranslation = async (translation) => {
+  try {
+    const result = await prisma.cachedTranslation.create({
+      data: translation,
+    });
+  } catch (e) {
+    return {
+      ok: false,
+      reason: "already exists",
+      message: "Translation already exists.",
+    };
+  }
+  return { ok: true };
 };

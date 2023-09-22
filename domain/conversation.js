@@ -9,10 +9,12 @@ import {
   upsertChat,
   insertMessage,
   getMessagesByIds,
-  
+  getTranslation,
+  getUserName,
+  insertCachedTranslation,
 } from "../database/queries/conversation.js";
-
-import { getCachedTranslationForMessage } from "./translate.js";
+import { languageLevelIds } from "../database/constants.js";
+import { translator } from "../clients/translate.js";
 
 import { sendNotification } from "./notify.js";
 
@@ -52,17 +54,8 @@ export const getUserConversations = async (userId) => {
   return { ok: true, conversations: answer };
 };
 
-export const getConversation = async (
-  fromUserId,
-  conversationId,
-  pageLength = config.conversation.pageLength,
-  page = 1
-) => {
-  const conversationResult = await getChatById(
-    conversationId,
-    pageLength,
-    page
-  );
+export const getConversation = async (fromUserId, conversationId) => {
+  const conversationResult = await getChatById(conversationId);
   if (conversationResult === null) {
     return {
       ok: false,
@@ -86,15 +79,20 @@ export const getConversation = async (
     conversationResult.participants.map((p) => p.id)
   );
   conversationResult.participants = participantNamesResult;
+  if (conversationResult.messages.length > 0) {
+    conversationResult.lastMessage = conversationResult.messages[0];
+  } else {
+    conversationResult.lastMessage = {};
+  }
+  delete conversationResult.messages;
+  //Get default target language
+  const targetLanguageResult = await getDefaultTargetLanguage(
+    conversationResult,
+    fromUserId
+  );
+  if (!targetLanguageResult.ok) return targetLanguageResult;
 
-  // //Get default target language
-  // const targetLanguageResult = await getDefaultTargetLanguage(
-  //   conversation,
-  //   fromUserId
-  // );
-  // if (!targetLanguageResult.ok) return targetLanguageResult;
-
-  // conversation.targetLanguage = targetLanguageResult.languageId;
+  conversationResult.targetLanguage = targetLanguageResult.languageName;
 
   return { ok: true, conversation: conversationResult };
 };
@@ -151,13 +149,72 @@ export const sendMessage = async (
     },
   };
 
-  // sendNotification(notification);
+  sendNotification(notification);
 
   return { ok: true, conversation: conversationResponse };
 };
 
-export const translateMessages = async (messageIds, targetLanguage) => {
-  //Get the data from mongo
+const getCachedTranslationForMessage = async (message, targetLanguage) => {
+  const today = new Date();
+  const cachedTranslation = await getTranslation(
+    message.id,
+    message.originalLanguageName,
+    targetLanguage
+  );
+
+  //Valid cached translation
+  if (cachedTranslation && today.isBefore(cachedTranslation.expiration)) {
+    return cachedTranslation;
+  }
+
+  return null;
+};
+
+const translateMessage = async (message, targetLanguage) =>
+  translator.translate(
+    message.message,
+    message.originalLanguage,
+    targetLanguage
+  );
+
+const configureTranslationForMessage = async (
+  translationText,
+  translationLanguage,
+  userId
+) => {
+  const today = new Date();
+  const user = await getUserName(userId);
+  return {
+    messageId: message.id,
+    fromLanguageName: message.originalLanguageName,
+    toLanguageName: translationLanguage,
+    sourceText: message.text,
+    targetText: translationText,
+    lastUpdated: today,
+    translatorName: user.firstName,
+    expiration: today.addDays(config.translations.googleTranslateCacheDays),
+  };
+};
+
+const addTranslationToMessage = async (
+  message,
+  translationText,
+  translationLanguage,
+  userId
+) => {
+  const translation = configureTranslationForMessage(
+    translationText,
+    translationLanguage,
+    userId
+  );
+
+  const addTranslationResult = await insertCachedTranslation(translation);
+
+  return { ...message, translation };
+};
+
+export const translateMessages = async (messageIds, targetLanguage, userId) => {
+  //Get the messages from the database
   const messages = await getMessagesByIds(messageIds);
   if (!messages || messages.length === 0) {
     return messages;
@@ -169,14 +226,17 @@ export const translateMessages = async (messageIds, targetLanguage) => {
       if (m.originalLanguageName === targetLanguage) return m;
 
       //Check message for cached translation
-      const cachedTranslation = getCachedTranslationForMessage(
+      const cachedTranslation = await getCachedTranslationForMessage(
         m,
         targetLanguage
       );
 
       //Return valid cached translation
       if (cachedTranslation) {
-        return joinTranslationToMessage(m, cachedTranslation);
+        return {
+          ...m,
+          translation: cachedTranslation,
+        };
       }
 
       //Fetch a new translation
@@ -188,10 +248,11 @@ export const translateMessages = async (messageIds, targetLanguage) => {
       }
 
       //Get the return for a translation and cache the translation
-      const newTranslation = addTranslationToMessage(
+      const newTranslation = await addTranslationToMessage(
         m,
         translationResult.translation,
-        targetLanguage
+        targetLanguage,
+        userId
       );
 
       return newTranslation;
@@ -199,4 +260,62 @@ export const translateMessages = async (messageIds, targetLanguage) => {
   );
 
   return { ok: true, messages: translatedMessages };
+};
+
+export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
+  const participants = conversation.participants.map((p) => p.id);
+  //Get participant languages
+  const participantLanguages = await getUsersLanguages(participants);
+
+  if (!participantLanguages) {
+    return {
+      ok: false,
+      reason: "server-error",
+      message: "Failed to get conversation participant languages.",
+    };
+  }
+
+  //Find a shared language
+
+  //Languages that the from user (the active user viewing the conversation) is interested in learning
+  const interestedLanguages = participantLanguages.reduce((agg, uL) => {
+    if (uL.userId === fromUserId) {
+      if (uL.isLearning === true) {
+        agg[uL.languageName] = true;
+      }
+    }
+    return agg;
+  }, {});
+
+  //Match interestedLanguages with fluentLanguages and take the fluentLanguages with the highest number
+  const targetLanguages = participantLanguages
+    .filter(
+      (uL) => uL.userId !== fromUserId && interestedLanguages[uL.languageName]
+    )
+    .sort((a, b) => {
+      if (a.languageLevel === b.languageLevel) {
+        // if languageLevel is the same, sort by languageId
+        if (a.languageName < b.languageName) return -1;
+        if (a.languageName > b.languageName) return 1;
+        return 0;
+      }
+      // sort by languageLevel
+      return (
+        languageLevelIds[b.languageLevel] - languageLevelIds[a.languageLevel]
+      );
+    });
+
+  let targetLanguage;
+  if (!targetLanguages?.length) {
+    console.log(
+      `Unable to find common conversation target language for the two users: ${JSON.stringify(
+        participants
+      )} where ${fromUserId} is the active user.`
+    );
+    targetLanguage = null;
+  } else {
+    targetLanguage = targetLanguages[0].languageName;
+  }
+
+  return { ok: true, languageName: targetLanguage };
 };

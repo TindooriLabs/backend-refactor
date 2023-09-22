@@ -16,11 +16,15 @@ model Account {
   userId String @id
   user   User   @relation(fields: [userId], references: [id])
 
-  email                  String   @unique
-  mobile                 String   @unique
+  email                  String     @unique
+  mobile                 String     @unique
   passwordHash           String
-  verified               Boolean  @default(false)
-  verificationExpiration DateTime? @db.Timestamptz(3) 
+  verified               Boolean    @default(false)
+  verificationExpiration DateTime?  @db.Timestamptz(3)
+  deviceKind             DeviceKind
+  deviceIdentifier       String
+  verificationCodeHash   String
+  attemptMadeAt          DateTime   @db.Timestamptz(3)
 }
 
 // MARK: Metadata per user
@@ -202,30 +206,33 @@ model Chat {
 }
 
 model Message {
-  id                   Int      @id @default(autoincrement())
-  chatId               String
-  chat                 Chat     @relation(fields: [chatId], references: [id])
-  senderId             String
-  sender               User     @relation(fields: [senderId], references: [id])
-  text                 String
-  sendTime             DateTime @db.Timestamptz(3)
-  originalLanguageName String
-  ordinal              Int
+  id                      Int                 @id @default(autoincrement())
+  chatId                  String
+  chat                    Chat                @relation(fields: [chatId], references: [id])
+  senderId                String
+  sender                  User                @relation(fields: [senderId], references: [id])
+  text                    String
+  sendTime                DateTime            @db.Timestamptz(3)
+  originalLanguageName    String
+  ordinal                 Int
+  translations            CachedTranslation[]
+  lastTranslationLanguage String?
 }
 
 // MARK: Translation-related
 
 model CachedTranslation {
+  messageId        Int
+  message          Message  @relation(fields: [messageId], references: [id])
   fromLanguageName String
   toLanguageName   String
   sourceText       String
+  targetText       String
+  lastUpdated      DateTime @default(now()) @db.Timestamptz(0)
+  translatorName   String
+  expiration       DateTime @db.Timestamptz(3)
 
-  targetText     String
-  lastUpdated    DateTime @default(now()) @db.Timestamptz(0)
-  translatorName String
-  expiration     DateTime @db.Timestamptz(3)
-
-  @@id([fromLanguageName, toLanguageName])
+  @@id([messageId, fromLanguageName, toLanguageName])
 }
 
 // MARK: Karma-related
@@ -262,27 +269,6 @@ model KarmaScore {
   // directly and (2) averaging between question averages.
 
   @@id([userId, questionIndex])
-}
-
-// MARK: Registration-related
-
-model RegistrationAttempt {
-  id Int @id @default(autoincrement()) // NOTE: placeholder to pass `prisma validate`
-
-  email        String
-  mobile       String @unique
-  passwordHash String
-
-  firstName        String
-  birthDate        DateTime   @db.Date
-  deviceKind       DeviceKind
-  deviceIdentifier String
-
-  verificationCodeHash String
-  attemptMadeAt        DateTime @db.Timestamptz(3)
-  // WHY: a verification code is "locked" for a duration (i.e. no new requests
-  // from the same mobile number) and "valid" for a different duration, but
-  // those could all be computed from configured durations and a start time.
 }
 
 // MARK: Premium and subscription
@@ -330,5 +316,5 @@ model User {
   subscriptions              SubscriptionEntry[]
   impressionsGivenArchive    UserImpressionArchive[] @relation(name: "ImpressionOnVoterArchive")
   impressionsReceivedArchive UserImpressionArchive[] @relation(name: "ImpressionOnSubjectArchive")
-  UserSwipeCache             UserSwipeCache[]
+  userSwipeCache             UserSwipeCache[]
 }

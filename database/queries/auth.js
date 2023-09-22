@@ -41,19 +41,6 @@ export const registerUser = async (userDetails) => {
     userDetails.password,
     config.bcrypt.saltRounds
   );
-  const registrationAttemptCreate = await prisma.registrationAttempt.create({
-    data: {
-      email: userDetails.email,
-      mobile: userDetails.mobile,
-      passwordHash,
-      firstName: userDetails.name,
-      birthDate: new Date(userDetails.dob) || null,
-      deviceKind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
-      deviceIdentifier: userDetails.appleDeviceId || "",
-      verificationCodeHash: codeHash,
-      attemptMadeAt: new Date(),
-    },
-  });
   const accountCreate = await prisma.account.create({
     data: {
       userId: userDetails.userId.toString(),
@@ -61,6 +48,10 @@ export const registerUser = async (userDetails) => {
       passwordHash,
       mobile: userDetails.mobile,
       verificationExpiration: userDetails.verificationExpiration,
+      deviceKind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
+      deviceIdentifier: userDetails.appleDeviceId || "",
+      verificationCodeHash: codeHash,
+      attemptMadeAt: new Date(),
     },
   });
   const addDeviceResult = await prisma.deviceRecord.create({
@@ -123,7 +114,7 @@ export const addDevice = async (userId, device) => {
   return { ok: true };
 };
 
-export const getUserVerificationInfo = async (userId, mobile) => {
+export const getUserVerificationInfo = async (userId) => {
   const userAccount = await prisma.account.findFirst({
     where: {
       userId: userId.toString(),
@@ -131,6 +122,7 @@ export const getUserVerificationInfo = async (userId, mobile) => {
     select: {
       verified: true,
       verificationExpiration: true,
+      verificationCodeHash: true,
     },
   });
   if (!userAccount) {
@@ -140,27 +132,10 @@ export const getUserVerificationInfo = async (userId, mobile) => {
       message: "User account not found",
     };
   }
-  const userVerificationCode = await prisma.registrationAttempt.findFirst({
-    where: {
-      mobile,
-    },
-    orderBy: {
-      attemptMadeAt: "desc",
-    },
-    select: {
-      verificationCodeHash: true,
-      attemptMadeAt: true,
-      id: true,
-    },
-    take: 1,
-  });
   let codeVerifier;
-  if (
-    userVerificationCode &&
-    userVerificationCode.verificationCodeHash?.length > 0
-  ) {
+  if (userAccount.verificationCodeHash?.length > 0) {
     codeVerifier = (code) =>
-      bcrypt.compare(code, userVerificationCode.verificationCodeHash);
+      bcrypt.compare(code, userAccount.verificationCodeHash);
   }
   return {
     ok: true,
@@ -172,41 +147,32 @@ export const getUserVerificationInfo = async (userId, mobile) => {
   };
 };
 
-export const setUserVerified = async (userId, mobile) => {
+export const setUserVerified = async (userId) => {
   let account;
   try {
-    await prisma.$transaction([
-      prisma.registrationAttempt.update({
-        where: {
-          mobile: mobile.toString(),
-        },
-        data: {
-          verificationCodeHash: "",
-        },
-      }),
-      prisma.account.update({
-        where: {
-          userId: userId.toString(),
-        },
-        data: {
-          verified: true,
-          verificationExpiration: null,
-        },
-      }),
-    ]);
-    account = await prisma.account.findFirst({
+    account = await prisma.account.update({
       where: {
         userId: userId.toString(),
       },
+      data: {
+        verified: true,
+        verificationExpiration: null,
+        verificationCodeHash: "",
+      },
+      select: {
+        userId: true,
+        email: true,
+        mobile: true,
+        passwordHash: true,
+      },
     });
   } catch (e) {
-   
     return {
       ok: false,
       reason: "not found",
-      message: "User not found in the SQL database",
+      message: "User account not found in the SQL database",
     };
   }
- 
+
   return { ok: true, account };
 };

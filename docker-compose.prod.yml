@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  db-prod:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: To-do
+      POSTGRES_PASSWORD: To-do
+      POSTGRES_USER: To-do  # TODO Postgres environment
+    networks:
+      - api_internal_network
+  app-prod:
+    build:
+      context: .
+      # dockerfile: Dockerfile
+    # environment:
+    #   DATABASE_URL: ""  # TODO
+    ports:
+      - '443:443'
+    networks:
+      - api_internal_network
+
+networks:
+  api_internal_network:
+    driver: bridge

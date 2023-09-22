@@ -43,29 +43,29 @@ export const createUser = async (userDetails) => {
 
   //Send mobile verification code
   const sms = app.get("smsClient");
-  //   const sendMessageResult = await sms.sendOTP(
-  //     userDetails.mobile,
-  //     mobileVerification.verificationCode
-  //   );
-  //   if (!sendMessageResult.ok) {
-  //     console.log(
-  //       `Failed to send SMS verification code to user ${userDetails.userId},`,
-  //       sendMessageResult
-  //     );
-  //     return {
-  //       ok: false,
-  //       reson: "partial-success",
-  //       message:
-  //         "User was created but the SMS verification code could not be sent. Proceed by calling POST /user/mobile with the user's email and phone number to get a new code.",
-  //     };
-  //   }
+    const sendMessageResult = await sms.sendOTP(
+      userDetails.mobile,
+      mobileVerification.verificationCode
+    );
+    if (!sendMessageResult.ok) {
+      console.log(
+        `Failed to send SMS verification code to user ${userDetails.userId},`,
+        sendMessageResult
+      );
+      return {
+        ok: false,
+        reson: "partial-success",
+        message:
+          "User was created but the SMS verification code could not be sent. Proceed by calling POST /user/mobile with the user's email and phone number to get a new code.",
+      };
+    }
 
   return { ok: true };
 };
 
-export const verifyMobile = async (userId, code, mobile) => {
+export const verifyMobile = async (userId, code) => {
   //Get the code
-  const mobileResult = await getUserVerificationInfo(userId, mobile);
+  const mobileResult = await getUserVerificationInfo(userId);
   if (!mobileResult.ok) {
     return mobileResult;
   }
@@ -92,7 +92,7 @@ export const verifyMobile = async (userId, code, mobile) => {
     return codeValidationResult;
   }
   //Mark as verified
-  const verifyResult = await setUserVerified(userId, mobile);
+  const verifyResult = await setUserVerified(userId);
 
   if (!verifyResult.ok) {
     return verifyResult;

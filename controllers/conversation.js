@@ -4,7 +4,7 @@ import {
   getUserConversations as getUserConversationsDomain,
   getConversation as getConversationDomain,
   sendMessage as sendMessageDomain,
-  translateMessages as translateMessagesDomain
+  translateMessages as translateMessagesDomain,
 } from "../domain/conversation.js";
 
 export const getUserConversations = async (req) => {
@@ -42,17 +42,11 @@ export const getConversation = async (req) => {
   //  if (!queryValidation.ok) {
   //    return getFailureBody(queryValidation);
   //  }
-   const { userId: fromUserId } = req.user;
+  const { userId: fromUserId } = req.user;
 
   const { conversationId } = req.params;
-  const { pageLength, page } = req.query;
 
-  const result = await getConversationDomain(
-    fromUserId,
-    conversationId,
-    pageLength,
-    page
-  );
+  const result = await getConversationDomain(fromUserId, conversationId);
 
   //Return success
   if (result.ok) {
@@ -62,7 +56,7 @@ export const getConversation = async (req) => {
   return getFailureBody(result);
 };
 
-export const sendMessage = async req => {
+export const sendMessage = async (req) => {
   //Validate body
   // const validation = validateSchema(req.body, "sendMessageBody");
   // if (!validation.ok) {
@@ -73,7 +67,7 @@ export const sendMessage = async req => {
   //   return getFailureBody(queryValidation);
   // }
   const { userId: fromUserId } = req.user;
-  
+
   const { toUserIds, conversationId, message, language } = req.body;
   const { pageLength } = req.query;
 
@@ -94,15 +88,16 @@ export const sendMessage = async req => {
   return getFailureBody(result);
 };
 
-export const translateMessages = async req => {
+export const translateMessages = async (req) => {
   //Validate query
   // const queryValidation = validateSchema(req.body, "translateMessagesBody");
   // if (!queryValidation.ok) {
   //   return getFailureBody(queryValidation);
   // }
   const { messageIds, language } = req.body;
+  const { userId } = req.user;
 
-  const result = await translateMessagesDomain(messageIds, language);
+  const result = await translateMessagesDomain(messageIds, language, userId);
 
   //Return success
   if (result.ok) {

@@ -139,13 +139,12 @@ export const addImageToProfile = async (userId, fileBuffer, fileMeta) => {
   const compressionResult = await compress(fileBuffer);
 
   //Upload to s3
-  // const uploadResult = await s3.uploadImage(fileName, compressionResult);
-  // if (!uploadResult.ok) return uploadResult;
+  const uploadResult = await s3.uploadImage(fileName, compressionResult);
+  if (!uploadResult.ok) return uploadResult;
 
-  //Save metadata to Mongo
-  // const { key: s3Dir } = uploadResult;
-  // fileMeta.s3Dir = s3Dir;
-  fileMeta.s3Path = "user-1/4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8.jpeg";
+  //Save metadata to database
+  const { key: s3Dir } = uploadResult;
+  fileMeta.s3Path = s3Dir;
   fileMeta.id = uniqueId;
   delete fileMeta["originalName"];
   fileMeta.uploaded = new Date();
@@ -160,14 +159,14 @@ export const deleteImage = async (userId, ordinal) => {
   const deletedImage = await deleteImageData(userId, ordinal);
 
   //Delete data from S3
-  //   if (deletedImage && deletedImage.s3Path) {
-  //   const s3Result = await s3.deleteImage(deletedImage.s3Path);
-  //   if (!s3Result.ok) {
-  //     console.log(
-  //       `Unable to delete object from S3 after it was removed from database. Object key: ${deletedImage.s3Path}`
-  //     );
-  //   }
-  // }
+    if (deletedImage && deletedImage.s3Path) {
+    const s3Result = await s3.deleteImage(deletedImage.s3Path);
+    if (!s3Result.ok) {
+      console.log(
+        `Unable to delete object from S3 after it was removed from database. Object key: ${deletedImage.s3Path}`
+      );
+    }
+  }
 
   return { ok: true };
 };

@@ -1,8 +1,6 @@
 import SMS from "../clients/sms.js";
-// import ApnClient from "../clients/apn";
+import ApnClient from "../clients/apn.js";
 import { connectPostgres } from "../database/postgres.js";
-// import { getConstants } from "../database/constants.js";
-// import { connectMongo } from "../database/mongo/mongo";
 // import { setSchemas } from "../util/schemas";
 import addDateFunctions from "../util/datetime.js";
 //import app from "../app";
@@ -15,7 +13,7 @@ const buildDeps = async app => {
     "google-translate-override": true
   };
   app.set("featureToggles", tempToggles);
-  //await buildUnleashClient(app, env);
+  // await buildUnleashClient(app, env);
 
   //Modify date object with additional functions
   addDateFunctions();
@@ -25,21 +23,16 @@ const buildDeps = async app => {
   app.set("smsClient", smsClient);
 
   //Build AWS Secrets Manager
-//   const apnClient = await ApnClient.build();
-//   app.set("apnClient", apnClient);
+  const apnClient = await ApnClient.build();
+  app.set("apnClient", apnClient);
 
   //Postgres
   await connectPostgres();
 
-  //Mongo
-//   await connectMongo();
-
-  //The below functions depend on the Mongo and Postgres connections
-  //DB constants
-//   await getConstants();
+  //The below function depends on the Postgres connection
 
   //Schemas
-//   await setSchemas();
+  // await setSchemas();
 };
 
 export const featureToggle = toggleName => {

@@ -33,6 +33,10 @@ CREATE TABLE "Account" (
     "passwordHash" TEXT NOT NULL,
     "verified" BOOLEAN NOT NULL DEFAULT false,
     "verificationExpiration" TIMESTAMPTZ(3),
+    "deviceKind" "DeviceKind" NOT NULL,
+    "deviceIdentifier" TEXT NOT NULL,
+    "verificationCodeHash" TEXT NOT NULL,
+    "attemptMadeAt" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "Account_pkey" PRIMARY KEY ("userId")
 );
@@ -151,12 +155,14 @@ CREATE TABLE "Message" (
     "sendTime" TIMESTAMPTZ(3) NOT NULL,
     "originalLanguageName" TEXT NOT NULL,
     "ordinal" INTEGER NOT NULL,
+    "lastTranslationLanguage" TEXT,
 
     CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
 CREATE TABLE "CachedTranslation" (
+    "messageId" INTEGER NOT NULL,
     "fromLanguageName" TEXT NOT NULL,
     "toLanguageName" TEXT NOT NULL,
     "sourceText" TEXT NOT NULL,
@@ -165,7 +171,7 @@ CREATE TABLE "CachedTranslation" (
     "translatorName" TEXT NOT NULL,
     "expiration" TIMESTAMPTZ(3) NOT NULL,
 
-    CONSTRAINT "CachedTranslation_pkey" PRIMARY KEY ("fromLanguageName","toLanguageName")
+    CONSTRAINT "CachedTranslation_pkey" PRIMARY KEY ("messageId","fromLanguageName","toLanguageName")
 );
 
 -- CreateTable
@@ -186,22 +192,6 @@ CREATE TABLE "KarmaScore" (
     "count" BIGINT NOT NULL,
 
     CONSTRAINT "KarmaScore_pkey" PRIMARY KEY ("userId","questionIndex")
-);
-
--- CreateTable
-CREATE TABLE "RegistrationAttempt" (
-    "id" SERIAL NOT NULL,
-    "email" TEXT NOT NULL,
-    "mobile" TEXT NOT NULL,
-    "passwordHash" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
-    "birthDate" DATE NOT NULL,
-    "deviceKind" "DeviceKind" NOT NULL,
-    "deviceIdentifier" TEXT NOT NULL,
-    "verificationCodeHash" TEXT NOT NULL,
-    "attemptMadeAt" TIMESTAMPTZ(3) NOT NULL,
-
-    CONSTRAINT "RegistrationAttempt_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -245,9 +235,6 @@ CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ImageUpload_userId_ordinal_key" ON "ImageUpload"("userId", "ordinal");
-
--- CreateIndex
-CREATE UNIQUE INDEX "RegistrationAttempt_mobile_key" ON "RegistrationAttempt"("mobile");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ChatToUser_AB_unique" ON "_ChatToUser"("A", "B");
@@ -296,6 +283,9 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_chatId_fkey" FOREIGN KEY ("chatId"
 
 -- AddForeignKey
 ALTER TABLE "Message" ADD CONSTRAINT "Message_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CachedTranslation" ADD CONSTRAINT "CachedTranslation_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "KarmaBallot" ADD CONSTRAINT "KarmaBallot_fromUserId_fkey" FOREIGN KEY ("fromUserId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

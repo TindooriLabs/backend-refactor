@@ -1,6 +1,5 @@
 import pg from 'pg';
 const { Pool } = pg;
-import queries from "./postgres-queries.js";
 import { secretsClient } from "../clients/secrets-manager.js";
 
 //Override pg default to not automatically adjust timezone when selecting timestamp without timezone columns
@@ -8,7 +7,7 @@ pg.types.setTypeParser(1114, function (stringValue) {
   return new Date(stringValue + "z"); //Add 'z' to return timestamp in UTC
 });
 
-let postgresDb, runQuery, runTransactionalizedQueries;
+let postgresDb;
 
 //Connection
 export async function connectPostgres() {
@@ -36,44 +35,8 @@ export async function connectPostgres() {
     };
   }
 
-  //Query wrapper
-  runQuery = async (query, values, rowKey = "rows", isSingular = false) => {
-    const result = await postgresDb.query(query, values);
-    return {
-      ok: true,
-      rowsAffected: result.rowCount,
-      [rowKey]: isSingular ? result.rows[0] : result.rows
-    };
-  };
-
-  runTransactionalizedQueries = async queries => {
-    const client = await postgresDb.connect();
-    try {
-      for await (const query of queries) {
-        await client.query("BEGIN"); // start a new transaction
-
-        const result = await client.query(query);
-        if (!result?.rowCount) {
-          throw `Transactionalized query failed: ${result}`;
-        }
-      }
-
-      await client.query("COMMIT"); // commit the transaction
-
-      client.release();
-      return { ok: true };
-    } catch (error) {
-      await client.query("ROLLBACK"); // rollback the transaction
-
-      client.release();
-      return { ok: false, reason: "server-error", message: error.message };
-    }
-  };
-
   postgresDb = new Pool(connectionConfig);
   console.log("Connected to Postgres DB.");
 }
 
-
-export { queries, runQuery, runTransactionalizedQueries };
 export default postgresDb;

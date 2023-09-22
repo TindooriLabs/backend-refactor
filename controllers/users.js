@@ -52,9 +52,7 @@ export const setStatus = async (req) => {
   // }
   const { status: statusLabel } = req.body;
   const { userId } = req.user;
-  
 
-  // const statusId = statusIds[statusLabel];
 
   const result = await setStatusDomain(userId, statusLabel);
 

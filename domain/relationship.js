@@ -1,6 +1,3 @@
-// import { runQuery, queries } from "../database/postgres/postgres";
-// import postgresConstants from "../database/constants";
-// import { aggregateRelationshipType } from "../util/relationships";
 import config from "../config/default.js";
 import {
   getUserSwipeSubscriptionInfo,
@@ -9,7 +6,7 @@ import {
   getUserRelationshipAggregatesByType,
 } from "../database/queries/relationship.js";
 import { aggregateRelationshipType } from "../util/relationship.js";
-// import { sendNotification } from "./notify.js";
+import { sendNotification } from "./notify.js";
 import { relationshipTypeIds } from "../database/constants.js";
 
 export const createRelationship = async (
@@ -74,7 +71,7 @@ export const createRelationship = async (
       },
     };
 
-    //   sendNotification(notification);
+      sendNotification(notification);
   }
 
   //Update the swipe counter

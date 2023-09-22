@@ -1,5 +1,5 @@
 import { v2 as TranslateClient } from "@google-cloud/translate";
-import { featureToggle } from "../config/deps";
+import { featureToggle } from "../config/deps.js";
 
 export default class Translator {
   constructor() {

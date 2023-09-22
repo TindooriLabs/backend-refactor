@@ -1,0 +1,37 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  DevDeploy:
+    name: Deploy to Dev Environment
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Build
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: Copy to Dev Server
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{secrets.EC2_SSH_KEY_DEV}}
+          REMOTE_HOST: ${{secrets.EC2_HOST_DNS_API_DEV}}
+          REMOTE_USER: ${{secrets.EC2_USER_DEV}}
+          SOURCE: /
+          TARGET: ~/app
+          EXCLUDE: /node_modules
+      - name: Start the API server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{secrets.EC2_HOST_DNS_API_DEV}}
+          username: ${{secrets.EC2_USER_DEV}}
+          key: ${{secrets.EC2_SSH_KEY_DEV}}
+          script: |
+            cd app
+            source ~/.zshrc
+            npm run deploy-setup || npm run deploy

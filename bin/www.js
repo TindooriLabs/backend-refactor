@@ -8,6 +8,12 @@ import app from "../app.js";
 import debug from "debug";
 import http from "http";
 import buildDeps from "../config/deps.js";
+import socketIo from "socket.io";
+import { socketLog, socketJwtAuth } from "../socket/middleware.js";
+import {
+  connect as ioConnect,
+  disconnect as ioDisconnect
+} from "../socket/connection.js";
 
 /**
  * Get port from environment and store in Express.
@@ -22,7 +28,26 @@ app.set('port', port);
 
 var server = http.createServer(app);
 
+//Socket integration
+const io = socketIo(server);
+io.use(socketLog);
 
+//Socket auth: https://socket.io/docs/v4/middlewares/#sending-credentials
+io.use(socketJwtAuth);
+app.set("io", io);
+
+io.on("connection", socket => {
+  ioConnect(socket);
+  socket.on("disconnect", ioDisconnect);
+});
+
+buildDeps(app).then(() => {
+  server.listen(port);
+  server.on("error", onError);
+  server.on("listening", onListening);
+
+  console.log(`Listening on port ${port}...`);
+});
 
 /**
  * Normalize a port into a number, string, or false.
@@ -43,14 +68,6 @@ function normalizePort(val) {
 
   return false;
 }
-
-buildDeps(app).then(() => {
-  server.listen(port);
-  server.on("error", onError);
-  server.on("listening", onListening);
-
-  console.log(`Listening on port ${port}...`);
-});
 
 /**
  * Event listener for HTTP server "error" event.

@@ -26,7 +26,7 @@ jobs:
           terraform_wrapper: false
       - name: Terraform init
         id: init
-        run: terraform init -backend-config="region=$AWS_REGION"
+        run: terraform init
         working-directory: ./terraform
       - name: Terraform Plan
         id: plan

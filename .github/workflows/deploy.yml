@@ -66,6 +66,7 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |-
           docker build -t tindoori-app:$IMAGE_TAG .
+          docker tag tindoori-app:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./
       - name: Deploy docker image to EC2

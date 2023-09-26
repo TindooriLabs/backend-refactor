@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    key = "aws/terraform/terraform.tfstate"
+    key    = "aws/terraform/terraform.tfstate"
     region = var.region
   }
 }
@@ -12,6 +12,14 @@ provider "aws" {
   region = var.aws_region
 }
 
+resource "aws_ecr_repository" "ecr_repo" {
+  name                 = "tindoori-app"
+  image_tag_mutability = "IMMUTABLE"
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+
+}
 resource "aws_instance" "servernode" {
   ami                    = "ami-053b0d53c279acc90"
   instance_type          = var.instance_type

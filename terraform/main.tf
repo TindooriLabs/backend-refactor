@@ -7,6 +7,7 @@ terraform {
   }
   backend "s3" {
     key = "aws/ec2-deploy/terraform.tfstate"
+    region = var.aws_region
   }
 }
 

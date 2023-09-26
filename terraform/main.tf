@@ -5,9 +5,8 @@ terraform {
       version = "~>4.0"
     }
   }
-  backend "s3" {
-    key = "aws/ec2-deploy/terraform.tfstate"
-    region = var.aws_region
+  backend "pg" {
+    conn_str = "postgresql://postgres:testpassword@${aws_instance.dbnode.*.public_ip}:5432/postgres"
   }
 }
 
@@ -18,27 +17,22 @@ provider "aws" {
   region = var.aws_region
 }
 
-data "template_file" "init" {
-  template = "${file("deploy_prisma_schema.sh.tpl")}"
-
-  vars = {
-    db_connection_url = "postgresql://postgres:testpassword@${aws_instance.dbnode.*.public_ip}:5432/postgres"
-}
-
 resource "aws_instance" "servernode" {
   ami                    = "ami-053b0d53c279acc90"
   instance_type          = var.instance_type
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.main_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2-profile.name
-    connection {
+  connection {
     type        = "ssh"
     host        = self.public_ip
     user        = "ubuntu"
     private_key = var.private_key
     timeout     = "4m"
   }
-  user_data = ${data.template_file.init.rendered}
+  user_data = templatefile("deploy_prisma_schema.sh", {
+    db_connection_url = "postgresql://postgres:testpassword@${aws_instance.dbnode.*.public_ip}:5432/postgres"
+  })
   tags = {
     "name" = "DeployVM"
   }
@@ -96,30 +90,42 @@ resource "aws_security_group" "main_security_group" {
   description = "Allow SSH and PostgreSQL inbound traffic"
   vpc_id      = aws_vpc.main.id
 
-  ingress [{
-    description = "SSH"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  },
-   {
-    description = "POSTGRES"
-    from_port   = 5432
-    to_port     = 5432
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  },
-  {
-    description = "HTTP"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+  ingress = [{
+    description      = "SSH"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = []
+    prefix_list_ids  = []
+    security_groups  = []
+    self             = false
+    },
+    {
+      description      = "POSTGRES"
+      from_port        = 5432
+      to_port          = 5432
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    },
+    {
+      description      = "HTTP"
+      from_port        = 80
+      to_port          = 80
+      protocol         = "tcp"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = []
+      self             = false
+    }
   ]
 
- 
+
 
   egress {
     from_port   = 0
@@ -157,5 +163,5 @@ output "db_instance_ip_addr" {
 }
 
 output "app_instance_ip_addr" {
-    value = aws_instance.servernode.public_ip
+  value = aws_instance.servernode.public_ip
 }

@@ -17,11 +17,11 @@ variable "aws_availability_zone" {
   default = "us-east-1a"
 }
 variable "key_name" {
- 
+
 }
 variable "public_key" {
-  
+
 }
 variable "private_key" {
-  
+
 }

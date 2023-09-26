@@ -1,13 +1,12 @@
 FROM node:lts-alpine3.16
 
-ADD package.json /app/
-ADD package-lock.json /app/
+WORKDIR /usr/app
 
-WORKDIR /app
+COPY package.json .
+COPY package-lock.json .
 
 RUN npm ci --legacy-peer-deps
 
-ADD . /app/
-
+COPY . .
 
 ENTRYPOINT [ "npm", "run", "docker-serve" ]

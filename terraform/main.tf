@@ -5,8 +5,9 @@ terraform {
       version = "~>4.0"
     }
   }
-  backend "pg" {
-    conn_str = "postgresql://postgres:testpassword@${aws_instance.dbnode.*.public_ip}:5432/postgres"
+  backend "s3" {
+    key = "aws/terraform/terraform.tfstate"
+    region = var.region
   }
 }
 

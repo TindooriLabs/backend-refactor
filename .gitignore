@@ -79,3 +79,5 @@ Session*.vim
 # Being able to manually ignore things is nice
 *.ignore
 *.ignore.*
+
+**/.terraform/*

@@ -10,10 +10,10 @@
     "build": "webpack",
     "test": "jest --watch",
     "ci-test": "jest --coverage",
-    "serve": "pm2 start -f build/index.js --name tindoori-api --watch --ignore-watch='node_modules keys/*'",
+    "serve": "pm2 start -f build/index.js --name backend-refactor --watch --ignore-watch='node_modules keys/*'",
     "deploy-setup": "npm install && npm run build && pm2 reload all",
     "deploy": "npm install && npm run build && npm run serve",
-    "deploy-down": "pm2 stop tindoori-api",
+    "deploy-down": "pm2 stop backend-refactor",
     "docker-serve": "node build/index.js"
   },
   "dependencies": {

@@ -11,4 +11,4 @@ COPY . .
 
 EXPOSE 3000
 
-ENTRYPOINT [ "npm", "run", "docker-serve" ]
+CMD [ "npm", "run", "start" ]

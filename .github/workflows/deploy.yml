@@ -41,7 +41,7 @@ jobs:
         working-directory: ./terraform
       - name: Terraform Apply
         id: apply
-        run: terraform apply PLAN
+        run: terraform apply
         working-directory: ./terraform
       - name: Set output
         id: set-ip

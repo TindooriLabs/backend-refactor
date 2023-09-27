@@ -27,6 +27,8 @@ resource "aws_instance" "servernode" {
   key_name               = var.key_name
   vpc_security_group_ids = [aws_security_group.main_security_group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2-profile.name
+  subnet_id                   = aws_subnet.my_public_subnet.id
+  associate_public_ip_address = true
   connection {
     type        = "ssh"
     host        = self.public_ip

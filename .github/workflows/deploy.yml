@@ -32,7 +32,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         run: |-
-          terraform plan -destroy \
+          terraform plan \
           -var="aws_region=$AWS_REGION" \
           -var="public_key=$PUBLIC_SSH_KEY" \
           -var="private_key=$PRIVATE_SSH_KEY" \
@@ -41,7 +41,7 @@ jobs:
         working-directory: ./terraform
       - name: Terraform Apply
         id: apply
-        run: terraform apply
+        run: terraform apply PLAN
         working-directory: ./terraform
       - name: Set output
         id: set-ip

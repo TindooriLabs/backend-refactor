@@ -8,7 +8,7 @@ import app from "../app.js";
 import debug from "debug";
 import http from "http";
 import buildDeps from "../config/deps.js";
-import socketIo from "socket.io";
+import {Server} from "socket.io";
 import { socketLog, socketJwtAuth } from "../socket/middleware.js";
 import {
   connect as ioConnect,
@@ -29,7 +29,7 @@ app.set('port', port);
 var server = http.createServer(app);
 
 //Socket integration
-const io = socketIo(server);
+const io = new Server(server);
 io.use(socketLog);
 
 //Socket auth: https://socket.io/docs/v4/middlewares/#sending-credentials

@@ -37,7 +37,7 @@ resource "aws_instance" "servernode" {
     timeout     = "4m"
   }
   user_data = templatefile("deploy_prisma_schema.sh", {
-    db_connection_url = "${aws_instance.dbnode.*.public_ip}"
+    db_connection_url = "$${aws_instance.dbnode.*.public_ip}"
   })
   tags = {
     "name" = "DeployVM"

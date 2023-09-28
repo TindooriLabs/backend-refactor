@@ -1,14 +1,14 @@
 FROM node:lts-alpine3.16
 
-WORKDIR /usr/app
+WORKDIR /app
 
-COPY package.json .
-COPY package-lock.json .
+COPY ["package.json", "package-lock.json", "./"]
+COPY prisma ./prisma/
+COPY .env   .env
 
-RUN npm ci --legacy-peer-deps
+RUN npm ci --legacy-peer-deps 
 
 COPY . .
 
-EXPOSE 3000
+CMD ["npm", "run", "start"]
 
-CMD [ "npm", "run", "start" ]

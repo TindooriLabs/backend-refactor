@@ -5,6 +5,7 @@ import { errorWrapper } from "./error.js";
 
 const router = Router();
 
+
 router.post(
   "/email",
   errorWrapper(async function (req, res) {

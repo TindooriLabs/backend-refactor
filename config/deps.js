@@ -19,12 +19,12 @@ const buildDeps = async app => {
   addDateFunctions();
 
   //Build Twilio SMS client
-  const smsClient = await SMS.build();
-  app.set("smsClient", smsClient);
+  // const smsClient = await SMS.build();
+  // app.set("smsClient", smsClient);
 
   //Build AWS Secrets Manager
-  const apnClient = await ApnClient.build();
-  app.set("apnClient", apnClient);
+  // const apnClient = await ApnClient.build();
+  // app.set("apnClient", apnClient);
 
   //Postgres
   await connectPostgres();

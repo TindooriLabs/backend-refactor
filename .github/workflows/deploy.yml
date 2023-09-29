@@ -115,18 +115,18 @@ jobs:
             sudo docker rm myappcontainer || true
             sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
             sudo docker run -d --name myappcontainer \ 
-            -e DATABASE_URL=$DATABASE_URL \
-            -e GOOGLE_TRANSLATE_API_KEY=$GOOGLE_TRANSLATE_API_KEY \
-            -e ENV=$ENV \
-            -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
-            -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
-            -e AWS_IMAGES_BUCKET=$AWS_IMAGES_BUCKET \
-            -e TINDOORI_USE_LOCAL=$TINDOORI_USE_LOCAL \
-            -e POSTGRES_HOST=$POSTGRES_HOST \
-            -e POSTGRES_PORT=$POSTGRES_PORT \
-            -e POSTGRES_DB=$POSTGRES_DB \
-            -e POSTGRES_USER=$POSTGRES_USER \
-            -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
-            -e JWT_SECRET=$JWT_SECRET \
-            -e PORT=$PORT \
+            -env DATABASE_URL=$DATABASE_URL \
+            -env GOOGLE_TRANSLATE_API_KEY=$GOOGLE_TRANSLATE_API_KEY \
+            -env ENV=$ENV \
+            -env AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+            -env AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+            -env AWS_IMAGES_BUCKET=$AWS_IMAGES_BUCKET \
+            -env TINDOORI_USE_LOCAL=$TINDOORI_USE_LOCAL \
+            -env POSTGRES_HOST=$POSTGRES_HOST \
+            -env POSTGRES_PORT=$POSTGRES_PORT \
+            -env POSTGRES_DB=$POSTGRES_DB \
+            -env POSTGRES_USER=$POSTGRES_USER \
+            -env POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+            -env JWT_SECRET=$JWT_SECRET \
+            -env PORT=$PORT \
             -p $PORT:$PORT $REGISTRY/$REPOSITORY:$IMAGE_TAG

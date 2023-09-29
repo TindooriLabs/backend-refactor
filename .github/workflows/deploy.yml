@@ -88,7 +88,20 @@ jobs:
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
         run: |-
-          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg JWT=iP3_771/2@%%M .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg JWT=$JWT_SECRET \
+          --build-arg DB_URL=$DATABASE_URL \
+          --build-arg GOOGLE_API_KEY=$GOOGLE_TRANSLATE_API_KEY \
+          --build-arg ENV=$ENV \
+          --build-arg AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \
+          --build-arg AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \
+          --build-arg AWS_IMAGES_BUCKET=$AWS_IMAGES_BUCKET \
+          --build-arg TINDOORI_USE_LOCAL=$TINDOORI_USE_LOCAL \
+          --build-arg POSTGRES_HOST=$POSTGRES_HOST \
+          --build-arg POSTGRES_PORT=$POSTGRES_PORT \
+          --build-arg POSTGRES_DB=$POSTGRES_DB \
+          --build-arg POSTGRES_USER=$POSTGRES_USER \
+          --build-arg POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+          --build-arg PORT=$PORT .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./
       - name: Deploy docker image to EC2

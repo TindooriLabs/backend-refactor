@@ -4,6 +4,7 @@ WORKDIR /app
 
 COPY ["package.json", "package-lock.json", "./"]
 COPY prisma ./prisma/
+COPY .env   ./.env/
 
 RUN npm ci --legacy-peer-deps 
 

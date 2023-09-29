@@ -9,7 +9,8 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-ENV JWT_SECRET=test
+ARG JWT
+ENV JWT_SECRET $JWT
 
 CMD ["npm", "run", "start"]
 

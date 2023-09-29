@@ -1,0 +1,1326 @@
+openapi: 3.0.3
+info:
+  title: Tindoori API
+  description: |-
+    Tindoori's v1 API.
+  version: 1.0.0
+servers:
+  - url: https://dev.api.tindoori.com
+tags:
+  - name: auth
+    description: Login and auth actions
+  - name: user
+    description: User actions
+  - name: profile
+    description: User profile actions
+  - name: profile images
+    description: User profile image actions
+  - name: preferences
+    description: User profile preferences
+  - name: conversation
+    description: Send and recieve chat messages between users
+  - name: relationship
+    description: User-to-user relationship actions
+paths:
+  /auth/email:
+    post:
+      tags:
+        - auth
+      summary: Create a new user with email login
+      description: Create a new user with email login
+      operationId: signupEmail
+      requestBody:
+        description: Create a new user with email login
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: person@email.com
+                password:
+                  type: string
+                  example: password123
+                dob:
+                  type: string
+                  example: '01/01/2022'
+                name:
+                  type: string
+                  example: Amal
+                appleDeviceId:
+                  type: string
+                  description: ID of the user's Apple device
+                  example: 12345
+                mobile:
+                  type: string
+                  description: User's mobile number with country code
+                  example: +14124567890
+        required: true
+      responses:
+        204:
+          description: Success
+        207:
+          description: Partial success. The user was created but the verification code could not be sent. Proceed by calling POST /user/mobile to get a new code.
+        400:
+          description: Bad request
+        '409':
+          description: Duplicate user
+  /auth/email/login:
+    post:
+      tags:
+        - auth
+      summary: Log in an existing verified user and get a JWT
+      description: Log in an existing verified user and get a JWT
+      operationId: loginEmail
+      requestBody:
+        description: User login information
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: person@email.com
+                password:
+                  type: string
+                  example: password123
+                appleDeviceId:
+                  type: string
+                  description: ID of the user's Apple device
+                  example: 12345
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: string
+                    example: eyJhbGciOoJIPzI1NiIsInT5cCI6IkpXVCJ9.eyJlbWFpbCI6InRlc3R1c2VyQHRpbmRvb3JpLmNvbSIsInVzZXJJZCI6MTYsImlhdCI6MTY2MTgyNjg3Nn0.diluXqOR0wNJqKCKd79vkBtX4fhvZbUqyzUo4aDlfnM
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden (user has not completed dual verification)
+  /user:
+    get:
+      tags:
+        - user
+      summary: Get information for the user in the token, including demographics and user profile information
+      description: Get information for the user in the token, including demographics and user profile information
+      parameters:
+        - in: path
+          name: userId
+          description: The ID of the user to get information on
+          schema:
+            type: integer
+            example: 1234
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: Erik
+                  dob:
+                    type: string
+                    example: "1995-11-29T06:00:00.000Z"
+                  lastLon:
+                    type: number
+                    description: User's last longitude location value
+                    example: 43.123
+                  lastLat:
+                    type: number
+                    description: User's last latitude location value
+                    example: 100.123
+                  distance:
+                    type: number
+                    description: Distance between user (from params) and requesting user (from token) in miles
+                    example: 10.123
+                  statusId:
+                    type: integer
+                    description: User's current status. 1 = Active
+                    example: 1
+                  email:
+                    type: string
+                    example: amal@tindoori.com
+                  mobile:
+                    type: string
+                    example: "+14129330000"
+                  ethnicityId:
+                    type: integer
+                    example: 1
+                  bio:
+                    type: string
+                    description: User's free-text bio info
+                    example: "Hi my name is whatever and I like who cares"
+                  hometown:
+                    type: string
+                    example: Pittsburgh
+                  karmaScore:
+                    type: number
+                    description: User's karma score between 1-5. Rounded to 2 decimal places
+                    example: 4.55
+                  images:
+                    type: array
+                    description: User image metadata
+                    example: [{ "id": "4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8","ordinal": 0, "originalName": "pgh.jpeg", "s3Dir": "user-1/4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8.jpg", "_id": "63680f1f3cd43cb416d82795" }, { "id": "85e59567-b5cf-4d1b-94dc-a22cae1cfc34", "ordinal": 1, "originalName": "pgh.jpeg", "s3Dir": "user-1/ 85e59567-b5cf-4d1b-94dc-a22cae1cfc34.jpg", "_id": "63680f1f3cd43cb416d82796" }]
+                  interests:
+                    type: array
+                    description: User's interests
+                    example: ["books", "sports", "movies"]
+                  prompts:
+                    type: object
+                    description: User prompts and responses keyed by prompt ID
+                    example: { "634c0bf1b633442d1ef45c6e": "I would love to travel to wherever", "634d92e5b41506c334639f0d": "My answer is super deep and amazing." }
+        400:
+          description: Bad request
+        '404':
+          description: User not found
+  /user/${userId}:
+    get:
+      tags:
+        - user
+      summary: Get information for a user, including demographics and user profile information
+      description: Get information for a user, including demographics and user profile information
+      parameters:
+        - in: path
+          name: userId
+          description: The ID of the user to get information on
+          schema:
+            type: integer
+            example: 1234
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: Erik
+                  dob:
+                    type: string
+                    example: "1995-11-29T06:00:00.000Z"
+                  lastLon:
+                    type: number
+                    description: User's last longitude location value
+                    example: 43.123
+                  lastLat:
+                    type: number
+                    description: User's last latitude location value
+                    example: 100.123
+                  statusId:
+                    type: integer
+                    description: User's current status. 1 = Active
+                    example: 1
+                  ethnicityId:
+                    type: integer
+                    example: 1
+                  bio:
+                    type: string
+                    description: User's free-text bio info
+                    example: "Hi my name is whatever and I like who cares"
+                  images:
+                    type: array
+                    description: User image metadata
+                    example: [{ "id": "4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8","ordinal": 0, "originalName": "pgh.jpeg", "s3Dir": "user-1/4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8.jpg", "_id": "63680f1f3cd43cb416d82795" }, { "id": "85e59567-b5cf-4d1b-94dc-a22cae1cfc34", "ordinal": 1, "originalName": "pgh.jpeg", "s3Dir": "user-1/ 85e59567-b5cf-4d1b-94dc-a22cae1cfc34.jpg", "_id": "63680f1f3cd43cb416d82796" }]
+                  interests:
+                    type: array
+                    description: User's interests
+                    example: ["books", "sports", "movies"]
+                  prompts:
+                    type: object
+                    description: User prompts and responses keyed by prompt ID
+                    example: { "634c0bf1b633442d1ef45c6e": "I would love to travel to wherever", "634d92e5b41506c334639f0d": "My answer is super deep and amazing." }
+        400:
+          description: Bad request
+        '404':
+          description: User not found
+  /user/location:
+    patch:
+      tags:
+        - user
+      summary: Set user's location
+      description: Set user's location
+      requestBody:
+        description: Set user's location
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lat:
+                  type: number
+                  description: Latitutde
+                  example: 50.123
+                lon:
+                  type: number
+                  description: Longitude
+                  example: 45.1
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/status:
+    patch:
+      tags:
+        - user
+      summary: Set user's status
+      description: Set user's status
+      requestBody:
+        description: Set user's status
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: ["ACTIVE", "PAUSED", "DELETED"]
+                  description: User status - ACTIVE, PAUSED, or DELETED
+                  example: PAUSED
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/dob:
+    patch:
+      tags:
+        - user
+      summary: Set user's date of birth (dob)
+      description: Set user's date of birth (dob)
+      requestBody:
+        description: Set user's date of birth (dob)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dob:
+                  type: string
+                  description: User's date of birth (mm/dd/yyyy)
+                  example: 01/01/2000
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/subscription:
+    patch:
+      summary: Update a user's subscription tier
+      description: |
+        Update the subscription tier for a user, identified by their user ID.
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - subscriptionTierId
+              properties:
+                subscriptionTierId:
+                  type: integer
+                  description: The ID of the subscription tier. 1 - Free, 2 - Premium.
+                  example: 1
+      responses:
+        204:
+          description: No Content
+  /auth/mobile/verify:
+    post:
+      tags:
+        - auth
+      summary: Verify user's mobile number
+      description: Verify mobile number
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: dev@tindoori.com
+                password:
+                  type: string
+                  example: 'mypassword'
+                code:
+                  type: string
+                  description: 6-digit mobile code
+                  example: 012345
+      responses:
+        200:
+          description: Mobile number verified successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verified:
+                    type: boolean
+                    description: True if mobile number is verified
+                  user:
+                    type: string
+                    description: Token identifying the user. Use this to login to authenticated routes.
+        401:
+          description: Unauthorized
+        400:
+          description: Invalid request body
+  /user/ethnicity:
+    patch:
+      tags:
+        - user
+      summary: Set user's ethnicity
+      description: Set user's ethnicity
+      requestBody:
+        description: Set user's ethnicity
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ethnicityId:
+                  type: integer
+                  enum: [1,2,3,4,5,6]
+                  description: User ethnicity. 1 - Asian, 2 - African American, 3 - Alaska Native, 4 - Pacific Islander, 5 - White, 6 - Latin American
+                  example: 3
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/{userId}/karma:
+    patch:
+      tags:
+        - user
+      summary: Set karma responses
+      description: Set karma responses by the token user against the userId in the path param
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user being rated
+          required: true
+      requestBody:
+        description: Request body for updating user karma scores
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                karmaResponses:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      questionId:
+                        type: integer
+                      rating:
+                        type: integer
+                        minimum: 1
+                        maximum: 5
+      responses:
+        '204':
+          description: Successfully updated user karma scores
+        '400':
+          description: Invalid request payload
+        '401':
+          description: Unauthorized request
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+  /user/profile/prompts:
+    get:
+      tags:
+        - profile
+      summary: Get list of prompts
+      description: Get list of prompts
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/promptsList'
+        400:
+          description: Bad request
+    put:
+      tags:
+        - profile
+      summary: Add prompt responses
+      description: Add prompt responses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  description: Prompt. Can be a prompt ID (from prompts GET) OR a non-ID string, in which case a new prompt will be created.
+                  type: string
+                  example: What is your favorite prompt to answer?
+                response:
+                  type: string
+                  example: My favorite prompt to answer is the one about cuisine!
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+    delete:
+      tags:
+        - profile
+      summary: Delete prompt responses for a user
+      description: Delete prompt responses for a user. This does not delete the prompt from the list of available prompts, it just unlinks the prompt and response from the specific user's profile.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                promptId:
+                  type: string
+                  example: 634c0806b7e166e92678407f
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/profile/find:
+    get:
+      tags:
+        - profile
+      summary: Search for users to match with
+      description: Search for users to match with
+      parameters:
+        - in: query
+          name: minAge
+          description: Minimum search age, inclusive
+          schema:
+            type: integer
+            example: 25
+          required: true
+        - in: query
+          name: maxAge
+          description: Maximum search age, inclusive
+          schema:
+            type: integer
+            example: 30
+          required: true
+        - in: query
+          name: maxDistance
+          description: Maximum search distance in miles, inclusive
+          schema:
+            type: integer
+            example: 5
+          required: true
+        - in: query
+          name: maxResults
+          description: Max user results. Defaults to 10.
+          schema:
+            type: integer
+            example: 15
+          required: false
+      responses:
+        204:
+          description: No Content
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      description: User ID
+                      example: 5
+                    name:
+                      type: string
+                      example: "Amal"
+                    genderIdentityId:
+                      type: integer
+                      example: 1
+                    ethnicityId:
+                      type: integer
+                      example: 1
+                    existingRelationshipTypeId:
+                      type: integer
+                      description: Existing relationship of the found user towards the user searching. Only shows for Premium users, shows -1 for Free users.
+                      example: 1
+                    userRelationshipAggregateTypeId:
+                      type: integer
+                      description: Existing aggregate relationship between the found user and the user searching. Only shows for Premium users, shows -1 for Free users.
+                      example: 1
+                    distance:
+                      type: number
+                      description: User distance from searching user in miles
+                      example: 100
+                    bio:
+                      type: string
+                      example: Hi, I'm single and ready to mingle
+                    images:
+                      $ref: '#/definitions/images'
+        400:
+          description: Bad request
+  /user/profile:
+    patch:
+      tags:
+        - profile
+      summary: Set profile
+      description: Set profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bio:
+                  type: string
+                  example: This is my profile bio!
+                  required: false
+                hometown:
+                  type: string
+                  example: Pittsburgh
+                  required: false
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/profile/interests:
+    put:
+      tags:
+        - profile
+      summary: Add interests
+      description: Add interests
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                interests:
+                  description: Array of free-text interests. Must be 100 characters or less.
+                  type: array
+                  example: ["soccer", "movies"]
+                  items:
+                    type: string
+                    example: soccer
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+    delete:
+      tags:
+        - profile
+      summary: Delete interests for a user
+      description: Delete interests for a user. This only removes the interest from the specific user's profile.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                interests:
+                  description: Array of free-text interests. Must be 100 characters or less.
+                  type: array
+                  example: ["soccer", "movies"]
+                  items:
+                    type: string
+                    example: soccer
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/profile/image:
+    put:
+      tags:
+        - profile images
+      summary: Add profile image
+      description: Add profile image
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  description: Image file (.jpg or .jpeg)
+                  type: string
+                ordinal:
+                  description: Ordinal of the image (in which order should the image show)
+                  type: integer
+                  example: 3
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    description: UUID of the new image
+                    type: string
+                    example: 81f28dad-97d5-4505-9717-0e8af275ad93
+                  name:
+                    description: File name/storage name of the new image
+                    type: string
+                    example: user-1/81f28dad-97d5-4505-9717-0e8af275ad93.jpg
+        400:
+          description: Bad request
+  /user/profile/image/${file}:
+    delete:
+      tags:
+        - profile images
+      summary: Delete profile image
+      description: Delete profile image
+      parameters:
+        - in: path
+          name: file
+          description: The name of the file to delete
+          schema:
+            type: string
+            example: user-1%2F36fc14a9-1b13-49c1-be5a-81a9d6ebe001.jpg
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                image:
+                  description: Image file (.jpg or .jpeg)
+                  type: string
+                ordinal:
+                  description: Ordinal of the image (in which order should the image show)
+                  type: integer
+                  example: 3
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/profile/images:
+    patch:
+      tags:
+        - profile images
+      summary: Update image metadata
+      description: "Update image metadata. The key of the object (additionalProp# in the example below) is the image ID, e.g.  f483e37e-e05c-4a15-9d11-f1d04b947bf3. A note on image ordinals: The backend does not manage ordinals or enforce any particular values, it just stores the values and returns them. Clients should manage the ordinal values using this endpoint."
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties:
+                type: object
+                properties:
+                  ordinal:
+                    description: Ordinal of the image (in which order should the image show)
+                    type: integer
+                    example: 3
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad request
+  /user/profile/images/${userId}:
+    get:
+      tags:
+        - profile images
+      summary: Get a user's profile images
+      description: Get a user's profile images
+      parameters:
+        - in: path
+          name: user
+          description: The ID of the user to get images for
+          schema:
+            type: integer
+            example: 1234
+          required: true
+        - in: query
+          name: ordinal
+          description: The ordinal for the image you want. This optional param allows you to specify a single image by ordinal (for example, get the first image)
+          schema:
+            type: integer
+            example: 1
+          required: false
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  images:
+                    type: array
+                    description: A list of user images
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: 4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8
+                        ordinal:
+                          type: integer
+                          example: 2
+                        originalName:
+                          type: string
+                          description: The initial name of the file that was uploaded
+                          example: myPhoto.jpeg
+                        s3Dir:
+                          type: string
+                          description: The file name used in storage. Follows the pattern 'user-${userId}/{fileId}.jpg'
+                          example: user-1/4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8.jpg
+                        buffer:
+                          type: object
+                          description: The file buffer for the image. Has 'type' and 'data' props
+                          example: {"type": "Buffer", data: [1,2,3]}
+        400:
+          description: Bad request
+  /user/preferences/gender-identity:
+    patch:
+      tags:
+        - preferences
+      summary: Set a user's gender identity preference
+      description: Set a user's gender identity preference
+      requestBody:
+        description: ID of user's gender identity. 1 - Man, 2 - Woman, 3 - Non-Binary
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                genderIdentityId:
+                  type: integer
+                  enum: [1,2,3]
+                  example: 2
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /user/preferences/sexualities:
+    patch:
+      tags:
+        - preferences
+      summary: Set a user's sexualities
+      description: Set a user's sexualities
+      requestBody:
+        description: IDs of user's sexualities. 1 - Straight, 2 - Gay, 3 - Lesbian, 4 - Bisexual, 5 - Pansexual, 6 - Prefer not to say
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sexualityIds:
+                  type: array
+                  enum: [1,2,3,4,5,6]
+                  example: [2,4]
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /user/preferences/genders-interested:
+    patch:
+      tags:
+        - preferences
+      summary: Set a user's preference for genders they are interested in matching with
+      description: Set a user's preference for genders they are interested in matching with
+      requestBody:
+        description: IDs of gender identities. 1 - Man, 2 - Woman, 3 - Non-Binary
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sexualityIds:
+                  type: array
+                  enum: [1,2,3]
+                  example: [1,3]
+        required: true
+      responses:
+        204:
+          description: Success
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /user/preferences/languages:
+    patch:
+      tags:
+        - preferences
+      summary: Update user's preferred languages
+      description: Update the preferred languages
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userLanguages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      languageId:
+                        type: integer
+                        description: Language ISO identifier
+                        example: en
+                      languageLevelId:
+                        type: integer
+                        description: User's relationship to the language. 1 - Want to Learn, 2 - Beginner, 3 - Intermediate, 4 - Fluent
+      responses:
+        200:
+          description: The user's preferred languages have been updated successfully
+        401:
+          description: The JWT token is missing or invalid
+        422:
+          description: The request body is missing or invalid
+  /user/preferences/all:
+    get:
+      tags:
+        - preferences
+      summary: Get a user's server-stored profile preferences
+      description: Get a user's server-stored profile preferences
+      responses:
+        204:
+          description: No matches found
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: User ID
+                    example: 123
+                  lastLon:
+                    type: number
+                    description: Longitude of user's last (i.e. current) location
+                    example: 100.123
+                  lastLat:
+                    type: number
+                    description: Latitutde of user's last (i.e. current) location
+                    example: -100.123
+                  statusId:
+                    type: number
+                    description: User's status
+                    example: 1
+                  dob:
+                    type: string
+                    description: User's date of birth as a timezoned string
+                    example: "2000-01-20T06:00:00.000Z"
+                  genderIdentityId:
+                    type: number
+                    description: User's gender identity ID
+                    example: 1
+                  userLanguages:
+                    type: array
+                    description: User's language preferences and levels
+                    example: [{"languageId": 1, "languageLevelId": 3}, {"languageId": 2, "languageLevelId": 2}]
+                  userSexualities:
+                    type: array
+                    description: User's sexualities
+                    example: [1,3]
+                  userInterestedInGenderIdentities:
+                    type: array
+                    description: User's interested in gender identities
+                    example: [2,3]
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /conversation/message:
+    post:
+      tags:
+        - conversation
+      summary: Send a message to a user or group of users
+      description: Send a message to a user or group of users
+      parameters:
+        - in: query
+          name: pageLength
+          description: The number of messages to return, starting with the most recent message
+          schema:
+            type: integer
+      requestBody:
+        description: An object with users and the message. Participants OR a conversation ID is required. Participants without a matching conversation will create a new one
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                toUserIds:
+                  type: array
+                  example: [1,4]
+                conversationID:
+                  type: string
+                  example: 635079c763c36e33e7955fe0
+                message:
+                  type: string
+                  example: "Hey, what's up?"
+                language:
+                  type: string
+                  default: 'en'
+                  description: 2-character ISO language key. https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
+                  example: "hi"
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participants:
+                    type: array
+                    description: A list of users participating in the conversation
+                    example: [{"id": 1, "name": "Erik"},{"id": 4, "name": "Amal"}]
+                  id:
+                    type: string
+                    description: Conversation ID
+                    example: 635079c763c36e33e7955fe0
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /conversation/message/translate:
+    post:
+      tags:
+        - conversation
+      summary: Translate a set of messages to a given language
+      description: Translate a set of messages to a given language
+      requestBody:
+        description: An array of message IDs and a target language
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                messageIds:
+                  type: array
+                  example: ["63839d852a8d01e2c127d32d", "63839dc82a8d01e2c127d332"]
+                language:
+                  type: string
+                  description: Target language in ISO 639-1
+                  example: en
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    message:
+                      type: string
+                      example: 'My original message'
+                    sent:
+                      type: string
+                      example: "Sun Nov 27 2022 11:25:25 GMT-0600 (Central Standard Time)"
+                    fromUserId:
+                      type: integer
+                      example: 1
+                    ordinal:
+                      type: integer
+                      example: 0
+                    originalLanguage:
+                      type: string
+                      example: 'hi'
+                    lastTranslationLanguage:
+                      type: string
+                      description: The last requested translation language. Use this to determine the current display language for a message.
+                      example: 'hi'
+                    translations:
+                      type: object
+                      example: {"en": {"language": "en", "message": "this is the english translation", "expires": "2022-12-13T00:20:20.984Z"}}
+        204:
+          description: No Content
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /conversation/${conversationId}:
+    get:
+      tags:
+        - conversation
+      summary: Get messages in a conversation
+      description: Get messages in a conversation
+      parameters:
+        - in: path
+          name: conversationId
+          description: The ID of the conversation to return
+          schema:
+            type: integer
+          required: true
+        - in: query
+          name: page
+          description: The page number to retrieve. Page 1 begins with the most recent message.
+          schema:
+            type: integer
+          required: false
+        - in: query
+          name: pageLength
+          description: The number of messages to return, starting with the most recent message
+          schema:
+            type: integer
+          required: false
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  participants:
+                    type: array
+                    description: A list of users participating in the conversation
+                    example: [{"id": 1, "name": "Erik"},{"id": 4, "name": "Amal"}]
+                  lastMessage:
+                    type: object
+                    description: The last message sent in the conversation
+                    example: {"message": "Hey, what's up?", "sent": "2022-10-19T22:28:19.164Z", "fromUserId": 2, "ordinal": 25, originalLanguage: 'hi', "id": "6362dfeb12eb3f4d70f99a08"}
+                  messages:
+                    type: array
+                    description: A list of the past 10000 messages in the conversation. The number of messages is configurable with query params.
+                    example: [{"message": "Hey, what's up?", "sent": "2022-10-19T22:28:19.164Z", "fromUserId": 2, "ordinal": 25, originalLanguage: 'hi', "id": "6362dfeb12eb3f4d70f99a08", "translations": {"en": {"language": "en", "message": "this is the english translation", "expires": "2022-12-13T00:20:20.984Z"}}}]
+                  id:
+                    type: string
+                    description: Conversation ID
+                    example: 635079c763c36e33e7955fe0
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /user/${userId}/conversations:
+    get:
+      tags:
+        - conversation
+      summary: Get a list of conversations for a user
+      description: Get a list of conversations for a user
+      parameters:
+        - in: path
+          name: userId
+          description: The ID of the user
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  type: object
+                  properties:
+                    participants:
+                      type: array
+                      description: A list of users participating in the conversation
+                      example: [{"id": 1, "name": "Erik"},{"id": 4, "name": "Amal"}]
+                    lastMessage:
+                      type: object
+                      description: The last message sent in the conversation
+                      example: {"message": "Hey, what's up?", "sent": "2022-10-19T22:28:19.164Z", "fromUserId": 2, "ordinal": 25,  language: 'en', "id": "6362dfeb12eb3f4d70f99a08"}
+                    id:
+                      type: string
+                      description: Conversation ID
+                      example: 635079c763c36e33e7955fe0
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+  /user/relationship/${userId}:
+    post:
+      tags:
+        - relationship
+      summary: Add/update a user relationship
+      description: Add/update a user relationship. The action is directed from one user (the agent user, using the JWT on the call) to another user (the patient user, set in the path param). Relationships are aggregted between users, e.g. if user A likes user B (one call) and user B likes user A (second call), user A and B match.
+      parameters:
+        - in: path
+          name: userId
+          description: The ID of the patient user, i.e. the user that will be liked, skipped, or unmatched
+          schema:
+            type: integer
+            example: 2
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                relationshipType:
+                  type: string
+                  enum: [LIKE, SKIP, UNMATCH]
+                  example: LIKE
+        required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  relationshipType:
+                    type: string
+                    description: The status of the aggregate relationship between the two users. Incomplete - aggregate relationship is incomplete, e.g. user A has liked B but B has not taken any action on A. Match - A and B like each other. Nonmatch - The aggregate relationship is complete but not a match, e.g. A liked B but B skipped A. Unmatch - The users were matched but are no longer matched after this action.
+                    enum: [INCOMPLETE, MATCH, NONMATCH, UNMATCH]
+                    example: LIKE
+                  remainingSwipes:
+                    type: integer
+                    description: The number of swipes remaining to the user in the time window, including this action. Does not return for premium users. When remainingSwipes is 0, this endpoint will return a 400.
+                    example: 5
+                  windowEnd:
+                    type: string
+                    description: The time that the current window ends in UTC. After the window end, remaining swipes is reset. Does not return for premium users.
+                    example: "2022-12-18T16:44:56.000Z"
+        401:
+          description: Unauthorized
+        400:
+          description: Bad Request
+        500:
+          description: Server Error
+  /user/relationship/${relationshipType}:
+    get:
+      tags:
+        - relationship
+      summary: Get aggregate relationships for a user
+      description: Get aggregate relationships for a user. Relationships are aggregted between users, e.g. if user A likes user B (one call) and user B likes user A (second call), user A and B match.
+      parameters:
+        - in: path
+          name: relationshipType
+          description: Relationship type to retreive
+          schema:
+            type: string
+            enum: [INCOMPLETE, MATCH, NONMATCH, UNMATCH]
+            example: MATCH
+          required: true
+      responses:
+        204:
+          description: No Content
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                description: A list of aggregate relationships for the user of the specified type
+                items:
+                  type: object
+                  properties:
+                    userId:
+                      type: integer
+                      description: The ID of the user that the relationship is with
+                      example: 2
+                    userRelationshipAggregateTypeId:
+                      type: integer
+                      description: The status of the aggregate relationship between the two users. 1 (Incomplete) - aggregate relationship is incomplete, e.g. user A has liked B but B has not taken any action on A. 2 (Match) - A and B like each other. 3 (Nonmatch) - The aggregate relationship is complete but not a match, e.g. A liked B but B skipped A. 4 (Unmatch) - The users were matched but are no longer matched after this action.
+        401:
+          description: Unauthorized
+        500:
+          description: Server Error
+components:
+  securitySchemes:
+    token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - token: []  
+definitions:
+  promptsList:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "634c00efeb7b7345f9cdef26"
+        text:
+          type: string
+          example: "What kind of cuisine do you enjoy?"
+  images:
+    type: array
+    description: A list of user images
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8
+        ordinal:
+          type: integer
+          example: 2
+        originalName:
+          type: string
+          description: The initial name of the file that was uploaded
+          example: myPhoto.jpeg
+        s3Dir:
+          type: string
+          description: The file name used in storage. Follows the pattern 'user-${userId}/{fileId}.jpg'
+          example: user-1/4e4f61af-a0aa-4cb8-8c00-62b1aa7fe0a8.jpg
+        buffer:
+          type: object
+          description: The file buffer for the image. Has 'type' and 'data' props
+          example: {"type": "Buffer", data: [1,2,3]}

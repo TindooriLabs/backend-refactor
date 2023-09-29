@@ -78,6 +78,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
+          DATABASE_URL: postgresql://postgres:testpassword@${{ env.DB_PUBLIC_IP }}:5432/postgres
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG

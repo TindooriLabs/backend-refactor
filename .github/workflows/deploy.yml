@@ -88,10 +88,7 @@ jobs:
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
         run: |-
-          docker build \ 
-          -t $REGISTRY/$REPOSITORY:$IMAGE_TAG \
-          --build-arg GOOGLE_TRANSLATE_API_KEY=$GOOGLE_TRANSLATE_API_KEY \
-          --build-arg JWT_SECRET=$JWT_SECRET .
+          docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./
       - name: Deploy docker image to EC2
@@ -117,5 +114,5 @@ jobs:
             sudo docker stop myappcontainer || true
             sudo docker rm myappcontainer || true
             sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            sudo docker run -d --name myappcontainer -p $PORT:$PORT $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            sudo docker run -d --name myappcontainer --env JWT_SECRET=$JWT_SECRET -p $PORT:$PORT $REGISTRY/$REPOSITORY:$IMAGE_TAG
             

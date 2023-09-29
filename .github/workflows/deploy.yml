@@ -114,5 +114,5 @@ jobs:
             sudo docker stop myappcontainer || true
             sudo docker rm myappcontainer || true
             sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            sudo docker run -d --name myappcontainer --env JWT_SECRET=$JWT_SECRET -p $PORT:$PORT $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            sudo docker run -d --name myappcontainer --env JWT_SECRET=$JWT_SECRET -p 3000:3000 $REGISTRY/$REPOSITORY:$IMAGE_TAG
             

@@ -114,7 +114,7 @@ jobs:
             sudo docker stop myappcontainer || true
             sudo docker rm myappcontainer || true
             sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            sudo docker run -d --name myappcontainer \ 
+            sudo docker run -d --name myappcontainer -p $PORT:$PORT \ 
             --env DATABASE_URL=$DATABASE_URL \
             --env GOOGLE_TRANSLATE_API_KEY=$GOOGLE_TRANSLATE_API_KEY \
             --env ENV=$ENV \
@@ -129,4 +129,5 @@ jobs:
             --env POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
             --env JWT_SECRET=$JWT_SECRET \
             --env PORT=$PORT \
-            -p $PORT:$PORT $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            

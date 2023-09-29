@@ -4,9 +4,9 @@ export default class S3 {
   constructor() {
     this.client = new AWS.S3({
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
     });
-    this.imageBucket = process.env.IMAGES_BUCKET;
+    this.imageBucket = process.env.AWS_IMAGES_BUCKET;
   }
 
   async addObject(bucket, name, fileBuffer, contentType) {

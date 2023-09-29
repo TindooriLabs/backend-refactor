@@ -12,13 +12,22 @@ env:
   PUBLIC_SSH_KEY: ${{ secrets.AWS_SSH_KEY_PUBLIC }}
   AWS_REGION: ${{ secrets.AWS_REGION }}
   AWS_KEY_PAIR_NAME: ${{ secrets.AWS_KEY_PAIR_NAME }}
-
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  GOOGLE_TRANSLATE_API_KEY: ${{ secrets.GOOGLE_TRANSLATE_API_KEY }}
+  ENV: ${{ secrets.ENV }}
+  TINDOORI_USE_LOCAL: ${{ secrets.TINDOORI_USE_LOCAL }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+  POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  PORT: ${{ secrets.PORT }}
+  AWS_IMAGES_BUCKET: ${{ secrets.AWS_IMAGES_BUCKET }}
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
     outputs:
       SERVER_PUBLIC_IP: ${{ steps.set-server-ip.outputs.app_instance_ip_addr}}
-      DB_PUBLIC_IP: ${{ steps.set-db-ip.outputs.db_instance_ip_addr}}
+      POSTGRES_HOST: ${{ steps.set-db-ip.outputs.db_instance_ip_addr}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -63,7 +72,7 @@ jobs:
       - name: Set Server IP env variable
         run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
       - name: Set DB IP env variable
-        run: echo DB_PUBLIC_IP=${{ needs.deploy-infra.outputs.DB_PUBLIC_IP }} >> $GITHUB_ENV
+        run: echo POSTGRES_HOST=${{ needs.deploy-infra.outputs.POSTGRES_HOST }} >> $GITHUB_ENV
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -78,31 +87,31 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
-          DATABASE_URL: postgresql://postgres:testpassword@${{ env.DB_PUBLIC_IP }}:5432/postgres
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./
-      # - name: Deploy docker image to EC2
-      #   env:
-      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-      #     REPOSITORY: tindoori-app
-      #     IMAGE_TAG: ${{ github.sha }}
-      #     AWS_DEFAULT_REGION: us-east-1
-      #   uses: appleboy/ssh-action@master
-      #   with:
-      #     host: ${{ env.SERVER_PUBLIC_IP }}
-      #     username: ubuntu
-      #     key: ${{ env.PRIVATE_SSH_KEY }}
-      #     envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION, DB_PUBLIC_IP
-      #     script: |-
-      #       sudo apt update
-      #       sudo apt install docker.io -y
-      #       sudo service docker restart
-      #       sudo service docker start
-      #       sudo apt install awscli -y
-      #       sudo $(aws ecr get-login --no-include-email --region us-east-1);
-      #       sudo docker stop myappcontainer || true
-      #       sudo docker rm myappcontainer || true
-      #       sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-      #       sudo docker run -d --name myappcontainer -p 3000:3000 $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      - name: Deploy docker image to EC2
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: tindoori-app
+          IMAGE_TAG: ${{ github.sha }}
+          AWS_DEFAULT_REGION: us-east-1
+          DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@${{ env.POSTGRES_HOST }}:$POSTGRES_PORT/$POSTGRES_DB
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ env.SERVER_PUBLIC_IP }}
+          username: ubuntu
+          key: ${{ env.PRIVATE_SSH_KEY }}
+          envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION, POSTGRES_HOST, POSTGRES_PORT, DATABASE_URL, GOOGLE_TRANSLATE_API_KEY, ENV, AWS_IMAGES_BUCKET, TINDOORI_USE_LOCAL, POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD, JWT_SECRET, PORT
+          script: |-
+            sudo apt update
+            sudo apt install docker.io -y
+            sudo service docker restart
+            sudo service docker start
+            sudo apt install awscli -y
+            sudo $(aws ecr get-login --no-include-email --region us-east-1);
+            sudo docker stop myappcontainer || true
+            sudo docker rm myappcontainer || true
+            sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            sudo docker run -d --name myappcontainer -p $PORT:$PORT $REGISTRY/$REPOSITORY:$IMAGE_TAG

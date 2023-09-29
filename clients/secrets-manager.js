@@ -9,7 +9,7 @@ export default class SecretsClient {
       region: "us-east-2",
       credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
       },
     };
     this.client = new SecretsManagerClient(this.config);

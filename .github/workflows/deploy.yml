@@ -82,24 +82,26 @@ jobs:
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./
-  #     - name: Deploy docker image to EC2
-  #       env:
-  #         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-  #         REPOSITORY: tindoori-app
-  #         IMAGE_TAG: ${{ github.sha }}
-  #         AWS_DEFAULT_REGION: us-east-1
-  #       uses: appleboy/ssh-action@master
-  #       with:
-  #         host: ${{ env.SERVER_PUBLIC_IP }}
-  #         username: ubuntu
-  #         key: ${{ env.PRIVATE_SSH_KEY }}
-  #         envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION, DB_PUBLIC_IP
-  #         script: |-
-  #           sudo apt update
-  #           sudo apt install docker.io -y
-  #           sudo apt install awscli -y
-  #           sudo $(aws ecr get-login --no-include-email --region us-east-1);
-  #           sudo docker stop myappcontainer || true
-  #           sudo docker rm myappcontainer || true
-  #           sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-  #           sudo docker run -d --name myappcontainer -p 3000:3000 $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      # - name: Deploy docker image to EC2
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     REPOSITORY: tindoori-app
+      #     IMAGE_TAG: ${{ github.sha }}
+      #     AWS_DEFAULT_REGION: us-east-1
+      #   uses: appleboy/ssh-action@master
+      #   with:
+      #     host: ${{ env.SERVER_PUBLIC_IP }}
+      #     username: ubuntu
+      #     key: ${{ env.PRIVATE_SSH_KEY }}
+      #     envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION, DB_PUBLIC_IP
+      #     script: |-
+      #       sudo apt update
+      #       sudo apt install docker.io -y
+      #       sudo service docker restart
+      #       sudo service docker start
+      #       sudo apt install awscli -y
+      #       sudo $(aws ecr get-login --no-include-email --region us-east-1);
+      #       sudo docker stop myappcontainer || true
+      #       sudo docker rm myappcontainer || true
+      #       sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
+      #       sudo docker run -d --name myappcontainer -p 3000:3000 $REGISTRY/$REPOSITORY:$IMAGE_TAG

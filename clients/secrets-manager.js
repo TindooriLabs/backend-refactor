@@ -1,35 +1,35 @@
-import {
-  SecretsManagerClient,
-  GetSecretValueCommand
-} from "@aws-sdk/client-secrets-manager";
+// import {
+//   SecretsManagerClient,
+//   GetSecretValueCommand
+// } from "@aws-sdk/client-secrets-manager";
 
-export default class SecretsClient {
-  constructor() {
-    this.config = {
-      region: "us-east-2",
-      credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      },
-    };
-    this.client = new SecretsManagerClient(this.config);
-  }
+// export default class SecretsClient {
+//   constructor() {
+//     this.config = {
+//       region: "us-east-2",
+//       credentials: {
+//         accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//       },
+//     };
+//     this.client = new SecretsManagerClient(this.config);
+//   }
 
-  async get(secretName) {
-    const command = new GetSecretValueCommand({
-      SecretId: secretName
-    });
-    let response;
+//   async get(secretName) {
+//     const command = new GetSecretValueCommand({
+//       SecretId: secretName
+//     });
+//     let response;
 
-    try {
-      response = await this.client.send(command);
-    } catch (error) {
-      console.log(`Error getting secret value for ${secretName}.`, error);
-      throw error;
-    }
+//     try {
+//       response = await this.client.send(command);
+//     } catch (error) {
+//       console.log(`Error getting secret value for ${secretName}.`, error);
+//       throw error;
+//     }
 
-    return JSON.parse(response.SecretString);
-  }
-}
+//     return JSON.parse(response.SecretString);
+//   }
+// }
 
-export const secretsClient = new SecretsClient();
+// export const secretsClient = new SecretsClient();

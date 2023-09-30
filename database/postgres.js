@@ -1,6 +1,6 @@
 import pg from 'pg';
 const { Pool } = pg;
-import { secretsClient } from "../clients/secrets-manager.js";
+// import { secretsClient } from "../clients/secrets-manager.js";
 
 //Override pg default to not automatically adjust timezone when selecting timestamp without timezone columns
 pg.types.setTypeParser(1114, function (stringValue) {
@@ -24,15 +24,15 @@ export async function connectPostgres() {
     };
   } else {
     //Retrieve secrets from AWS
-    const dbPasswordSecretName = `postgres-${process.env.ENV}`;
-    const dbPasswords = await secretsClient.get(dbPasswordSecretName);
-    connectionConfig = {
-      host: dbPasswords.host,
-      port: dbPasswords.port,
-      database: dbPasswords.database,
-      user: dbPasswords.user,
-      password: dbPasswords.password
-    };
+    // const dbPasswordSecretName = `postgres-${process.env.ENV}`;
+    // const dbPasswords = await secretsClient.get(dbPasswordSecretName);
+    // connectionConfig = {
+    //   host: dbPasswords.host,
+    //   port: dbPasswords.port,
+    //   database: dbPasswords.database,
+    //   user: dbPasswords.user,
+    //   password: dbPasswords.password
+    // };
   }
 
   postgresDb = new Pool(connectionConfig);

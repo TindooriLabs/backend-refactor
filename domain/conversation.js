@@ -16,7 +16,7 @@ import {
 import { languageLevelIds } from "../database/constants.js";
 import { translator } from "../clients/translate.js";
 
-import { sendNotification } from "./notify.js";
+// import { sendNotification } from "./notify.js";
 
 const getChatsWithUserNames = (arr) => {
   const promises = arr.map(async (chat) => {
@@ -149,7 +149,7 @@ export const sendMessage = async (
     },
   };
 
-  sendNotification(notification);
+  // sendNotification(notification);
 
   return { ok: true, conversation: conversationResponse };
 };

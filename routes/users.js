@@ -7,6 +7,8 @@ import {
   setSubscription,
   setDob,
   setKarmaResponses,
+  setLocation,
+  setEthnicity
 } from "../controllers/users.js";
 import { getUserConversations } from "../controllers/conversation.js";
 

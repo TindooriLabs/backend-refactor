@@ -87,6 +87,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
+          DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@${{ env.POSTGRES_HOST }}:$POSTGRES_PORT/$POSTGRES_DB
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg JWT=$JWT_SECRET \
           --build-arg DB_URL=$DATABASE_URL \
@@ -110,7 +111,6 @@ jobs:
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
           AWS_DEFAULT_REGION: us-east-1
-          DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@${{ env.POSTGRES_HOST }}:$POSTGRES_PORT/$POSTGRES_DB
         uses: appleboy/ssh-action@master
         with:
           host: ${{ env.SERVER_PUBLIC_IP }}

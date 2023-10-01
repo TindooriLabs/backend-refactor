@@ -52,6 +52,6 @@ ARG PORT
 ENV PORT $PORT
 
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:migrate"]
 
 

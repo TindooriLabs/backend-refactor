@@ -8,9 +8,11 @@ const localStrategy = new LocalStrategy(
     passReqToCallback: true,
   },
   async function (req, email, password, done) {
-    const authResult = await authenticateUser(email, password, {
-      allowUnverified: req.tindooriProps.allowUnverifiedLogin,
-    });
+    const authResult = await authenticateUser(
+      email,
+      password,
+      req.tindooriProps.allowUnverifiedLogin
+    );
 
     if (!authResult.ok || !authResult.user) {
       return done(null, false, authResult);

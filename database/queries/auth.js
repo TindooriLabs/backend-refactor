@@ -85,6 +85,7 @@ export const getUserByEmail = async (email, includePassword = false) => {
       email: true,
       mobile: true,
       passwordHash: includePassword,
+      verified: true
     },
   });
   return result;
@@ -164,6 +165,7 @@ export const setUserVerified = async (userId) => {
         email: true,
         mobile: true,
         passwordHash: true,
+        verified: true
       },
     });
   } catch (e) {

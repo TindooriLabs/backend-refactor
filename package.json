@@ -14,7 +14,9 @@
     "deploy-setup": "npm install && npm run build && pm2 reload all",
     "deploy": "npm install && npm run build && npm run serve",
     "deploy-down": "pm2 stop backend-refactor",
-    "docker-serve": "node build/index.js"
+    "docker-serve": "node build/index.js",
+    "migrate": "sh ./prisma_migrate.sh",
+    "start:migrate": "npm run migrate && npm run start"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.231.0",

@@ -162,7 +162,7 @@ resource "aws_instance" "dbnode" {
 
 # Show the public IP of the newly created instance
 output "db_instance_ip_addr" {
-  value = aws_instance.dbnode.*.public_ip
+  value = aws_instance.dbnode.public_ip
 }
 
 output "app_instance_ip_addr" {

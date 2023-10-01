@@ -87,7 +87,7 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: tindoori-app
           IMAGE_TAG: ${{ github.sha }}
-          DATABASE_URL: postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@${{ env.POSTGRES_HOST }}:$POSTGRES_PORT/$POSTGRES_DB
+          DATABASE_URL: postgresql://${{env.POSTGRES_USER}}:${{env.POSTGRES_PASSWORD}}@${{ env.POSTGRES_HOST }}:${{env.POSTGRES_PORT}}/${{env.POSTGRES_DB}}
         run: |-
           docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --build-arg JWT=$JWT_SECRET \
           --build-arg DB_URL=$DATABASE_URL \

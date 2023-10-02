@@ -1,4 +1,6 @@
-
+import Joi from "joi";
+import { statusIds } from "../database/constants.js";
+// import ISO from "iso-639-1";
 
 let schemas = {};
 
@@ -7,22 +9,21 @@ let schemas = {};
 //   const dbId = Joi.number();
 //   const dbIdArray = Joi.array().items(dbId);
 //   const mongoId = Joi.objectId();
-//   const email = Joi.string().email();
-//   const password = Joi.string();
-//   const dob = Joi.date();
+const email = Joi.string().email();
+const password = Joi.string();
+const dob = Joi.string().isoDate();
 //   const age = Joi.number();
-//   const latLon = Joi.number();
+const latitude = Joi.number().min(-90).max(90);
+const longitude = Joi.number().min(-180).max(180);
 //   const pageLength = Joi.number().positive();
 //   const page = Joi.number().positive();
 //   const imageOrdinal = Joi.number();
-//   const phoneNumber = Joi.string().min(10).max(15);
-//   const verificationCode = Joi.string().length(6);
+const phoneNumber = Joi.string().min(10).max(15);
+const verificationCode = Joi.string().length(6);
 //   const statusName = Joi.string().valid(
 //     ...Object.keys(dbConstants.userStatusIds)
 //   );
-//   const statusId = Joi.number().valid(
-//     ...Object.values(dbConstants.userStatusIds)
-//   );
+const statusId = Joi.number().valid(...Object.values(statusIds));
 //   const ethnicityId = Joi.number().valid(
 //     ...Object.values(dbConstants.ethnicityIds)
 //   );
@@ -56,8 +57,8 @@ let schemas = {};
 //   const bio = Joi.string().max(500);
 //   const interest = Joi.string().max(100);
 
-//   //Notifications
-//   const apnId = Joi.string(); //Apple Push Notification device ID
+//Notifications
+const apnId = Joi.string(); //Apple Push Notification device ID
 
 //   //User
 //   schemas.getUserParams = Joi.object().keys({
@@ -66,9 +67,9 @@ let schemas = {};
 //   schemas.setStatusBody = Joi.object().keys({
 //     status: statusName.required()
 //   });
-//   schemas.verifyMobileBody = Joi.object().keys({
-//     code: verificationCode.required()
-//   });
+schemas.verifyMobileBody = Joi.object().keys({
+  code: verificationCode.required(),
+});
 //   schemas.setSubscriptionBody = Joi.object().keys({
 //     subscriptionTierId: subscriptionTierId.required()
 //   });
@@ -172,29 +173,29 @@ let schemas = {};
 //     relationshipType: relationshipAggregateTypeName.required().insensitive()
 //   });
 
-//   //Auth
-//   schemas.emailRegisterBody = Joi.object().keys({
-//     email: email.required(),
-//     password: password.required(),
-//     name: Joi.string(),
-//     dob: dob.required(),
-//     lastLon: latLon,
-//     lastLat: latLon,
-//     statusId: statusId,
-//     appleDeviceId: apnId.optional(),
-//     mobile: phoneNumber.required()
-//   });
+//Auth
+schemas.emailRegisterBody = Joi.object().keys({
+  email: email.required(),
+  password: password.required(),
+  name: Joi.string().required(),
+  dob: dob.required(),
+  lastLon: longitude.optional(),
+  lastLat: latitude.optional(),
+  statusId: statusId.optional(),
+  appleDeviceId: apnId.optional(),
+  mobile: phoneNumber.required(),
+});
 // };
 
 export const validateSchema = (value, schemaName) => {
-//   const res = schemas[schemaName].required().validate(value);
-//   if (res.error) {
-//     return {
-//       ok: false,
-//       reason: "bad-request",
-//       message: res.error.details.map(d => d.message).join()
-//     };
-//   }
+  const res = schemas[schemaName].required().validate(value);
+  if (res.error) {
+    return {
+      ok: false,
+      reason: "bad-request",
+      message: res.error.details.map((d) => d.message).join(),
+    };
+  }
   return { ok: true };
 };
 

@@ -16,7 +16,7 @@ export const getUserPreferences = async (id) => {
     FROM "Profile" pr
     LEFT JOIN "UserMetadata" um ON pr."userId" = um."userId"
     LEFT JOIN (
-        SELECT "userId", JSON_AGG(JSON_BUILD_OBJECT('languageName', ll."languageName", 'languageLevel', ll."languageLevel")) "userLanguages"
+        SELECT "userId", JSON_AGG(JSON_BUILD_OBJECT('languageName', ll."languageName", 'languageLevel', ll."languageLevel", 'isLearning', ll."isLearning")) "userLanguages"
         FROM "LanguageAndLevel" ll
         GROUP BY "userId"
         ) ll on ll."userId" = pr."userId"

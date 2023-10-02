@@ -11,6 +11,7 @@ import {
   genderIdentityIds,
   languageLevelIds,
   sexualityIds,
+  languageIds,
 } from "../database/constants.js";
 
 export const getPreferences = async (userId) => {
@@ -24,29 +25,36 @@ export const getPreferences = async (userId) => {
   }
 
   result = result[0];
-  if (result.hasOwnProperty("accountStatus")) {
+  if (result.hasOwnProperty("accountStatus") && result["accountStatus"]) {
     result["statusId"] = statusIds[result["accountStatus"]];
     delete result["accountStatus"];
   }
-  if (result.hasOwnProperty("genderIdentity")) {
+  if (result.hasOwnProperty("genderIdentity") && result["genderIdentity"]) {
     result["genderIdentityId"] = genderIdentityIds[result["genderIdentity"]];
     delete result["genderIdentity"];
   }
-  if (result.hasOwnProperty("userLanguages")) {
+  if (result.hasOwnProperty("userLanguages") && result["userLanguages"]) {
     result["userLanguages"] = result["userLanguages"].map((lang) => {
       if (lang.hasOwnProperty("languageLevel")) {
         lang["languageLevelId"] = languageLevelIds[lang["languageLevel"]];
         delete lang["languageLevel"];
       }
+      if (lang.hasOwnProperty("languageName")) {
+        lang["languageId"] = Object.keys(languageIds).find(
+          (key) => languageIds[key] === lang["languageName"]
+        );
+        delete lang["languageName"];
+      }
+
       return lang;
     });
   }
-  if (result.hasOwnProperty("userSexualities")) {
+  if (result.hasOwnProperty("userSexualities") && result["userSexualities"]) {
     result["userSexualities"] = result["userSexualities"].map((s) => {
       return sexualityIds[s];
     });
   }
-  if (result.hasOwnProperty("userInterestedInGenderIdentities")) {
+  if (result.hasOwnProperty("userInterestedInGenderIdentities") && result["userInterestedInGenderIdentities"]) {
     result["userInterestedInGenderIdentities"] = result[
       "userInterestedInGenderIdentities"
     ].map((s) => {
@@ -86,8 +94,14 @@ export const setSexualities = async (userId, sexualitiesIds) => {
 export const setLanguages = async (userId, userLanguages) => {
   try {
     const languages = userLanguages.map((lang) => {
+      if (parseInt(lang.languageLevelId) === 1) {
+        lang.isLearning = true;
+      } else {
+        lang.isLearning = false;
+      }
+
       return {
-        languageName: lang.languageName,
+        languageName: languageIds[lang.languageId],
         languageLevel: Object.keys(languageLevelIds).find(
           (key) => languageLevelIds[key] === lang.languageLevelId
         ),

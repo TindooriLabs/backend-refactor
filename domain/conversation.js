@@ -12,8 +12,9 @@ import {
   getTranslation,
   getUserName,
   insertCachedTranslation,
+  getUsersLanguages,
 } from "../database/queries/conversation.js";
-import { languageLevelIds } from "../database/constants.js";
+import { languageLevelIds, languageIds } from "../database/constants.js";
 import { translator } from "../clients/translate.js";
 
 // import { sendNotification } from "./notify.js";
@@ -45,7 +46,7 @@ export const getUserConversations = async (userId) => {
     chat.lastMessage["message"] = chat.lastMessage["text"];
     chat.lastMessage["sent"] = chat.lastMessage["sendTime"];
     chat.lastMessage["fromUserId"] = chat.lastMessage["senderId"];
-    chat.lastMessage["language"] = chat.lastMessage["originalLanguageName"];
+    chat.lastMessage["language"] = languageIds[chat.lastMessage["originalLanguageName"]];
     ["chatId", "text", "sendTime", "senderId", "originalLanguageName"].forEach(
       (e) => delete chat.lastMessage[e]
     );
@@ -126,7 +127,7 @@ export const sendMessage = async (
     message,
     fromUserId,
     conversationId,
-    language
+    languageIds[language]
   );
 
   //Emit the notification to participants
@@ -159,7 +160,7 @@ const getCachedTranslationForMessage = async (message, targetLanguage) => {
   const cachedTranslation = await getTranslation(
     message.id,
     message.originalLanguageName,
-    targetLanguage
+    languageIds[targetLanguage]
   );
 
   //Valid cached translation
@@ -172,8 +173,10 @@ const getCachedTranslationForMessage = async (message, targetLanguage) => {
 
 const translateMessage = async (message, targetLanguage) =>
   translator.translate(
-    message.message,
-    message.originalLanguage,
+    message.text,
+    Object.keys(languageIds).find(
+      (key) => languageIds[key] === message.originalLanguageName
+    ),
     targetLanguage
   );
 
@@ -187,7 +190,7 @@ const configureTranslationForMessage = async (
   return {
     messageId: message.id,
     fromLanguageName: message.originalLanguageName,
-    toLanguageName: translationLanguage,
+    toLanguageName: languageIds[translationLanguage],
     sourceText: message.text,
     targetText: translationText,
     lastUpdated: today,
@@ -223,7 +226,7 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
   const translatedMessages = await Promise.all(
     messages.map(async (m) => {
       //Don't translate to same language
-      if (m.originalLanguageName === targetLanguage) return m;
+      if (m.originalLanguageName === languageIds[targetLanguage]) return m;
 
       //Check message for cached translation
       const cachedTranslation = await getCachedTranslationForMessage(
@@ -295,8 +298,14 @@ export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
     .sort((a, b) => {
       if (a.languageLevel === b.languageLevel) {
         // if languageLevel is the same, sort by languageId
-        if (a.languageName < b.languageName) return -1;
-        if (a.languageName > b.languageName) return 1;
+        let a_langId = Object.keys(languageIds).find(
+          (key) => languageIds[key] === a.languageName
+        );
+        let b_langId = Object.keys(languageIds).find(
+          key=> languageIds[key] === b.languageName
+        )
+        if (a_langId < b_langId) return -1;
+        if (a_langId > b_langId) return 1;
         return 0;
       }
       // sort by languageLevel

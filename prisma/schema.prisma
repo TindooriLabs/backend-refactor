@@ -78,6 +78,7 @@ enum GenderIdentity {
 }
 
 enum LanguageProficiencyLevel {
+  WANT_TO_LEARN
   BEGINNER
   INTERMEDIATE
   FLUENT

@@ -36,12 +36,32 @@ export const statusIds = {
     PREFER_NOT_TO_SAY: 6
   }
   export const languageLevelIds = {
-    BEGINNER: 1,
-    INTERMEDIATE: 2,
-    FLUENT: 3
+    WANT_TO_LEARN: 1,
+    BEGINNER: 2,
+    INTERMEDIATE: 3,
+    FLUENT: 4
   }
   export const subscriptionTierIds = {
     FREE:1,
     PREMIUM: 2
+  }
+
+  export const languageIds = {
+    ar: "Arabic",
+    bn: "Bengali",
+    tl: "Filipino",
+    hi: "Hindi",
+    ja: "Japanese",
+    ko: "Korean",
+    zh: "Mandarin",
+    tr: "Turkish",
+    vi: "Vietnamese",
+    en: "English",
+    fr: "French",
+    de: "German",
+    it: "Italian",
+    pt: "Portugese",
+    ru: "Russian",
+    es: "Spanish"
   }
   

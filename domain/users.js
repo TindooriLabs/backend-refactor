@@ -23,11 +23,11 @@ export const getUser = async (userId, requestingUserId) => {
   }
 
   sqlResult = sqlResult[0];
-  if (sqlResult.hasOwnProperty("accountStatus")) {
+  if (sqlResult.hasOwnProperty("accountStatus") && sqlResult["accountStatus"]) {
     sqlResult["statusId"] = statusIds[sqlResult["accountStatus"]];
     delete sqlResult["accountStatus"];
   }
-  if (sqlResult.hasOwnProperty("ethnicity")) {
+  if (sqlResult.hasOwnProperty("ethnicity") && sqlResult["ethnicity"]) {
     sqlResult["ethnicityId"] = ethnicityIds[sqlResult["ethnicity"]];
     delete sqlResult["ethnicity"];
   }

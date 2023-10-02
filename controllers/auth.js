@@ -7,10 +7,10 @@ import {
 
 export const emailRegister = async req => {
   //Validate body
-//   const validation = validateSchema(req.body, "emailRegisterBody");
-//   if (!validation.ok) {
-//     return getFailureBody(validation);
-//   }
+  const validation = validateSchema(req.body, "emailRegisterBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
 
   const response = await createUser(req.body);
 
@@ -34,10 +34,10 @@ export const emailLogin = (error, user, authResponse) => {
 
 export const verifyMobile = async req => {
   //Validate body
-  // const validation = validateSchema(req.body, "verifyMobileBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "verifyMobileBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId } = req.user;
   const { code } = req.body;
  

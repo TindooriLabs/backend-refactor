@@ -54,7 +54,10 @@ export const getPreferences = async (userId) => {
       return sexualityIds[s];
     });
   }
-  if (result.hasOwnProperty("userInterestedInGenderIdentities") && result["userInterestedInGenderIdentities"]) {
+  if (
+    result.hasOwnProperty("userInterestedInGenderIdentities") &&
+    result["userInterestedInGenderIdentities"]
+  ) {
     result["userInterestedInGenderIdentities"] = result[
       "userInterestedInGenderIdentities"
     ].map((s) => {

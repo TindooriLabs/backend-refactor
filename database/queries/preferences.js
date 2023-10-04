@@ -118,20 +118,28 @@ export const deleteLanguages = async (userId, languages) => {
 };
 
 export const addOrUpdateLanguages = async (userId, languages) => {
-  const userIdStr = `'${userId}'`;
-  const values = languages
-    .map((lang) => {
-      let langNameStr = `'${lang.languageName}'`;
-      let langLevelStr = `'${lang.languageLevel}'`;
-      return `( ${userIdStr}, ${langNameStr}, ${langLevelStr}, ${lang.isLearning}  )`;
-    })
-    .join();
+  try {
+    const userIdStr = `'${userId}'`;
+    const values = languages
+      .map((lang) => {
+        let langNameStr = `'${lang.languageName}'`;
+        let langLevelStr = `'${lang.languageLevel}'`;
+        return `( ${userIdStr}, ${langNameStr}, ${langLevelStr}, ${lang.isLearning}  )`;
+      })
+      .join();
 
-  const result =
-    await prisma.$queryRaw`${Prisma.raw(`INSERT INTO "LanguageAndLevel" 
+    const result =
+      await prisma.$queryRaw`${Prisma.raw(`INSERT INTO "LanguageAndLevel" 
    VALUES ${values} 
    ON CONFLICT ("userId", "languageName") DO
    UPDATE SET "languageLevel" = EXCLUDED."languageLevel", "isLearning" = EXCLUDED."isLearning";`)}`;
 
-  return result;
+    return result;
+  } catch (e) {
+    return {
+      ok: false,
+      reason: "server-error",
+      message: "Error setting languages for user",
+    };
+  }
 };

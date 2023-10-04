@@ -96,7 +96,7 @@ export const setSexualities = async (userId, sexualitiesIds) => {
 
 export const setLanguages = async (userId, userLanguages) => {
   try {
-    const languages = userLanguages.map((lang) => {
+    let languages = userLanguages.map((lang) => {
       if (parseInt(lang.languageLevelId) === 1) {
         lang.isLearning = true;
       } else {
@@ -111,6 +111,30 @@ export const setLanguages = async (userId, userLanguages) => {
         isLearning: lang.isLearning,
       };
     });
+    let langMap = {};
+    let langSet = new Set();
+    languages.map((lang) => {
+      if (langSet.has(lang.languageName)) {
+        if (lang.languageLevel !== "WANT_TO_LEARN") {
+          langMap[lang.languageName].languageLevel = lang.languageLevel;
+        }
+        langMap[lang.languageName].isLearning = true;
+      } else {
+        langSet.add(lang.languageName)
+        langMap[lang.languageName] = {
+          languageLevel: lang.languageLevel,
+          isLearning: lang.isLearning,
+        };
+      }
+    });
+    languages = [];
+    for (let key in langMap) {
+      languages.push({
+        languageName: key,
+        languageLevel: langMap[key].languageLevel,
+        isLearning: langMap[key].isLearning,
+      });
+    }
     const deleteResult = await deleteLanguages(userId, languages);
     const upsertResult = await addOrUpdateLanguages(userId, languages);
   } catch (e) {

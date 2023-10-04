@@ -70,11 +70,11 @@ export const setSubscription = async (req) => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  const { subscriptionTier } = req.body;
+  const { subscriptionTierId } = req.body;
   const { userId } = req.user;
   
 
-  const result = await setSubscriptionDomain(userId, subscriptionTier);
+  const result = await setSubscriptionDomain(userId, subscriptionTierId);
 
   //Return success
   if (result.ok) {
@@ -110,11 +110,11 @@ export const setEthnicity = async (req) => {
   // if (!validation.ok) {
   //   return getFailureBody(validation);
   // }
-  const { ethnicity } = req.body;
+  const { ethnicityId } = req.body;
   const { userId } = req.user;
   
 
-  const result = await setEthnicityDomain(userId, ethnicity);
+  const result = await setEthnicityDomain(userId, ethnicityId);
 
   //Return success
   if (result.ok) {

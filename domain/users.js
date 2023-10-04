@@ -9,7 +9,11 @@ import {
   createOrUpdateKarmaResponses,
 } from "../database/queries/users.js";
 import { getDistanceBetweenUsers } from "../util/location.js";
-import { statusIds, ethnicityIds } from "../database/constants.js";
+import {
+  statusIds,
+  ethnicityIds,
+  subscriptionTierIds,
+} from "../database/constants.js";
 
 export const getUser = async (userId, requestingUserId) => {
   //Get data from Postgres
@@ -66,7 +70,10 @@ export const setStatus = async (userId, status) => {
   return result;
 };
 
-export const setSubscription = async (userId, subscriptionTier) => {
+export const setSubscription = async (userId, subscriptionTierId) => {
+  let subscriptionTier = Object.keys(subscriptionTierIds).find(
+    (key) => subscriptionTierIds[key] === subscriptionTierId
+  );
   const result = await updateUserSubscriptionTier(userId, subscriptionTier);
   return result;
 };
@@ -76,7 +83,10 @@ export const setLocation = async (userId, lat, lon) => {
   return result;
 };
 
-export const setEthnicity = async (userId, ethnicity) => {
+export const setEthnicity = async (userId, ethnicityId) => {
+  let ethnicity = Object.keys(ethnicityIds).find(
+    (key) => ethnicityIds[key] === ethnicityId
+  );
   const result = await updateEthnicity(userId, ethnicity);
   return result;
 };

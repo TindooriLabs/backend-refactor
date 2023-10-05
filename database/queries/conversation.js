@@ -79,7 +79,7 @@ export const insertMessage = async (
   message,
   fromUserId,
   conversationId,
-  originalLanguageName = "en"
+  originalLanguageName = "English"
 ) => {
   const lastMessageResponse = await getChatById(conversationId, 1, 1);
   let lastMessage = null;

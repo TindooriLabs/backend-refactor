@@ -1,7 +1,7 @@
-// import SMS from "../clients/sms.js";
-// import ApnClient from "../clients/apn.js";
+import SMS from "../clients/sms.js";
+import ApnClient from "../clients/apn.js";
 import { connectPostgres } from "../database/postgres.js";
-// import { setSchemas } from "../util/schemas";
+import { setSchemas } from "../util/schemas.js";
 import addDateFunctions from "../util/datetime.js";
 //import app from "../app";
 
@@ -19,12 +19,12 @@ const buildDeps = async app => {
   addDateFunctions();
 
   //Build Twilio SMS client
-  // const smsClient = await SMS.build();
-  // app.set("smsClient", smsClient);
+  const smsClient = await SMS.build();
+  app.set("smsClient", smsClient);
 
   //Build AWS Secrets Manager
-  // const apnClient = await ApnClient.build();
-  // app.set("apnClient", apnClient);
+  const apnClient = await ApnClient.build();
+  app.set("apnClient", apnClient);
 
   //Postgres
   await connectPostgres();
@@ -32,7 +32,7 @@ const buildDeps = async app => {
   //The below function depends on the Postgres connection
 
   //Schemas
-  // await setSchemas();
+  await setSchemas();
 };
 
 export const featureToggle = toggleName => {

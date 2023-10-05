@@ -7,7 +7,10 @@ import {
 } from "../database/queries/relationship.js";
 import { aggregateRelationshipType } from "../util/relationship.js";
 // import { sendNotification } from "./notify.js";
-import { relationshipTypeIds } from "../database/constants.js";
+import {
+  relationshipTypeIds,
+  userRelationshipAggregateTypeIds,
+} from "../database/constants.js";
 
 export const createRelationship = async (
   agentUserId,
@@ -71,7 +74,7 @@ export const createRelationship = async (
       },
     };
 
-      // sendNotification(notification);
+    // sendNotification(notification);
   }
 
   //Update the swipe counter
@@ -103,10 +106,15 @@ export const createRelationship = async (
 };
 
 export const getRelationshipsByType = async (userId, relationshipType) => {
-  const result = await getUserRelationshipAggregatesByType(
+  let result = await getUserRelationshipAggregatesByType(
     userId,
     relationshipType
   );
-
+  result = result.map((element) => {
+    element.userRelationshipAggregateTypeId =
+      userRelationshipAggregateTypeIds[element.userRelationshipAggregateType];
+    delete element["userRelationshipAggregateType"];
+    return element;
+  });
   return { ok: true, relationships: result };
 };

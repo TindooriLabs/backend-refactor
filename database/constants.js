@@ -64,4 +64,11 @@ export const statusIds = {
     ru: "Russian",
     es: "Spanish"
   }
+
+  export const userRelationshipAggregateTypeIds = {
+    INCOMPLETE: 1,
+    MATCH: 2,
+    NONMATCH: 3,
+    UNMATCH: 4
+  }
   

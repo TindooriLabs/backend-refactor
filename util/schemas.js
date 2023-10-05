@@ -4,7 +4,7 @@ import { statusIds } from "../database/constants.js";
 
 let schemas = {};
 
-// export const setSchemas = async () => {
+export const setSchemas = async () => {
 //   //Components
 //   const dbId = Joi.number();
 //   const dbIdArray = Joi.array().items(dbId);
@@ -185,7 +185,7 @@ schemas.emailRegisterBody = Joi.object().keys({
   appleDeviceId: apnId.optional(),
   mobile: phoneNumber.required(),
 });
-// };
+};
 
 export const validateSchema = (value, schemaName) => {
   const res = schemas[schemaName].required().validate(value);

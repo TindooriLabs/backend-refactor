@@ -16,10 +16,10 @@ import { validateSchema } from "../util/schemas.js";
 
 export const setProfile = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setProfileBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setProfileBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId } = req.user;
   
 
@@ -51,10 +51,10 @@ export const getPrompts = async (req) => {
 
 export const addPromptResponse = async (req) => {
   //Validate body
-  //   const validation = validateSchema(req.body, "addPromptResponseBody");
-  //   if (!validation.ok) {
-  //     return getFailureBody(validation);
-  //   }
+    const validation = validateSchema(req.body, "addPromptResponseBody");
+    if (!validation.ok) {
+      return getFailureBody(validation);
+    }
     const { userId } = req.user;
  
   const { promptId, prompt, response } = req.body;
@@ -76,10 +76,10 @@ export const addPromptResponse = async (req) => {
 
 export const removePromptResponse = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "removePromptResponseBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "removePromptResponseBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId } = req.user;
  
   const { promptId } = req.body;
@@ -96,10 +96,10 @@ export const removePromptResponse = async (req) => {
 
 export const addInterests = async req => {
   //Validate body
-  // const validation = validateSchema(req.body, "setInterestsBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setInterestsBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId } = req.user;
  
   const { interests } = req.body;
@@ -116,10 +116,10 @@ export const addInterests = async req => {
 
 export const removeInterests = async req => {
   //Validate body
-  // const validation = validateSchema(req.body, "setInterestsBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setInterestsBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId } = req.user;
  
   const { interests } = req.body;
@@ -136,10 +136,10 @@ export const removeInterests = async req => {
 
 export const findProfiles = async req => {
   //Validate body
-  // const validation = validateSchema(req.query, "findProfilesQuery");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.query, "findProfilesQuery");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId } = req.user;
   
   const { minAge, maxAge, maxDistance, maxResults } = req.query;
@@ -211,10 +211,10 @@ export const uploadImage = async req => {
 
 export const deleteImage = async req => {
   //Validate params
-  // const validation = validateSchema(req.body, "deleteImageBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "deleteImageBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
 
   const { userId } = req.user;
  
@@ -227,10 +227,10 @@ export const deleteImage = async req => {
 
 export const getImagesByUserId = async req => {
   //Validate query
-  // const validation = validateSchema(req.query, "getImagesQuery");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.query, "getImagesQuery");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
 
   const { userId } = req.params;
   let ordinal = null;
@@ -245,10 +245,10 @@ export const getImagesByUserId = async req => {
 
 export const updateImageMetaData = async req => {
   //Validate body
-  // const validation = validateSchema(req.params, "updateImageMetaDataBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.params, "updateImageMetaDataBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
 
   const { userId } = req.user;
  

@@ -34,14 +34,14 @@ export const getUserConversations = async (req) => {
 
 export const getConversation = async (req) => {
   //Validate params and query
-  //  const paramsValidation = validateSchema(req.params, "getConversationParams");
-  //  if (!paramsValidation.ok) {
-  //    return getFailureBody(paramsValidation);
-  //  }
-  //  const queryValidation = validateSchema(req.query, "getConversationQuery");
-  //  if (!queryValidation.ok) {
-  //    return getFailureBody(queryValidation);
-  //  }
+   const paramsValidation = validateSchema(req.params, "getConversationParams");
+   if (!paramsValidation.ok) {
+     return getFailureBody(paramsValidation);
+   }
+   const queryValidation = validateSchema(req.query, "getConversationQuery");
+   if (!queryValidation.ok) {
+     return getFailureBody(queryValidation);
+   }
   const { userId: fromUserId } = req.user;
 
   const { conversationId } = req.params;
@@ -58,26 +58,21 @@ export const getConversation = async (req) => {
 
 export const sendMessage = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "sendMessageBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
-  // const queryValidation = validateSchema(req.query, "sendMessageQuery");
-  // if (!queryValidation.ok) {
-  //   return getFailureBody(queryValidation);
-  // }
+  const validation = validateSchema(req.body, "sendMessageBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
+  
   const { userId: fromUserId } = req.user;
 
   const { toUserIds, conversationId, message, language } = req.body;
-  const { pageLength } = req.query;
 
   const result = await sendMessageDomain(
     fromUserId,
     toUserIds,
     conversationId,
     message,
-    language,
-    pageLength
+    language
   );
 
   //Return success
@@ -90,10 +85,10 @@ export const sendMessage = async (req) => {
 
 export const translateMessages = async (req) => {
   //Validate query
-  // const queryValidation = validateSchema(req.body, "translateMessagesBody");
-  // if (!queryValidation.ok) {
-  //   return getFailureBody(queryValidation);
-  // }
+  const queryValidation = validateSchema(req.body, "translateMessagesBody");
+  if (!queryValidation.ok) {
+    return getFailureBody(queryValidation);
+  }
   const { messageIds, language } = req.body;
   const { userId } = req.user;
 

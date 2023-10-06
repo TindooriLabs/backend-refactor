@@ -26,10 +26,10 @@ export const getOwnUser = async (req) => {
 
 export const getUser = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.params, "getUserParams");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.params, "getUserParams");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { userId: requestingUserId } = req.user;
 
   const { userId } = req.params;
@@ -46,10 +46,10 @@ export const getUser = async (req) => {
 
 export const setStatus = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setStatusBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setStatusBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { status: statusLabel } = req.body;
   const { userId } = req.user;
 
@@ -66,10 +66,10 @@ export const setStatus = async (req) => {
 
 export const setSubscription = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setSubscriptionBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setSubscriptionBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { subscriptionTierId } = req.body;
   const { userId } = req.user;
   
@@ -86,10 +86,10 @@ export const setSubscription = async (req) => {
 
 export const setLocation = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setLocationBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setLocationBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { lat, lon } = req.body;
   const { userId } = req.user;
   
@@ -106,10 +106,10 @@ export const setLocation = async (req) => {
 
 export const setEthnicity = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setEthnicityBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setEthnicityBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { ethnicityId } = req.body;
   const { userId } = req.user;
   
@@ -146,10 +146,10 @@ export const setDob = async (req) => {
 
 export const setKarmaResponses = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setKarmaResponsesBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setKarmaResponsesBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { karmaResponses } = req.body;
   const { userId } = req.params;
   const { userId: ratingUserId } = req.user;

@@ -135,7 +135,7 @@ model PromptQuestion {
 }
 
 model ImageUpload {
-  id                   String   @id
+  id                   String   @id @default(uuid())
   userId               String
   profile              Profile  @relation(fields: [userId], references: [userId])
   ordinal              Int

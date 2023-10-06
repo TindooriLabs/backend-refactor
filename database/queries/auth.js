@@ -54,6 +54,12 @@ export const registerUser = async (userDetails) => {
       attemptMadeAt: new Date(),
     },
   });
+  const subsciptionCreate = await prisma.subscriptionEntry.create({
+    data: {
+      userId: userDetails.userId.toString(),
+      subscriptionKind: "FREE",
+    },
+  });
   const addDeviceResult = await prisma.deviceRecord.create({
     data: {
       userId: userDetails.userId.toString(),
@@ -85,7 +91,7 @@ export const getUserByEmail = async (email, includePassword = false) => {
       email: true,
       mobile: true,
       passwordHash: includePassword,
-      verified: true
+      verified: true,
     },
   });
   return result;
@@ -165,7 +171,7 @@ export const setUserVerified = async (userId) => {
         email: true,
         mobile: true,
         passwordHash: true,
-        verified: true
+        verified: true,
       },
     });
   } catch (e) {

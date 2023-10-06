@@ -1,166 +1,164 @@
 import Joi from "joi";
-import { statusIds } from "../database/constants.js";
-// import ISO from "iso-639-1";
+import { statusIds, subscriptionTierIds, ethnicityIds, genderIdentityIds, sexualityIds, languageLevelIds } from "../database/constants.js";
+import ISO from "iso-639-1";
 
 let schemas = {};
 
 export const setSchemas = async () => {
 //   //Components
-//   const dbId = Joi.number();
-//   const dbIdArray = Joi.array().items(dbId);
+  const dbId = Joi.string().uuid()
+  const dbIdArray = Joi.array().items(dbId);
 //   const mongoId = Joi.objectId();
 const email = Joi.string().email();
 const password = Joi.string();
 const dob = Joi.string().isoDate();
-//   const age = Joi.number();
+  const age = Joi.number();
 const latitude = Joi.number().min(-90).max(90);
 const longitude = Joi.number().min(-180).max(180);
 //   const pageLength = Joi.number().positive();
 //   const page = Joi.number().positive();
-//   const imageOrdinal = Joi.number();
+const imageOrdinal = Joi.number();
 const phoneNumber = Joi.string().min(10).max(15);
 const verificationCode = Joi.string().length(6);
-//   const statusName = Joi.string().valid(
-//     ...Object.keys(dbConstants.userStatusIds)
-//   );
+  const statusName = Joi.string().valid(
+    ...Object.keys(statusIds)
+  );
 const statusId = Joi.number().valid(...Object.values(statusIds));
-//   const ethnicityId = Joi.number().valid(
-//     ...Object.values(dbConstants.ethnicityIds)
-//   );
+  const ethnicityId = Joi.number().valid(
+    ...Object.values(ethnicityIds)
+  );
 //   const relationshipTypeName = Joi.string().valid(
 //     ...Object.keys(dbConstants.relationshipTypeIds)
 //   );
 //   const relationshipAggregateTypeName = Joi.string().valid(
 //     ...Object.keys(dbConstants.relationshipAggregateTypeIds)
 //   );
-//   const sexualityId = Joi.string().valid(
-//     ...Object.values(dbConstants.sexualityIds)
-//   );
-//   const genderIdentityId = Joi.string().valid(
-//     ...Object.values(dbConstants.genderIdentityIds)
-//   );
-//   const languageLevelId = Joi.string().valid(
-//     ...Object.values(dbConstants.languageLevelIds)
-//   );
-//   const subscriptionTierId = Joi.valid(
-//     ...Object.values(dbConstants.subscriptionTiers)
-//   );
-//   const languageIso = Joi.string().valid(...ISO.getAllCodes());
-//   const userLanguage = Joi.object().keys({
-//     languageId: languageIso,
-//     languageLevelId
-//   });
-//   const karmaResponses = Joi.object().keys({
-//     questionId: Joi.number(),
-//     rating: Joi.number().min(1).max(5)
-//   });
-//   const bio = Joi.string().max(500);
-//   const interest = Joi.string().max(100);
+  const sexualityId = Joi.string().valid(
+    ...Object.values(sexualityIds)
+  );
+  const genderIdentityId = Joi.string().valid(
+    ...Object.values(genderIdentityIds)
+  );
+  const languageLevelId = Joi.string().valid(
+    ...Object.values(languageLevelIds)
+  );
+  const subscriptionTierId = Joi.valid(
+    ...Object.values(subscriptionTierIds)
+  );
+  const languageIso = Joi.string().valid(...ISO.getAllCodes());
+  const userLanguage = Joi.object().keys({
+    languageId: languageIso,
+    languageLevelId
+  });
+  const karmaResponses = Joi.object().keys({
+    questionId: Joi.number(),
+    rating: Joi.number().min(1).max(5)
+  });
+  const bio = Joi.string().max(500);
+  const interest = Joi.string().max(100);
 
 //Notifications
 const apnId = Joi.string(); //Apple Push Notification device ID
 
 //   //User
-//   schemas.getUserParams = Joi.object().keys({
-//     userId: dbId.required()
-//   });
-//   schemas.setStatusBody = Joi.object().keys({
-//     status: statusName.required()
-//   });
+  schemas.getUserParams = Joi.object().keys({
+    userId: dbId.required()
+  });
+  schemas.setStatusBody = Joi.object().keys({
+    status: statusName.required()
+  });
 schemas.verifyMobileBody = Joi.object().keys({
   code: verificationCode.required(),
 });
-//   schemas.setSubscriptionBody = Joi.object().keys({
-//     subscriptionTierId: subscriptionTierId.required()
-//   });
+  schemas.setSubscriptionBody = Joi.object().keys({
+    subscriptionTierId: subscriptionTierId.required()
+  });
 //   schemas.statusId = statusId.required();
-//   schemas.setLocationBody = Joi.object().keys({
-//     lat: latLon.required(),
-//     lon: latLon.required()
-//   });
-//   schemas.setEthnicityBody = Joi.object().keys({
-//     ethnicityId: ethnicityId.required()
-//   });
-//   schemas.setGenderIdentityBody = Joi.object().keys({
-//     genderIdentityId: genderIdentityId.required()
-//   });
-//   schemas.setGendersInterestedBody = Joi.object().keys({
-//     genderIdentityIds: Joi.array().items(genderIdentityId).required()
-//   });
-//   schemas.setSexualitiesBody = Joi.object().keys({
-//     sexualityIds: Joi.array().items(sexualityId).required()
-//   });
-//   schemas.setLanguagesBody = Joi.object().keys({
-//     userLanguages: Joi.array().items(userLanguage).required()
-//   });
-//   schemas.setDobBody = Joi.object().keys({
-//     dob: dob.required()
-//   });
-//   schemas.setKarmaResponsesBody = Joi.object().keys({
-//     karmaResponses: Joi.array().items(karmaResponses).required()
-//   });
+  schemas.setLocationBody = Joi.object().keys({
+    lat: latitude.required(),
+    lon: longitude.required()
+  });
+  schemas.setEthnicityBody = Joi.object().keys({
+    ethnicityId: ethnicityId.required()
+  });
+  schemas.setGenderIdentityBody = Joi.object().keys({
+    genderIdentityId: genderIdentityId.required()
+  });
+  schemas.setGendersInterestedBody = Joi.object().keys({
+    genderIdentityIds: Joi.array().items(genderIdentityId).required()
+  });
+  schemas.setSexualitiesBody = Joi.object().keys({
+    sexualityIds: Joi.array().items(sexualityId).required()
+  });
+  schemas.setLanguagesBody = Joi.object().keys({
+    userLanguages: Joi.array().items(userLanguage).required()
+  });
+  schemas.setDobBody = Joi.object().keys({
+    dob: dob.required()
+  });
+  schemas.setKarmaResponsesBody = Joi.object().keys({
+    karmaResponses: Joi.array().items(karmaResponses).required()
+  });
 
 //   //Conversation
 //   schemas.getConversationParams = Joi.object().keys({
 //     conversationId: mongoId
 //   });
-//   schemas.getUserConversationsParams = Joi.object().keys({
-//     userId: dbId
-//   });
+  schemas.getUserConversationsParams = Joi.object().keys({
+    userId: dbId
+  });
 //   schemas.getConversationQuery = Joi.object().keys({
 //     pageLength: pageLength.optional(),
 //     page: page.optional()
 //   });
-//   schemas.sendMessageBody = Joi.object()
-//     .keys({
-//       toUserIds: dbIdArray,
-//       conversationId: mongoId,
-//       message: Joi.string().required(),
-//       language: languageIso.optional()
-//     })
-//     .xor("toUserIds", "conversationId");
-//   schemas.sendMessageQuery = Joi.object().keys({
-//     pageLength: pageLength.optional()
-//   });
-//   schemas.translateMessagesBody = Joi.object().keys({
-//     messageIds: Joi.array().items(mongoId.required()).required(),
-//     language: languageIso.required()
-//   });
+  schemas.sendMessageBody = Joi.object()
+    .keys({
+      toUserIds: dbIdArray,
+      conversationId: Joi.string(),
+      message: Joi.string().required(),
+      language: languageIso.optional()
+    })
+    .xor("toUserIds", "conversationId");
 
-//   //Profile
-//   schemas.setProfileBody = Joi.object().keys({
-//     bio: bio.optional().allow(null, ""),
-//     hometown: Joi.string().optional().allow(null, "")
-//   });
-//   schemas.addPromptResponseBody = Joi.object()
-//     .keys({
-//       promptId: mongoId.optional(),
-//       prompt: Joi.string().optional(),
-//       response: Joi.string().required()
-//     })
-//     .or("promptId", "prompt");
-//   schemas.removePromptResponseBody = Joi.object().keys({
-//     promptId: mongoId.required()
-//   });
-//   schemas.setInterestsBody = Joi.object().keys({
-//     interests: Joi.array().items(interest).required()
-//   });
-//   schemas.findProfilesQuery = Joi.object().keys({
-//     minAge: age.required(),
-//     maxAge: age.required(),
-//     maxDistance: Joi.number().required(), //miles
-//     maxResults: Joi.number().optional().max(50)
-//   });
-//   schemas.getImagesQuery = Joi.object().keys({
-//     ordinal: imageOrdinal.optional()
-//   });
-//   schemas.deleteImageBody = Joi.object().keys({
-//     ordinal: imageOrdinal.required()
-//   });
-//   schemas.updateImageMetaDataBody = Joi.object().pattern(
-//     Joi.string().guid(), //key is UUID for image ID
-//     Joi.object().keys({ ordinal: imageOrdinal }) // value is a nested object with the values to set
-//   );
+  schemas.translateMessagesBody = Joi.object().keys({
+    messageIds: Joi.array().items(Joi.number().required()).required(),
+    language: languageIso.required()
+  });
+
+  //Profile
+  schemas.setProfileBody = Joi.object().keys({
+    bio: bio.optional().allow(null, ""),
+    hometown: Joi.string().optional().allow(null, "")
+  });
+  schemas.addPromptResponseBody = Joi.object()
+    .keys({
+      promptId: Joi.number().optional(),
+      prompt: Joi.string().optional(),
+      response: Joi.string().required()
+    })
+    .or("promptId", "prompt");
+  schemas.removePromptResponseBody = Joi.object().keys({
+    promptId: Joi.number().required()
+  });
+  schemas.setInterestsBody = Joi.object().keys({
+    interests: Joi.array().items(interest).required()
+  });
+  schemas.findProfilesQuery = Joi.object().keys({
+    minAge: age.required(),
+    maxAge: age.required(),
+    maxDistance: Joi.number().required(), //miles
+    maxResults: Joi.number().optional().max(50)
+  });
+  schemas.getImagesQuery = Joi.object().keys({
+    ordinal: imageOrdinal.optional()
+  });
+  schemas.deleteImageBody = Joi.object().keys({
+    ordinal: imageOrdinal.required()
+  });
+  schemas.updateImageMetaDataBody = Joi.object().pattern(
+    Joi.string().uuid(), //key is UUID for image ID
+    Joi.object().keys({ ordinal: imageOrdinal }) // value is a nested object with the values to set
+  );
 
 //   //Relationship
 //   schemas.createRelationshipBody = Joi.object().keys({

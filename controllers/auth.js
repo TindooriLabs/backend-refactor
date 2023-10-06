@@ -6,6 +6,7 @@ import {
 } from "../domain/auth.js";
 
 export const emailRegister = async req => {
+  try{
   //Validate body
   const validation = validateSchema(req.body, "emailRegisterBody");
   if (!validation.ok) {
@@ -17,6 +18,9 @@ export const emailRegister = async req => {
   if (!response.ok) {
     return getFailureBody(response);
   }
+}catch(e){
+  console.log(e)
+}
 
   return { status: 204 };
 };

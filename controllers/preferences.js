@@ -23,10 +23,10 @@ export const getPreferences = async (req) => {
 
 export const setGenderIdentity = async (req) => {
   //Validate body
-  // const validation = validateSchema(req.body, "setGenderIdentityBody");
-  // if (!validation.ok) {
-  //   return getFailureBody(validation);
-  // }
+  const validation = validateSchema(req.body, "setGenderIdentityBody");
+  if (!validation.ok) {
+    return getFailureBody(validation);
+  }
   const { genderIdentityId } = req.body;
   const { userId } = req.user;
   
@@ -43,10 +43,10 @@ export const setGenderIdentity = async (req) => {
 
 export const setGendersInterested = async req => {
     //Validate body
-    // const validation = validateSchema(req.body, "setGendersInterestedBody");
-    // if (!validation.ok) {
-    //   return getFailureBody(validation);
-    // }
+    const validation = validateSchema(req.body, "setGendersInterestedBody");
+    if (!validation.ok) {
+      return getFailureBody(validation);
+    }
     const { genderIdentityIds } = req.body;
     const { userId } = req.user;
    
@@ -63,10 +63,10 @@ export const setGendersInterested = async req => {
 
   export const setSexualities = async req => {
     //Validate body
-    // const validation = validateSchema(req.body, "setSexualitiesBody");
-    // if (!validation.ok) {
-    //   return getFailureBody(validation);
-    // }
+    const validation = validateSchema(req.body, "setSexualitiesBody");
+    if (!validation.ok) {
+      return getFailureBody(validation);
+    }
     const { sexualityIds } = req.body;
     const { userId } = req.user;
     
@@ -83,10 +83,10 @@ export const setGendersInterested = async req => {
 
   export const setLanguages = async req => {
     //Validate body
-    // const validation = validateSchema(req.body, "setLanguagesBody");
-    // if (!validation.ok) {
-    //   return getFailureBody(validation);
-    // }
+    const validation = validateSchema(req.body, "setLanguagesBody");
+    if (!validation.ok) {
+      return getFailureBody(validation);
+    }
     const { userLanguages } = req.body;
     const { userId } = req.user;
     

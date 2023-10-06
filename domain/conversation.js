@@ -103,8 +103,7 @@ export const sendMessage = async (
   toUserIds,
   existingConversationId,
   message,
-  language,
-  pageLength
+  language
 ) => {
   const participants = toUserIds
     ? [fromUserId.toString(), ...toUserIds]

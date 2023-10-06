@@ -11,7 +11,7 @@ import {
   getImagesMetaByUserId,
   insertImageData,
   deleteImageData,
-  updateImageData
+  updateImageData,
 } from "../database/queries/profile.js";
 import config from "../config/default.js";
 import { v4 as uuid } from "uuid";
@@ -22,7 +22,6 @@ export const setProfile = async (userId, profile) => {
   try {
     const result = await createOrUpdateProfile(userId, profile);
   } catch (e) {
-   
     return {
       ok: false,
       reason: "not-found",
@@ -159,7 +158,7 @@ export const deleteImage = async (userId, ordinal) => {
   const deletedImage = await deleteImageData(userId, ordinal);
 
   //Delete data from S3
-    if (deletedImage && deletedImage.s3Path) {
+  if (deletedImage && deletedImage.s3Path) {
     const s3Result = await s3.deleteImage(deletedImage.s3Path);
     if (!s3Result.ok) {
       console.log(
@@ -180,9 +179,18 @@ export const getImagesByUserId = async (userId, ordinal) => {
         return s3.getImageWithData(imageMeta);
       })
     );
-    return { ok: true, images };
+    const imagesFinal = images.map((image) => {
+      image["s3Dir"] = image["s3Path"] || "";
+      image["originalName"] =
+        `${image["nameWithoutExtension"]}.${image["extension"]}` ||
+        "";
+      ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
+        (key) => delete image[key]
+      );
+      return image;
+    })
+    return { ok: true, images: imagesFinal };
   } catch (error) {
-    
     return {
       ok: false,
       reason: "server-error",
@@ -199,6 +207,6 @@ export const updateImageMetaData = async (userId, imageMetaData) => {
   });
 
   const updateResult = await updateImageData(userId, updatedUserImages);
-  
+
   return updateResult;
 };

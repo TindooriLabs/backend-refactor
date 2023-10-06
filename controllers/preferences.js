@@ -6,6 +6,7 @@ import {
   setLanguages as setLanguagesDomain
 } from "../domain/preferences.js";
 import { getFailureBody } from "./controller-helper.js";
+import { validateSchema } from "../util/schemas.js";
 
 export const getPreferences = async (req) => {
   const { userId } = req.user;

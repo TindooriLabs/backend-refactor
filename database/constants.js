@@ -25,7 +25,8 @@ export const statusIds = {
   export const genderIdentityIds = {
     MAN: 1,
     WOMAN: 2,
-    NONBINARY: 3
+    NONBINARY: 3,
+    MORE: 4,
   }
   export const sexualityIds = {
     STRAIGHT: 1,

@@ -62,10 +62,8 @@ paths:
           description: Success
         207:
           description: Partial success. The user was created but the verification code could not be sent. Proceed by calling POST /user/mobile to get a new code.
-        400:
+        500:
           description: Bad request
-        '409':
-          description: Duplicate user
   /auth/email/login:
     post:
       tags:
@@ -129,8 +127,8 @@ paths:
                 type: object
                 properties:
                   id:
-                    type: integer
-                    example: 1
+                    type: string
+                    example: "0123ab45-6abc-7890-g123-4567h8901i01"
                   name:
                     type: string
                     example: Erik
@@ -187,7 +185,9 @@ paths:
                     example: { "634c0bf1b633442d1ef45c6e": "I would love to travel to wherever", "634d92e5b41506c334639f0d": "My answer is super deep and amazing." }
         400:
           description: Bad request
-        '404':
+        401:
+          description: Unauthorized
+        404:
           description: User not found
   /user/${userId}:
     get:
@@ -230,7 +230,7 @@ paths:
                     example: 100.123
                   statusId:
                     type: integer
-                    description: User's current status. 1 = Active
+                    description: User's current status. 1 = Active, 2 = Paused, 3 = Deleted
                     example: 1
                   ethnicityId:
                     type: integer
@@ -253,7 +253,9 @@ paths:
                     example: { "634c0bf1b633442d1ef45c6e": "I would love to travel to wherever", "634d92e5b41506c334639f0d": "My answer is super deep and amazing." }
         400:
           description: Bad request
-        '404':
+        401:
+          description: Unauthorized
+        404:
           description: User not found
   /user/location:
     patch:
@@ -282,6 +284,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/status:
     patch:
       tags:
@@ -306,6 +310,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/dob:
     patch:
       tags:
@@ -321,14 +327,16 @@ paths:
               properties:
                 dob:
                   type: string
-                  description: User's date of birth (mm/dd/yyyy)
-                  example: 01/01/2000
+                  description: User's date of birth 
+                  example: "2001-01-02T00:00:00.000Z"
         required: true
       responses:
         204:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/subscription:
     patch:
       summary: Update a user's subscription tier
@@ -351,7 +359,11 @@ paths:
                   example: 1
       responses:
         204:
-          description: No Content
+          description: Success
+        400:
+          description: Bad request
+        401:
+          description: Unauthorized
   /auth/mobile/verify:
     post:
       tags:
@@ -449,15 +461,15 @@ paths:
                         minimum: 1
                         maximum: 5
       responses:
-        '204':
+        204:
           description: Successfully updated user karma scores
-        '400':
+        400:
           description: Invalid request payload
-        '401':
+        401:
           description: Unauthorized request
-        '404':
+        404:
           description: User not found
-        '500':
+        500:
           description: Internal server error
   /user/profile/prompts:
     get:
@@ -497,6 +509,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
     delete:
       tags:
         - profile
@@ -516,6 +530,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile/find:
     get:
       tags:
@@ -595,6 +611,8 @@ paths:
                       $ref: '#/definitions/images'
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile:
     patch:
       tags:
@@ -621,6 +639,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile/interests:
     put:
       tags:
@@ -645,6 +665,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
     delete:
       tags:
         - profile
@@ -668,6 +690,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile/image:
     put:
       tags:
@@ -705,6 +729,8 @@ paths:
                     example: user-1/81f28dad-97d5-4505-9717-0e8af275ad93.jpg
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile/image/${file}:
     delete:
       tags:
@@ -737,6 +763,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile/images:
     patch:
       tags:
@@ -760,6 +788,8 @@ paths:
           description: Success
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/profile/images/${userId}:
     get:
       tags:
@@ -815,6 +845,8 @@ paths:
                           example: {"type": "Buffer", data: [1,2,3]}
         400:
           description: Bad request
+        401:
+          description: Unauthorized
   /user/preferences/gender-identity:
     patch:
       tags:
@@ -1229,10 +1261,10 @@ paths:
                     type: string
                     description: The time that the current window ends in UTC. After the window end, remaining swipes is reset. Does not return for premium users.
                     example: "2022-12-18T16:44:56.000Z"
-        401:
-          description: Unauthorized
         400:
           description: Bad Request
+        401:
+          description: Unauthorized
         500:
           description: Server Error
   /user/relationship/${relationshipType}:

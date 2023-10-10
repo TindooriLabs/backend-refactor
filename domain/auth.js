@@ -13,6 +13,16 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export const createUser = async (userDetails) => {
+  let userDob = userDetails.dob;
+  let userDobDate = new Date(userDob);
+  let cutOffDate = new Date(Date.now() - 1000 * 60 * 60 * 24 * 365 * 18);
+  if (userDobDate > cutOffDate) {
+    return {
+      ok: false,
+      reason: "bad-request",
+      message: "User must be atleast 18 years old.",
+    };
+  }
   //Create user in Postgres
   const sqlUserDetails = {
     ...userDetails,
@@ -20,6 +30,7 @@ export const createUser = async (userDetails) => {
     password: undefined,
     status: userDetails.status || "ACTIVE",
   };
+
   const sqlCreateResult = await addUserAndProfile(sqlUserDetails);
 
   userDetails.userId = sqlCreateResult.userId;
@@ -69,7 +80,7 @@ export const verifyMobile = async (userId, code) => {
   if (!mobileResult.ok) {
     return mobileResult;
   }
-  
+
   const { verified, verificationExpiration, codeVerifier } =
     mobileResult.mobile;
   if (verified) {
@@ -87,7 +98,7 @@ export const verifyMobile = async (userId, code) => {
     verificationExpiration,
     codeVerifier
   );
- 
+
   if (!codeValidationResult.ok || !codeValidationResult.verified) {
     return codeValidationResult;
   }
@@ -140,6 +151,6 @@ const getSanitized = async (
   if (removePassword) {
     delete userAccount.passwordHash;
   }
- 
+
   return JSON.stringify(userAccount);
 };

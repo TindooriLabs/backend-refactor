@@ -2,7 +2,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getChatById = async (chatId, pageLength, page) => {
+export const getChatById = async (chatId, page, pageLength) => {
   const pageLengthInt = parseInt(pageLength);
   const pageInt = parseInt(page);
   const result = await prisma.chat.findFirst({
@@ -13,7 +13,8 @@ export const getChatById = async (chatId, pageLength, page) => {
         orderBy: {
           sendTime: "desc",
         },
-        take: 1,
+        take: pageLength,
+        skip: pageLength * (page - 1)
       },
     },
   });

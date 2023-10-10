@@ -45,8 +45,9 @@ export const getConversation = async (req) => {
   const { userId: fromUserId } = req.user;
 
   const { conversationId } = req.params;
+  const {page, pageLength} = req.query;
 
-  const result = await getConversationDomain(fromUserId, conversationId);
+  const result = await getConversationDomain(fromUserId, conversationId, page, pageLength);
 
   //Return success
   if (result.ok) {

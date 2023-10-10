@@ -990,12 +990,6 @@ paths:
         - conversation
       summary: Send a message to a user or group of users
       description: Send a message to a user or group of users
-      parameters:
-        - in: query
-          name: pageLength
-          description: The number of messages to return, starting with the most recent message
-          schema:
-            type: integer
       requestBody:
         description: An object with users and the message. Participants OR a conversation ID is required. Participants without a matching conversation will create a new one
         content:

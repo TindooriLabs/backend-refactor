@@ -1,11 +1,11 @@
 import Joi from "joi";
-import { statusIds, subscriptionTierIds, ethnicityIds, genderIdentityIds, sexualityIds, languageLevelIds } from "../database/constants.js";
+import { statusIds, subscriptionTierIds, ethnicityIds, genderIdentityIds, sexualityIds, languageLevelIds, relationshipTypeIds, userRelationshipAggregateTypeIds } from "../database/constants.js";
 import ISO from "iso-639-1";
 
 let schemas = {};
 
 export const setSchemas = async () => {
-//   //Components
+  //Components
   const dbId = Joi.string().uuid()
   const dbIdArray = Joi.array().items(dbId);
 //   const mongoId = Joi.objectId();
@@ -15,8 +15,8 @@ const dob = Joi.string().isoDate();
   const age = Joi.number();
 const latitude = Joi.number().min(-90).max(90);
 const longitude = Joi.number().min(-180).max(180);
-//   const pageLength = Joi.number().positive();
-//   const page = Joi.number().positive();
+  const pageLength = Joi.number().positive();
+  const page = Joi.number().positive();
 const imageOrdinal = Joi.number();
 const phoneNumber = Joi.string().min(10).max(15);
 const verificationCode = Joi.string().length(6);
@@ -27,12 +27,12 @@ const statusId = Joi.number().valid(...Object.values(statusIds));
   const ethnicityId = Joi.number().valid(
     ...Object.values(ethnicityIds)
   );
-//   const relationshipTypeName = Joi.string().valid(
-//     ...Object.keys(dbConstants.relationshipTypeIds)
-//   );
-//   const relationshipAggregateTypeName = Joi.string().valid(
-//     ...Object.keys(dbConstants.relationshipAggregateTypeIds)
-//   );
+  const relationshipTypeName = Joi.string().valid(
+    ...Object.keys(relationshipTypeIds)
+  );
+  const relationshipAggregateTypeName = Joi.string().valid(
+    ...Object.keys(userRelationshipAggregateTypeIds)
+  );
   const sexualityId = Joi.string().valid(
     ...Object.values(sexualityIds)
   );
@@ -100,17 +100,17 @@ schemas.verifyMobileBody = Joi.object().keys({
     karmaResponses: Joi.array().items(karmaResponses).required()
   });
 
-//   //Conversation
-//   schemas.getConversationParams = Joi.object().keys({
-//     conversationId: mongoId
-//   });
+  //Conversation
+  schemas.getConversationParams = Joi.object().keys({
+    conversationId: Joi.string().required()
+  });
   schemas.getUserConversationsParams = Joi.object().keys({
     userId: dbId
   });
-//   schemas.getConversationQuery = Joi.object().keys({
-//     pageLength: pageLength.optional(),
-//     page: page.optional()
-//   });
+  schemas.getConversationQuery = Joi.object().keys({
+    pageLength: pageLength.optional(),
+    page: page.optional()
+  });
   schemas.sendMessageBody = Joi.object()
     .keys({
       toUserIds: dbIdArray,
@@ -160,16 +160,16 @@ schemas.verifyMobileBody = Joi.object().keys({
     Joi.object().keys({ ordinal: imageOrdinal }) // value is a nested object with the values to set
   );
 
-//   //Relationship
-//   schemas.createRelationshipBody = Joi.object().keys({
-//     relationshipType: relationshipTypeName.required()
-//   });
-//   schemas.createRelationshipParams = Joi.object().keys({
-//     patientUserId: dbId.required()
-//   });
-//   schemas.getRelationshipsParams = Joi.object().keys({
-//     relationshipType: relationshipAggregateTypeName.required().insensitive()
-//   });
+  //Relationship
+  schemas.createRelationshipBody = Joi.object().keys({
+    relationshipType: relationshipTypeName.required()
+  });
+  schemas.createRelationshipParams = Joi.object().keys({
+    patientUserId: dbId.required()
+  });
+  schemas.getRelationshipsParams = Joi.object().keys({
+    relationshipType: relationshipAggregateTypeName.required().insensitive()
+  });
 
 //Auth
 schemas.emailRegisterBody = Joi.object().keys({

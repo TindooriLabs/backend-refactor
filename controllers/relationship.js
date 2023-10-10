@@ -7,17 +7,17 @@ import {
   
   export const createRelationship = async req => {
     //Validate body
-    // const bodyValidation = validateSchema(req.body, "createRelationshipBody");
-    // if (!bodyValidation.ok) {
-    //   return getFailureBody(bodyValidation);
-    // }
-    // const paramsValidation = validateSchema(
-    //   req.params,
-    //   "createRelationshipParams"
-    // );
-    // if (!paramsValidation.ok) {
-    //   return getFailureBody(paramsValidation);
-    // }
+    const bodyValidation = validateSchema(req.body, "createRelationshipBody");
+    if (!bodyValidation.ok) {
+      return getFailureBody(bodyValidation);
+    }
+    const paramsValidation = validateSchema(
+      req.params,
+      "createRelationshipParams"
+    );
+    if (!paramsValidation.ok) {
+      return getFailureBody(paramsValidation);
+    }
     const { userId } = req.user;
    
     const { relationshipType: relationshipTypeName } = req.body;
@@ -39,10 +39,10 @@ import {
   
   export const getUserRelationshipsByType = async req => {
     //Validate body
-    // const bodyValidation = validateSchema(req.params, "getRelationshipsParams");
-    // if (!bodyValidation.ok) {
-    //   return getFailureBody(bodyValidation);
-    // }
+    const bodyValidation = validateSchema(req.params, "getRelationshipsParams");
+    if (!bodyValidation.ok) {
+      return getFailureBody(bodyValidation);
+    }
   
     const { userId } = req.user;
    

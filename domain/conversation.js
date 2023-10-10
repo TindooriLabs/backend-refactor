@@ -55,8 +55,8 @@ export const getUserConversations = async (userId) => {
   return { ok: true, conversations: answer };
 };
 
-export const getConversation = async (fromUserId, conversationId) => {
-  const conversationResult = await getChatById(conversationId);
+export const getConversation = async (fromUserId, conversationId, page, pageLength) => {
+  const conversationResult = await getChatById(conversationId, page, pageLength);
   if (conversationResult === null) {
     return {
       ok: false,

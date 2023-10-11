@@ -38,31 +38,56 @@ paths:
               properties:
                 email:
                   type: string
+                  description: User's email address
                   example: person@email.com
+                  required: true
                 password:
                   type: string
+                  description: User's password
                   example: password123
+                  required: true
                 dob:
                   type: string
-                  example: '01/01/2022'
+                  description: User's date of birth
+                  example: '1995-11-29T06:00:00.000Z'
+                  required: true
                 name:
                   type: string
+                  description: User's first name
                   example: Amal
+                  required: true
                 appleDeviceId:
                   type: string
                   description: ID of the user's Apple device
                   example: 12345
+                  required: false
                 mobile:
                   type: string
                   description: User's mobile number with country code
-                  example: +14124567890
+                  example: 14124567890
+                  required: true
+                statusId:
+                  type: integer
+                  description: User's current status.  1 = Active, 2 = Paused, 3 = Deleted
+                  example: 1
+                  required: false
+                lastLat:
+                  type: number
+                  description: User's last latitude location value
+                  example: 45.236
+                  required: false
+                lastLon:
+                  type: number
+                  description: User's last longitude location value
+                  example: 43.123
+                  required: false
         required: true
       responses:
         204:
           description: Success
         207:
           description: Partial success. The user was created but the verification code could not be sent. Proceed by calling POST /user/mobile to get a new code.
-        500:
+        400:
           description: Bad request
   /auth/email/login:
     post:
@@ -80,14 +105,19 @@ paths:
               properties:
                 email:
                   type: string
+                  description: User's email address
                   example: person@email.com
+                  required: true
                 password:
                   type: string
+                  description: User's password
                   example: password123
+                  required: true
                 appleDeviceId:
                   type: string
                   description: ID of the user's Apple device
                   example: 12345
+                  required: false
         required: true
       responses:
         200:
@@ -149,7 +179,7 @@ paths:
                     example: 10.123
                   statusId:
                     type: integer
-                    description: User's current status. 1 = Active
+                    description: User's current status.  1 = Active, 2 = Paused, 3 = Deleted
                     example: 1
                   email:
                     type: string
@@ -387,7 +417,7 @@ paths:
                 code:
                   type: string
                   description: 6-digit mobile code
-                  example: 012345
+                  example: 123456
       responses:
         200:
           description: Mobile number verified successfully

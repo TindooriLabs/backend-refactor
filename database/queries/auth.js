@@ -12,7 +12,7 @@ export const addUserAndProfile = async (userDetails) => {
       firstName: userDetails.name || "",
       birthDate: new Date(userDetails.dob) || null,
       latitude: userDetails.lastLat,
-      longitude: userDetails.lastLong,
+      longitude: userDetails.lastLon,
     },
   });
 

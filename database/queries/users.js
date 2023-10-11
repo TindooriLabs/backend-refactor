@@ -3,7 +3,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getUserInfo = async (id) => {
-  const userInfo = await prisma.$queryRaw`select  pr."userId",
+  const userInfo = await prisma.$queryRaw`select  pr."userId" "id",
   pr."firstName" "name",
   pr."birthDate" "dob",
   pr."longitude" "lastLon",
@@ -41,7 +41,7 @@ where pr."userId" = ${id.toString()}`;
 
 export const getRequestingUserInfo = async (id) => {
   const requestingUserInfo =
-    await prisma.$queryRaw`select  pr."userId",
+    await prisma.$queryRaw`select  pr."userId" "id",
   pr."firstName" "name",
   pr."birthDate" "dob",
   pr."longitude" "lastLon",

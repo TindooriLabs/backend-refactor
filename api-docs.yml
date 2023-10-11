@@ -145,7 +145,7 @@ paths:
           name: userId
           description: The ID of the user to get information on
           schema:
-            type: integer
+            type: string
             example: 1234
           required: true
       responses:
@@ -230,7 +230,7 @@ paths:
           name: userId
           description: The ID of the user to get information on
           schema:
-            type: integer
+            type: string
             example: 1234
           required: true
       responses:

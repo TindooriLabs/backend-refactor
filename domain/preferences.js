@@ -25,44 +25,69 @@ export const getPreferences = async (userId) => {
   }
 
   result = result[0];
-  if (result.hasOwnProperty("accountStatus") && result["accountStatus"]) {
-    result["statusId"] = statusIds[result["accountStatus"]];
+  if (result.hasOwnProperty("accountStatus")) {
+    if (result["accountStatus"]) {
+      result["statusId"] = statusIds[result["accountStatus"]];
+    } else {
+      result["statusId"] = 1;
+    }
     delete result["accountStatus"];
   }
-  if (result.hasOwnProperty("genderIdentity") && result["genderIdentity"]) {
-    result["genderIdentityId"] = genderIdentityIds[result["genderIdentity"]];
+  if (result.hasOwnProperty("genderIdentity")) {
+    if (result["genderIdentity"]) {
+      result["genderIdentityId"] = genderIdentityIds[result["genderIdentity"]];
+    } else {
+      result["genderIdentityId"] = null;
+    }
     delete result["genderIdentity"];
   }
-  if (result.hasOwnProperty("userLanguages") && result["userLanguages"]) {
-    result["userLanguages"] = result["userLanguages"].map((lang) => {
-      if (lang.hasOwnProperty("languageLevel")) {
-        lang["languageLevelId"] = languageLevelIds[lang["languageLevel"]];
-        delete lang["languageLevel"];
-      }
-      if (lang.hasOwnProperty("languageName")) {
-        lang["languageId"] = Object.keys(languageIds).find(
-          (key) => languageIds[key] === lang["languageName"]
-        );
-        delete lang["languageName"];
-      }
+  if (result.hasOwnProperty("userLanguages")) {
+    if (result["userLanguages"]) {
+      result["userLanguages"] = result["userLanguages"].map((lang) => {
+        if (lang.hasOwnProperty("languageLevel")) {
+          if (lang["languageLevel"]) {
+            lang["languageLevelId"] = languageLevelIds[lang["languageLevel"]];
+          } else {
+            lang["languageLevelId"] = null;
+          }
+          delete lang["languageLevel"];
+        }
+        if (lang.hasOwnProperty("languageName")) {
+          if (lang["languageName"]) {
+            lang["languageId"] = Object.keys(languageIds).find(
+              (key) => languageIds[key] === lang["languageName"]
+            );
+          } else {
+            lang["languageId"] = null;
+          }
+          delete lang["languageName"];
+        }
 
-      return lang;
-    });
+        return lang;
+      });
+    } else {
+      result["userLanguages"] = [];
+    }
   }
-  if (result.hasOwnProperty("userSexualities") && result["userSexualities"]) {
-    result["userSexualities"] = result["userSexualities"].map((s) => {
-      return sexualityIds[s];
-    });
+  if (result.hasOwnProperty("userSexualities")) {
+    if (result["userSexualities"]) {
+      result["userSexualities"] = result["userSexualities"].map((s) => {
+        return sexualityIds[s];
+      });
+    } else {
+      result["userSexualities"] = [];
+    }
   }
-  if (
-    result.hasOwnProperty("userInterestedInGenderIdentities") &&
-    result["userInterestedInGenderIdentities"]
-  ) {
-    result["userInterestedInGenderIdentities"] = result[
-      "userInterestedInGenderIdentities"
-    ].map((s) => {
-      return genderIdentityIds[s];
-    });
+  if (result.hasOwnProperty("userInterestedInGenderIdentities")) {
+    if (result["userInterestedInGenderIdentities"]) {
+      result["userInterestedInGenderIdentities"] = result[
+        "userInterestedInGenderIdentities"
+      ].map((s) => {
+        return genderIdentityIds[s];
+      });
+    } else {
+      result["userInterestedInGenderIdentities"] = [];
+    }
   }
 
   return { ok: true, preferences: result };
@@ -120,7 +145,7 @@ export const setLanguages = async (userId, userLanguages) => {
         }
         langMap[lang.languageName].isLearning = true;
       } else {
-        langSet.add(lang.languageName)
+        langSet.add(lang.languageName);
         langMap[lang.languageName] = {
           languageLevel: lang.languageLevel,
           isLearning: lang.isLearning,

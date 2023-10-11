@@ -27,32 +27,49 @@ export const getUser = async (userId, requestingUserId) => {
   }
 
   sqlResult = sqlResult[0];
-  if (sqlResult.hasOwnProperty("accountStatus") && sqlResult["accountStatus"]) {
-    sqlResult["statusId"] = statusIds[sqlResult["accountStatus"]];
+  if (sqlResult.hasOwnProperty("accountStatus")) {
+    if (sqlResult["accountStatus"]) {
+      sqlResult["statusId"] = statusIds[sqlResult["accountStatus"]];
+    } else {
+      sqlResult["statusId"] = 1;
+    }
     delete sqlResult["accountStatus"];
   }
-  if (sqlResult.hasOwnProperty("ethnicity") && sqlResult["ethnicity"]) {
-    sqlResult["ethnicityId"] = ethnicityIds[sqlResult["ethnicity"]];
+  if (sqlResult.hasOwnProperty("ethnicity")) {
+    if (sqlResult["ethnicity"]) {
+      sqlResult["ethnicityId"] = ethnicityIds[sqlResult["ethnicity"]];
+    } else {
+      sqlResult["ethnicityId"] = null;
+    }
     delete sqlResult["ethnicity"];
   }
 
-  if( sqlResult.hasOwnProperty("images") && sqlResult["images"]){
-    sqlResult["images"] = sqlResult["images"].map((image) => {
-      image["s3Dir"] = image["s3Path"] || "";
-      image["originalName"] =
-        `${image["nameWithoutExtension"]}.${image["extension"]}` ||
-        "";
-      ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
-        (key) => delete image[key]
-      );
-      return image;
-    })
+  if (sqlResult.hasOwnProperty("images")) {
+    if (sqlResult["images"]) {
+      sqlResult["images"] = sqlResult["images"].map((image) => {
+        image["s3Dir"] = image["s3Path"] || "";
+        image["originalName"] =
+          `${image["nameWithoutExtension"]}.${image["extension"]}` || "";
+        ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
+          (key) => delete image[key]
+        );
+        return image;
+      });
+    }else{
+      sqlResult["images"] = [];
+    }
   }
-  if(sqlResult.hasOwnProperty("subscriptionTier") && sqlResult["subscriptionTier"]){
-    sqlResult["subscriptionTierId"] = subscriptionTierIds[sqlResult["subscriptionTier"]];
+  if (
+    sqlResult.hasOwnProperty("subscriptionTier")
+  ) {
+    if(sqlResult["subscriptionTier"]){
+    sqlResult["subscriptionTierId"] =
+      subscriptionTierIds[sqlResult["subscriptionTier"]];
+    }else{
+      sqlResult["subscriptionTierId"] = 1;
+    }
     delete sqlResult["subscriptionTier"];
   }
-
 
   //Get requesting user information
   let requestingUserInfo;

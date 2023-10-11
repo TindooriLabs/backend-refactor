@@ -151,7 +151,7 @@ export const findProfiles = async req => {
     maxResults,
     maxDistance
   );
-
+  
   //Return success
   if (result.ok) {
     if (result.users.length) return { status: 200, body: result.users };

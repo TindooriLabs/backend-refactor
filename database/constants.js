@@ -7,8 +7,7 @@ export const statusIds = {
   export const relationshipTypeIds = {
     LIKE: 1,
     SKIP: 2,
-    MATCH: 3,
-    NONMATCH: 4
+    UNMATCH: 3
   };
   export const ethnicityIds = {
     ASIAN: 1,

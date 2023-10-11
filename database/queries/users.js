@@ -16,10 +16,12 @@ export const getUserInfo = async (id) => {
   pr.hometown,
   pr.bio,
   iu."imageUploads" "images",
+  se."subscriptionKind" "subscriptionTier",
   pr.interests,
   prompt."promptResponses" "prompts"
 from "Profile" pr
 left join "UserMetadata" um ON pr."userId" = um."userId"
+left join "SubscriptionEntry" se ON pr."userId" = se."userId"
 left join "KarmaScore" km ON pr."userId" = km."userId"
 left join "Account" ac ON pr."userId" = ac."userId"
 left join (

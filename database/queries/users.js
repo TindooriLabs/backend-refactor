@@ -24,7 +24,7 @@ left join "KarmaScore" km ON pr."userId" = km."userId"
 left join "Account" ac ON pr."userId" = ac."userId"
 left join (
 select "userId", json_agg(json_build_object(
-'_id', iu.id, 'userId', iu."userId", 'ordinal', iu.ordinal, 
+'id', iu.id, 'userId', iu."userId", 'ordinal', iu.ordinal, 
 's3Path', iu."s3Path", 'nameWithoutExtension', iu."nameWithoutExtension", 
 'extension', iu.extension)) "imageUploads" 
 from "ImageUpload" iu 
@@ -56,7 +56,7 @@ from "Profile" pr
 left join "UserMetadata" um ON pr."userId" = um."userId"
 left join (
 select "userId", json_agg(json_build_object(
-'_id', iu.id, 'userId', iu."userId", 'ordinal', iu.ordinal, 
+'id', iu.id, 'userId', iu."userId", 'ordinal', iu.ordinal, 
 's3Path', iu."s3Path", 'nameWithoutExtension', iu."nameWithoutExtension", 
 'extension', iu.extension)) "imageUploads" 
 from "ImageUpload" iu 

@@ -71,9 +71,7 @@ export const getUser = async (userId, requestingUserId) => {
   const user = {
     ...sqlResult,
     ...requestingUserInfo,
-    _id: undefined,
-    userId: undefined,
-    id: sqlResult.userId,
+    id: sqlResult.id,
   };
   return { ok: true, user };
 };

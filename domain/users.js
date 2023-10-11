@@ -48,6 +48,10 @@ export const getUser = async (userId, requestingUserId) => {
       return image;
     })
   }
+  if(sqlResult.hasOwnProperty("subscriptionTier") && sqlResult["subscriptionTier"]){
+    sqlResult["subscriptionTierId"] = subscriptionTierIds[sqlResult["subscriptionTier"]];
+    delete sqlResult["subscriptionTier"];
+  }
 
 
   //Get requesting user information

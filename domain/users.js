@@ -36,6 +36,20 @@ export const getUser = async (userId, requestingUserId) => {
     delete sqlResult["ethnicity"];
   }
 
+  if( sqlResult.hasOwnProperty("images") && sqlResult["images"]){
+    sqlResult["images"] = sqlResult["images"].map((image) => {
+      image["s3Dir"] = image["s3Path"] || "";
+      image["originalName"] =
+        `${image["nameWithoutExtension"]}.${image["extension"]}` ||
+        "";
+      ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
+        (key) => delete image[key]
+      );
+      return image;
+    })
+  }
+
+
   //Get requesting user information
   let requestingUserInfo;
   if (requestingUserId && userId !== requestingUserId) {

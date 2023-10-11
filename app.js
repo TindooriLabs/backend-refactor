@@ -1,5 +1,6 @@
 import express from "express";
-import path from "path";
+import Yaml from "yamljs";
+import swaggerUi from "swagger-ui-express";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import logger from "morgan";
@@ -20,6 +21,10 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+//Serve Swagger docs
+const swaggerDoc = Yaml.load("./api-docs.yml");
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 //Clear Tindoori props from req
 app.use(clearTindooriProps);

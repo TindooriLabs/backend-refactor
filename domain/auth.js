@@ -11,6 +11,7 @@ import config from "../config/default.js";
 import app from "../app.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { statusIds } from "../database/constants.js";
 
 export const createUser = async (userDetails) => {
   let userDob = userDetails.dob;
@@ -26,9 +27,11 @@ export const createUser = async (userDetails) => {
   //Create user in Postgres
   const sqlUserDetails = {
     ...userDetails,
-    email: undefined,
-    password: undefined,
-    status: userDetails.status || "ACTIVE",
+    status: userDetails.statusId
+      ? Object.keys(statusIds).find(
+          (key) => statusIds[key] === userDetails.statusId
+        )
+      : "ACTIVE",
   };
 
   const sqlCreateResult = await addUserAndProfile(sqlUserDetails);

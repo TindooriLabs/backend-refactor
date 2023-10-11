@@ -17,6 +17,15 @@ import config from "../config/default.js";
 import { v4 as uuid } from "uuid";
 import { s3 } from "../database/s3-client.js";
 import { compress } from "../util/file.js";
+import {
+  ethnicityIds,
+  genderIdentityIds,
+  languageIds,
+  languageLevelIds,
+  relationshipTypeIds,
+  sexualityIds,
+  userRelationshipAggregateTypeIds,
+} from "../database/constants.js";
 
 export const setProfile = async (userId, profile) => {
   try {
@@ -109,7 +118,7 @@ export const findProfiles = async (
       subscriptionKind
     );
 
-  const sqlResult = await findUsers(
+  let sqlResult = await findUsers(
     userId,
     minAge,
     maxAge,
@@ -117,6 +126,83 @@ export const findProfiles = async (
     maxDistance,
     showRelationshipInfo
   );
+  sqlResult = sqlResult.map((result) => {
+    if (result.hasOwnProperty("ethnicity")) {
+      if (result["ethnicity"]) {
+        result["ethnicityId"] = ethnicityIds[result["ethnicity"]];
+      } else {
+        result["ethnicityId"] = null;
+      }
+      delete result["ethnicity"];
+    }
+    if (result.hasOwnProperty("genderIdentity")) {
+      if (result["genderIdentity"]) {
+        result["genderIdentityId"] =
+          genderIdentityIds[result["genderIdentity"]];
+      } else {
+        result["genderIdentityId"] = null;
+      }
+      delete result["genderIdentity"];
+    }
+    if (result.hasOwnProperty("existingRelationshipType")) {
+      if (result["existingRelationshipType"]) {
+        result["existingRelationshipTypeId"] =
+          relationshipTypeIds[result["existingRelationshipType"]];
+      } else {
+        result["existingRelationshipTypeId"] = null;
+      }
+      delete result["existingRelationshipType"];
+    }
+    if (result.hasOwnProperty("userRelationshipAggregateType")) {
+      if (result["userRelationshipAggregateType"]) {
+        result["userRelationshipAggregateTypeId"] =
+          userRelationshipAggregateTypeIds[
+            result["userRelationshipAggregateType"]
+          ];
+      } else {
+        result["userRelationshipAggregateTypeId"] = null;
+      }
+      delete result["userRelationshipAggregateType"];
+    }
+    if (result.hasOwnProperty("languages")) {
+      if (result["languages"]) {
+        result["languages"] = result["languages"].map((lang) => {
+          if (lang.hasOwnProperty("languageLevel")) {
+            if (lang["languageLevel"]) {
+              lang["languageLevelId"] = languageLevelIds[lang["languageLevel"]];
+            } else {
+              lang["languageLevelId"] = null;
+            }
+            delete lang["languageLevel"];
+          }
+          if (lang.hasOwnProperty("languageName")) {
+            if (lang["languageName"]) {
+              lang["languageId"] = Object.keys(languageIds).find(
+                (key) => languageIds[key] === lang["languageName"]
+              );
+            } else {
+              lang["languageId"] = null;
+            }
+            delete lang["languageName"];
+          }
+  
+          return lang;
+        });
+      } else {
+        result["languages"] = [];
+      }
+    }
+    if (result.hasOwnProperty("sexuality")) {
+      if (result["sexuality"]) {
+        result["sexuality"] = result["sexuality"].map((s) => {
+          return sexualityIds[s];
+        });
+      } else {
+        result["sexuality"] = [];
+      }
+    }
+    return result;
+  });
 
   return { ok: true, users: sqlResult };
 };
@@ -182,13 +268,12 @@ export const getImagesByUserId = async (userId, ordinal) => {
     const imagesFinal = images.map((image) => {
       image["s3Dir"] = image["s3Path"] || "";
       image["originalName"] =
-        `${image["nameWithoutExtension"]}.${image["extension"]}` ||
-        "";
+        `${image["nameWithoutExtension"]}.${image["extension"]}` || "";
       ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
         (key) => delete image[key]
       );
       return image;
-    })
+    });
     return { ok: true, images: imagesFinal };
   } catch (error) {
     return {

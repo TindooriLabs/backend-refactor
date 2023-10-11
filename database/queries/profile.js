@@ -208,15 +208,15 @@ export const findUsers = async (
   showRelationshipInfo
 ) => {
   const userIdStr = `'${userId.toString()}'`;
-  const result = await prisma.$queryRaw`
-  with base_profile as (select * from "Profile" where "userId" = ${userIdStr} limit 1),
+  const result = await prisma.$queryRaw`${Prisma.raw(
+  `with base_profile as (select * from "Profile" where "userId" = ${userIdStr} limit 1),
   base_profile_interested_in_genders as (select "userId", "gendersOfInterest" from "Profile" pr where "userId" = ${userIdStr})
   select pr."userId" "id", pr."firstName" "name", date_part('year', age(now(), pr."birthDate")) age,
   pr."genderIdentity", pr.ethnicity, ROUND(km.sum::decimal/km.count, 2)::float8 "karmaScore",
   round(point(pr.longitude,pr.latitude) <@> point((select longitude from base_profile),(select latitude from base_profile))) "distance",
   case when ${showRelationshipInfo} then uib.impression else null end "existingRelationshipType",
-  case when ${showRelationshipInfo} then uia."userImpressionAggregateType" else null end  "userRelationshipAggregateTypeId",
-  ll.user_languages "userLanguages", pr.sexuality
+  case when ${showRelationshipInfo} then uia."userImpressionAggregateType" else null end  "userRelationshipAggregateType",
+  ll.user_languages "languages", pr.sexuality
   from "Profile" pr left join "KarmaScore" km ON pr."userId" = km."userId"
   left join "UserImpressionBallot" uib on uib."toUserId" = ${userIdStr} and pr."userId" = uib."fromUserId"
   left join "userimpressionaggregate" uia on (pr."userId" = uia."userId_A" or pr."userId" = uia."userId_B") and (${userIdStr} = uia."userId_A" or ${userIdStr} = uia."userId_B")
@@ -233,10 +233,10 @@ export const findUsers = async (
   and date_part('year', age(now(), pr."birthDate")) between ${parseFloat(
     minAge
   )} and ${parseFloat(maxAge)}
-  and pr."genderIdentity"::text in (select "gendersOfInterest"::text from base_profile_interested_in_genders)
+  and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
   and (uia."userImpressionAggregateType" is null or uia."userImpressionAggregateType" = 'INCOMPLETE')
   limit ${parseInt(maxResults)};
-`;
+`)}`;
 
   return result;
 };

@@ -192,15 +192,22 @@ export const findProfiles = async (
         result["languages"] = [];
       }
     }
-    if (result.hasOwnProperty("sexuality")) {
-      if (result["sexuality"]) {
-        result["sexuality"] = result["sexuality"].map((s) => {
-          return sexualityIds[s];
-        });
-      } else {
-        result["sexuality"] = [];
-      }
+   
+  if (result.hasOwnProperty("images")) {
+    if (result["images"]) {
+      result["images"] = result["images"].map((image) => {
+        image["s3Dir"] = image["s3Path"] || "";
+        image["originalName"] =
+          `${image["nameWithoutExtension"]}.${image["extension"]}` || "";
+        ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
+          (key) => delete image[key]
+        );
+        return image;
+      });
+    }else{
+      result["images"] = [];
     }
+  }
     return result;
   });
 

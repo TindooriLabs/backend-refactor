@@ -209,14 +209,14 @@ export const findUsers = async (
 ) => {
   const userIdStr = `'${userId.toString()}'`;
   const result = await prisma.$queryRaw`${Prisma.raw(
-  `with base_profile as (select * from "Profile" where "userId" = ${userIdStr} limit 1),
+    `with base_profile as (select * from "Profile" where "userId" = ${userIdStr} limit 1),
   base_profile_interested_in_genders as (select "userId", "gendersOfInterest" from "Profile" pr where "userId" = ${userIdStr})
   select pr."userId" "id", pr."firstName" "name", date_part('year', age(now(), pr."birthDate")) age,
   pr."genderIdentity", pr.ethnicity, ROUND(km.sum::decimal/km.count, 2)::float8 "karmaScore",
   round(point(pr.longitude,pr.latitude) <@> point((select longitude from base_profile),(select latitude from base_profile))) "distance",
   case when ${showRelationshipInfo} then uib.impression else null end "existingRelationshipType",
   case when ${showRelationshipInfo} then uia."userImpressionAggregateType" else null end  "userRelationshipAggregateType",
-  ll.user_languages "languages", pr.sexuality
+  ll.user_languages "languages", iu."imageUploads" "images"
   from "Profile" pr left join "KarmaScore" km ON pr."userId" = km."userId"
   left join "UserImpressionBallot" uib on uib."toUserId" = ${userIdStr} and pr."userId" = uib."fromUserId"
   left join "userimpressionaggregate" uia on (pr."userId" = uia."userId_A" or pr."userId" = uia."userId_B") and (${userIdStr} = uia."userId_A" or ${userIdStr} = uia."userId_B")
@@ -225,6 +225,14 @@ export const findUsers = async (
     from "LanguageAndLevel" ll 
     group by "userId"	
   ) ll on ll."userId" = pr."userId"
+  left join (
+  select "userId", json_agg(json_build_object(
+  'id', iu.id, 'userId', iu."userId", 'ordinal', iu.ordinal, 
+  's3Path', iu."s3Path", 'nameWithoutExtension', iu."nameWithoutExtension", 
+  'extension', iu.extension)) "imageUploads" 
+  from "ImageUpload" iu 
+  group by "userId"
+  ) iu on iu."userId" = pr."userId"
   where
   pr."userId" != ${userIdStr}
   and ${parseFloat(
@@ -236,7 +244,8 @@ export const findUsers = async (
   and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
   and (uia."userImpressionAggregateType" is null or uia."userImpressionAggregateType" = 'INCOMPLETE')
   limit ${parseInt(maxResults)};
-`)}`;
+`
+  )}`;
 
   return result;
 };
@@ -273,7 +282,7 @@ export const deleteImageData = async (userId, ordinal) => {
 export const updateImageData = async (userId, newImageMeta) => {
   const result = await prisma.$transaction(
     newImageMeta.map((image) => {
-     return prisma.imageUpload.update({
+      return prisma.imageUpload.update({
         where: { id: image.id },
         data: {
           ordinal: image.ordinal,

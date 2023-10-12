@@ -57,8 +57,8 @@ export const addPromptResponse = async (req) => {
     }
     const { userId } = req.user;
  
-  const { promptId, prompt, response } = req.body;
-
+  const { prompt, response } = req.body;
+  const promptId = req.body.promptId?parseInt(req.body.promptId) : null;
   const result = await addPromptResponseDomain(
     userId,
     promptId,
@@ -84,7 +84,7 @@ export const removePromptResponse = async (req) => {
  
   const { promptId } = req.body;
 
-  const result = await removePromptResponseDomain(userId, promptId);
+  const result = await removePromptResponseDomain(userId, parseInt(promptId));
 
   //Return success
   if (result.ok) {

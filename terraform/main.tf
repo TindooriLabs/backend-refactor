@@ -42,6 +42,11 @@ resource "aws_instance" "servernode" {
 
 }
 
+resource "aws_eip" "server-eip" {
+  instance = aws_instance.servernode.id
+  vpc      = true
+}
+
 resource "aws_iam_instance_profile" "ec2-profile" {
   name = "ec2-profile"
   role = "ECR-LOGIN-AUTO"

@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 export const getUserPreferences = async (id) => {
   const userPreferences = await prisma.$queryRaw`SELECT  
-    pr."userId",
+    pr."userId" "id",
     pr."longitude" "lastLon",
     pr."latitude" "lastLat",
     um."accountStatus",

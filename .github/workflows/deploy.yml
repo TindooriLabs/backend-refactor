@@ -51,7 +51,7 @@ jobs:
         working-directory: ./terraform
       - name: Terraform Apply
         id: apply
-        run: terraform apply PLAN -refresh-only
+        run: terraform apply -refresh-only PLAN 
         working-directory: ./terraform
       - name: Set server ip address
         id: set-server-ip

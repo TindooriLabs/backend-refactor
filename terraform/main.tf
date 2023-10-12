@@ -44,7 +44,7 @@ resource "aws_instance" "servernode" {
 
 resource "aws_eip" "server-eip" {
   instance = aws_instance.servernode.id
-  vpc      = true
+  domain = "vpc"
 }
 
 resource "aws_iam_instance_profile" "ec2-profile" {

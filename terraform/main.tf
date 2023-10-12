@@ -42,7 +42,7 @@ resource "aws_instance" "servernode" {
 
 }
 
-resource "aws_eip" "server-eip" {
+resource "aws_eip" "server_eip" {
   instance = aws_instance.servernode.id
   domain = "vpc"
 }
@@ -171,5 +171,5 @@ output "db_instance_ip_addr" {
 }
 
 output "app_instance_ip_addr" {
-  value = aws_instance.servernode.public_ip
+  value = aws_eip.server_eip.public_ip
 }

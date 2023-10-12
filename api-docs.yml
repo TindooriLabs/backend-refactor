@@ -944,7 +944,7 @@ paths:
             schema:
               type: object
               properties:
-                sexualityIds:
+                genderIdentityIds:
                   type: array
                   enum: [1,2,3]
                   example: [1,3]

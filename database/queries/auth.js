@@ -2,6 +2,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
 import bcrypt from "bcrypt";
 import config from "../../config/default.js";
+import { updateUserSwipeCache } from "./relationship.js";
 
 export const addUserAndProfile = async (userDetails) => {
   const profileCreate = await prisma.profile.create({
@@ -60,6 +61,14 @@ export const registerUser = async (userDetails) => {
       subscriptionKind: "FREE",
     },
   });
+  const today = new Date();
+  const userSwipeCacheCreate = await updateUserSwipeCache(
+    userDetails.userId.toString(),
+    today
+      .addHours(config.subscriptionToggles.swipeLimit.FREE.windowLength)
+      .toUTCString(),
+    30
+  );
   const addDeviceResult = await prisma.deviceRecord.create({
     data: {
       userId: userDetails.userId.toString(),

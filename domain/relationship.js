@@ -30,8 +30,16 @@ export const createRelationship = async (
   const userSubscriptionResult = await getUserSwipeSubscriptionInfo(
     agentUserId
   );
+  if (userSubscriptionResult.length < 1) {
+    return {
+      ok: false,
+      reason: "not-found",
+      message:
+        "Could not find the user's swipe subscription info in the SQL database.",
+    };
+  }
   const { subscriptionKind, windowEnd, remainingSwipes } =
-    userSubscriptionResult;
+    userSubscriptionResult[0];
   const swipeLimitConfig =
     config.subscriptionToggles.swipeLimit[subscriptionKind];
   const today = new Date();

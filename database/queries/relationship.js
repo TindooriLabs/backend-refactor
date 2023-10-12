@@ -3,15 +3,18 @@ import { PrismaClient, Prisma } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getUserSwipeSubscriptionInfo = async (userId) => {
-  const result = await prisma.$queryRaw`
-    SELECT usc."userId",
+  const userIdStr = `'${userId}'`;
+  const result = await prisma.$queryRaw`${Prisma.raw(
+    `SELECT usc."userId",
     se."subscriptionKind",
     usc."windowEnd",
     usc."remainingSwipes"
     FROM "UserSwipeCache" usc
     LEFT JOIN "SubscriptionEntry" se 
-    ON usc."userId" = se."userId";
-    `;
+    ON usc."userId" = se."userId"
+    WHERE usc."userId" = ${userIdStr};
+    `
+  )}`;
 
   return result;
 };
@@ -55,16 +58,21 @@ export const updateUserSwipeCache = async (
   windowEnd,
   remainingSwipes
 ) => {
-  const userIdStr = `'${userId}'`;
-  const windowEndStr = `'${windowEnd}'`;
-  const result = await prisma.$queryRaw`${Prisma.raw(
-    `INSERT INTO "UserSwipeCache" ("userId", "windowEnd", "remainingSwipes")
+  try {
+    const userIdStr = `'${userId}'`;
+    const windowEndStr = `'${windowEnd}'`;
+    const result = await prisma.$queryRaw`${Prisma.raw(
+      `INSERT INTO "UserSwipeCache" ("userId", "windowEnd", "remainingSwipes")
     VALUES (${userIdStr}, TO_TIMESTAMP(${windowEndStr}, 'Dy, DD Mon YYYY HH24:MI:SS'), ${remainingSwipes})
     ON CONFLICT ("userId")
     DO UPDATE SET "windowEnd" = TO_TIMESTAMP(${windowEndStr}, 'Dy, DD Mon YYYY HH24:MI:SS'),
     "remainingSwipes" = ${remainingSwipes};
         `
-  )}`;
+    )}`;
+  } catch (error) {
+    return { ok: false };
+  }
+  return { ok: true };
 };
 
 export const getUserDevices = async (userId) => {

@@ -46,7 +46,9 @@ export const getUserConversations = async (userId) => {
     chat.lastMessage["message"] = chat.lastMessage["text"];
     chat.lastMessage["sent"] = chat.lastMessage["sendTime"];
     chat.lastMessage["fromUserId"] = chat.lastMessage["senderId"];
-    chat.lastMessage["language"] = languageIds[chat.lastMessage["originalLanguageName"]];
+    chat.lastMessage["language"] = Object.keys(languageIds).find(
+      (key) => languageIds[key] === chat.lastMessage["originalLanguageName"]
+    );
     ["chatId", "text", "sendTime", "senderId", "originalLanguageName"].forEach(
       (e) => delete chat.lastMessage[e]
     );
@@ -55,8 +57,17 @@ export const getUserConversations = async (userId) => {
   return { ok: true, conversations: answer };
 };
 
-export const getConversation = async (fromUserId, conversationId, page, pageLength) => {
-  const conversationResult = await getChatById(conversationId, page, pageLength);
+export const getConversation = async (
+  fromUserId,
+  conversationId,
+  page,
+  pageLength
+) => {
+  const conversationResult = await getChatById(
+    conversationId,
+    page,
+    pageLength
+  );
   if (conversationResult === null) {
     return {
       ok: false,
@@ -301,8 +312,8 @@ export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
           (key) => languageIds[key] === a.languageName
         );
         let b_langId = Object.keys(languageIds).find(
-          key=> languageIds[key] === b.languageName
-        )
+          (key) => languageIds[key] === b.languageName
+        );
         if (a_langId < b_langId) return -1;
         if (a_langId > b_langId) return 1;
         return 0;

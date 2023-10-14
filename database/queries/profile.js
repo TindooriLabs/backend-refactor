@@ -161,6 +161,7 @@ export const insertInterests = async (userId, interests) => {
       }
     }
   }
+  return { ok: true };
 };
 
 export const updateInterests = async (userId, interests) => {

@@ -11,7 +11,7 @@ export const addUserAndProfile = async (userDetails) => {
         create: {},
       },
       firstName: userDetails.name || "",
-      birthDate: new Date(userDetails.dob) || null,
+      birthDate: new Date(userDetails.dob),
       latitude: userDetails.lastLat,
       longitude: userDetails.lastLon,
     },

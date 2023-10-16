@@ -209,7 +209,7 @@ export const updateDob = async (userId, dob) => {
     await prisma.profile.update({
       where: { userId: userId.toString() },
       data: {
-        birthDate: dob.toString(),
+        birthDate: new Date(dob),
       },
     });
   } catch (e) {

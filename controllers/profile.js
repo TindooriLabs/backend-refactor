@@ -57,13 +57,10 @@ export const addPromptResponse = async (req) => {
     }
     const { userId } = req.user;
  
-  const { prompt, response } = req.body;
-  const promptId = req.body.promptId?parseInt(req.body.promptId) : null;
+  const { prompts } = req.body;
   const result = await addPromptResponseDomain(
     userId,
-    promptId,
-    prompt,
-    response
+    prompts
   );
 
   //Return success

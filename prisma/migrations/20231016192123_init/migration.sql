@@ -234,6 +234,9 @@ CREATE UNIQUE INDEX "Account_mobile_key" ON "Account"("mobile");
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "PromptQuestion_text_key" ON "PromptQuestion"("text");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "ImageUpload_userId_ordinal_key" ON "ImageUpload"("userId", "ordinal");
 
 -- CreateIndex

@@ -132,11 +132,12 @@ schemas.verifyMobileBody = Joi.object().keys({
   });
   schemas.addPromptResponseBody = Joi.object()
     .keys({
-      promptId: Joi.string().optional(),
-      prompt: Joi.string().optional(),
-      response: Joi.string().required()
+      // promptId: Joi.string().optional(),
+      // prompt: Joi.string().optional(),
+      // response: Joi.string().required()
+      prompts: Joi.object().pattern(/./, Joi.string())
     })
-    .or("promptId", "prompt");
+    // .or("promptId", "prompt");
   schemas.removePromptResponseBody = Joi.object().keys({
     promptId: Joi.string().required()
   });

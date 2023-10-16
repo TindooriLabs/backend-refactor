@@ -52,10 +52,10 @@ export const getPrompts = async (userId) => {
   return { ok: true, prompts };
 };
 
-export const addPromptResponse = async (userId, promptId, prompt, response) => {
+export const addPromptResponse = async (userId, prompts) => {
   let result;
   try {
-    result = await createOrUpdatePrompt(userId, promptId, prompt, response);
+    result = await createOrUpdatePrompt(userId, prompts);
   } catch (e) {
     return {
       ok: false,

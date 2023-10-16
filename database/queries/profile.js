@@ -35,73 +35,55 @@ export const getProfilePrompts = async (userId) => {
   return prompts;
 };
 
-export const createOrUpdatePrompt = async (
-  userId,
-  promptId,
-  prompt,
-  response
-) => {
-  if (!promptId) {
-    let text = prompt ? `${prompt}` : "";
-    let result = await prisma.$queryRaw`INSERT INTO "PromptQuestion" ("text")
-    VALUES(${text})  RETURNING id;`;
-    if (result.length > 0 && result[0].id) {
-      await prisma.promptResponse.create({
-        data: {
-          userId: userId.toString(),
-          questionId: result[0].id,
-          response,
+export const createOrUpdatePrompt = async (userId, prompts) => {
+  const values = Object.keys(prompts)
+    .map((key) => {
+      let keyStr = `'${key}'`;
+      return `(${keyStr})`;
+    })
+    .join();
+  const questionsResult = await prisma.$queryRaw`${Prisma.raw(`
+  WITH
+  val (text) AS
+    ( VALUES                          
+      ${values}
+    ),
+  ins AS
+    ( INSERT INTO
+        "PromptQuestion" (text)
+      SELECT text FROM val
+      ON CONFLICT (text) DO NOTHING
+      RETURNING *              
+    )
+  SELECT COALESCE(ins.id, "PromptQuestion".id) AS id, val.text
+  FROM val
+  LEFT JOIN ins ON ins.text = val.text
+  LEFT JOIN "PromptQuestion" ON "PromptQuestion".text = val.text ;`)}`;
+
+  const finalResult = await prisma.$transaction(
+    Object.keys(prompts).map((key) => {
+      let questionId = questionsResult.find(
+        (element) => element.text === key
+      ).id;
+      return prisma.promptResponse.upsert({
+        where: {
+          userId_questionId: {
+            userId,
+            questionId,
+          },
+        },
+        create: {
+          userId,
+          questionId,
+          response: prompts[key],
+        },
+        update: {
+          response: prompts[key],
         },
       });
-    }
-  } else {
-    let promptPresent = prompt ? true : false;
-    let checkPrompt = await prisma.promptQuestion.findFirst({
-      where: {
-        id: promptId,
-      },
-    });
-    let promptObj = {
-      id: promptId,
-    };
-    if (promptPresent) {
-      promptObj["text"] = prompt;
-    }
-    if (checkPrompt && checkPrompt.id) {
-      await prisma.$transaction([
-        prisma.promptQuestion.update({
-          where: { id: promptId },
-          data: {
-            ...promptObj,
-          },
-        }),
-        prisma.promptResponse.update({
-          where: {
-            userId_questionId: {
-              userId: userId.toString(),
-              questionId: promptId,
-            },
-          },
-          data: {
-            response,
-          },
-        }),
-      ]);
-    } else {
-      let text = prompt ? `${prompt}` : "";
-      let result = await prisma.$queryRaw`INSERT INTO "PromptQuestion" 
-      VALUES(${text})  RETURNING id;`;
-      if (result.length > 0 && result[0].id) {
-        await prisma.promptResponse.create({
-          data: {
-            userId: userId.toString(),
-            questionId: result[0].id,
-            response,
-          },
-        });
-      }
-    }
-  }
+    })
+  );
+
   return { ok: true };
 };
 

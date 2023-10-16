@@ -130,7 +130,7 @@ model PromptResponse {
 
 model PromptQuestion {
   id        Int              @id @default(autoincrement())
-  text      String
+  text      String           @unique()
   responses PromptResponse[]
 }
 

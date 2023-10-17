@@ -6,7 +6,7 @@ import {
   getUserRelationshipAggregatesByType,
 } from "../database/queries/relationship.js";
 import { aggregateRelationshipType } from "../util/relationship.js";
-// import { sendNotification } from "./notify.js";
+import { sendNotification } from "./notify.js";
 import {
   relationshipTypeIds,
   userRelationshipAggregateTypeIds,

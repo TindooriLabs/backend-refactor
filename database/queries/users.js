@@ -40,7 +40,6 @@ from "PromptResponse" prompt
 group by "userId", "questionId"
 ) prompt on prompt."userId" = pr."userId"
 where pr."userId" = ${id.toString()}`;
-  console.log(userInfo)
   return userInfo;
 };
 

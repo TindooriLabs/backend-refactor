@@ -13,6 +13,7 @@ import {
   getUserName,
   insertCachedTranslation,
   getUsersLanguages,
+  updateMessageById,
 } from "../database/queries/conversation.js";
 import { languageLevelIds, languageIds } from "../database/constants.js";
 import { translator } from "../clients/translate.js";
@@ -104,7 +105,7 @@ export const getConversation = async (
   );
   if (!targetLanguageResult.ok) return targetLanguageResult;
 
-  conversationResult.targetLanguage = targetLanguageResult.languageName;
+  conversationResult.targetLanguage = targetLanguageResult.languageId;
 
   return { ok: true, conversation: conversationResult };
 };
@@ -222,7 +223,9 @@ const addTranslationToMessage = async (
   );
 
   const addTranslationResult = await insertCachedTranslation(translation);
-
+  const updateMessageResult = await updateMessageById(message.id, {
+    lastTranslationLanguage: translationLanguage,
+  });
   return { ...message, translation };
 };
 
@@ -333,8 +336,10 @@ export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
     );
     targetLanguage = null;
   } else {
-    targetLanguage = targetLanguages[0].languageName;
+    targetLanguage = Object.keys(languageIds).find((key) => {
+      languageIds[key] === targetLanguages[0].languageName;
+    });
   }
 
-  return { ok: true, languageName: targetLanguage };
+  return { ok: true, languageId: targetLanguage };
 };

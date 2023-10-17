@@ -201,7 +201,7 @@ model UserImpressionArchive {
 // MARK: Messaging-related
 
 model Chat {
-  id           String    @id
+  id           String    @id @default(uuid())
   participants User[]
   messages     Message[]
 }

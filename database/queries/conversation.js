@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from "@prisma/client";
+import { v4 as uuid } from "uuid";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ export const getChatById = async (chatId, page, pageLength) => {
           sendTime: "desc",
         },
         take: pageLength,
-        skip: pageLength * (page - 1)
+        skip: pageLength * (page - 1),
       },
     },
   });
@@ -45,23 +46,31 @@ export const upsertChat = async (existingConversationId, participantIds) => {
         id: p,
       };
     });
-    result = await prisma.chat.upsert({
-      where: { id: existingConversationId.toString() },
-      update: {
-        participants: {
-          connect: participants,
+    if (existingConversationId) {
+      result = await prisma.chat.update({
+        where: { id: existingConversationId.toString() },
+        data: {
+          participants: {
+            connect: participants,
+          },
         },
-      },
-      create: {
-        id: existingConversationId.toString(),
-        participants: {
-          connect: participants,
+        include: {
+          participants: true,
         },
-      },
-      include: {
-        participants: true,
-      },
-    });
+      });
+    } else {
+      result = await prisma.chat.create({
+        data: {
+          participants: {
+            connect: participants,
+          },
+          id: uuid(),
+        },
+        include: {
+          participants: true,
+        },
+      });
+    }
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2025") {
@@ -109,6 +118,15 @@ export const getMessagesByIds = async (messageIds) => {
     where: { id: { in: messageIds } },
   });
   return result;
+};
+
+export const updateMessageById = async (messageId, message) => {
+  const result = await prisma.message.update({
+    where: { id: messageId.toString() },
+    data: {
+      ...message,
+    },
+  });
 };
 
 export const getUsersLanguages = async (userIds) => {

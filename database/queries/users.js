@@ -35,9 +35,10 @@ group by "userId"
 left join (
 select "userId", json_build_object(prompt."questionId", prompt.response) "promptResponses"
 from "PromptResponse" prompt
-group by "userId"
+group by "userId", "questionId"
 ) prompt on prompt."userId" = pr."userId"
 where pr."userId" = ${id.toString()}`;
+  console.log(userInfo)
   return userInfo;
 };
 

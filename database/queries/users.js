@@ -33,7 +33,7 @@ from "ImageUpload" iu
 group by "userId"
 ) iu on iu."userId" = pr."userId"
 left join (
-select "userId", json_agg(json_build_object(prompt."questionId", prompt.response)) "promptResponses"
+select "userId", json_build_object(prompt."questionId", prompt.response) "promptResponses"
 from "PromptResponse" prompt
 group by "userId"
 ) prompt on prompt."userId" = pr."userId"
@@ -65,7 +65,7 @@ from "ImageUpload" iu
 group by "userId"
 ) iu on iu."userId" = pr."userId"
 left join (
-select "userId", json_agg(json_build_object(prompt."questionId", prompt.response)) "promptResponses"
+select "userId", json_build_object(prompt."questionId", prompt.response) "promptResponses"
 from "PromptResponse" prompt
 group by "userId"
 ) prompt on prompt."userId" = pr."userId"

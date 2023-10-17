@@ -13,6 +13,8 @@ import {
   statusIds,
   ethnicityIds,
   subscriptionTierIds,
+  genderIdentityIds,
+  sexualityIds
 } from "../database/constants.js";
 
 export const getUser = async (userId, requestingUserId) => {
@@ -69,6 +71,25 @@ export const getUser = async (userId, requestingUserId) => {
       sqlResult["subscriptionTierId"] = 1;
     }
     delete sqlResult["subscriptionTier"];
+  }
+
+  if (sqlResult.hasOwnProperty("genderIdentity")) {
+    if (sqlResult["genderIdentity"]) {
+      sqlResult["genderIdentityId"] = genderIdentityIds[sqlResult["genderIdentity"]];
+    } else {
+      sqlResult["genderIdentityId"] = null;
+    }
+    delete sqlResult["genderIdentity"];
+  }
+
+  if (sqlResult.hasOwnProperty("userSexualities")) {
+    if (sqlResult["userSexualities"]) {
+      sqlResult["userSexualities"] = sqlResult["userSexualities"].map((s) => {
+        return sexualityIds[s];
+      });
+    } else {
+      sqlResult["userSexualities"] = [];
+    }
   }
 
   //Get requesting user information

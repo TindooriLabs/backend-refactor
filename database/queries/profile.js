@@ -225,7 +225,7 @@ export const findUsers = async (
     minAge
   )} and ${parseFloat(maxAge)}
   and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
-  and ((uia."userId_A" = ${userIdStr} and uia.impression_1 is not null) or (uia."userId_B" = ${userIdStr} and uia.impression_2 is not null) or (uia.impression_1 is null and uia.impression_2 is null))
+  and ((uia."userId_A" = ${userIdStr} and uia.impression_1 is null) or (uia."userId_B" = ${userIdStr} and uia.impression_2 is null) or (uia.impression_1 is null and uia.impression_2 is null))
   limit ${parseInt(maxResults)};
 `
   )}`;

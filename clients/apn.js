@@ -47,8 +47,8 @@ export default class ApnClient {
       apnNotification.alert = `New Message: ${notification.recipients.join()}`;
       apnNotification.payload = {
         messageFrom: notification.body.message.fromUserName,
-        message: notification.body.message.message,
-        sent: notification.body.message.sent
+        message: notification.body.message.text,
+        sent: notification.body.message.sendTime
       };
       apnNotification.messageId = notification.body.message.id;
       apnNotification.conversationId = notification.body.conversation.id;

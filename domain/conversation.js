@@ -17,7 +17,7 @@ import {
 import { languageLevelIds, languageIds } from "../database/constants.js";
 import { translator } from "../clients/translate.js";
 
-// import { sendNotification } from "./notify.js";
+import { sendNotification } from "./notify.js";
 
 const getChatsWithUserNames = (arr) => {
   const promises = arr.map(async (chat) => {
@@ -152,7 +152,7 @@ export const sendMessage = async (
     body: {
       conversation: { ...conversationResponse },
       message: {
-        ...messageResult.message,
+        ...messageResult,
         fromUserName: conversationResponse.participants.find(
           (p) => p.userId === fromUserId.toString()
         ).firstName,

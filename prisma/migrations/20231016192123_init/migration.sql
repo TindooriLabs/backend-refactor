@@ -392,8 +392,8 @@ create view UserImpressionAggregate as
 			as "userImpressionAggregateType"
 	from (
 		select distinct 
-		case when uib."fromUserId" > uib."toUserId" then uib."fromUserId" else uib."toUserId" end as "userId_A",
-		case when uib."fromUserId" < uib."toUserId" then uib."fromUserId" else uib."toUserId" end as "userId_B",
+		uib."fromUserId" as "userId_A",
+        uib."toUserId" as "userId_B",
 		uib.impression impression_1, 
 		uib2.impression impression_2 
 		from "UserImpressionBallot" uib

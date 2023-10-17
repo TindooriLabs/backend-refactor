@@ -18,7 +18,9 @@ export const getUserInfo = async (id) => {
   iu."imageUploads" "images",
   se."subscriptionKind" "subscriptionTier",
   pr.interests,
-  prompt."promptResponses" "prompts"
+  prompt."promptResponses" "prompts",
+  pr.sexuality "userSexualities",
+  pr."genderIdentity"
 from "Profile" pr
 left join "UserMetadata" um ON pr."userId" = um."userId"
 left join "SubscriptionEntry" se ON pr."userId" = se."userId"

@@ -14,7 +14,8 @@ import {
   insertCachedTranslation,
   getUsersLanguages,
   updateMessageById,
-  // getTranslations,
+  getAllTranslations,
+ 
 } from "../database/queries/conversation.js";
 import { languageLevelIds, languageIds } from "../database/constants.js";
 import { translator } from "../clients/translate.js";
@@ -107,9 +108,23 @@ export const getConversation = async (
       name: selected.firstName,
     };
   });
-  // let messageIds = conversationResult.messages.map((m) => m.id);
-  // let messageTranslations = await getTranslations(messageIds);
+  let messageIds = conversationResult.messages.map((m) => m.id);
+  let messageTranslations = await getAllTranslations(messageIds);
   conversationResult.messages = conversationResult.messages.map((e) => {
+    e.translations = {};
+    let translationsForMessage = messageTranslations.filter(
+      (translation) => translation.messageId === e.id
+    );
+    translationsForMessage.map((translation) => {
+      let languageIso = Object.keys(languageIds).find(
+        (key) => languageIds[key] === translation.toLanguageName
+      );
+      e.translations[languageIso] = {
+        language: languageIso,
+        message: translation.targetText,
+        expires: translation.expiration,
+      };
+    });
     e.id = e.id.toString();
     e["message"] = e["text"];
     e["sent"] = e["sendTime"];
@@ -249,7 +264,7 @@ const addTranslationToMessage = async (
   translationLanguage,
   userId
 ) => {
-  const translation = configureTranslationForMessage(
+  const translation = await configureTranslationForMessage(
     message,
     translationText,
     translationLanguage,
@@ -260,33 +275,59 @@ const addTranslationToMessage = async (
   const updateMessageResult = await updateMessageById(message.id, {
     lastTranslationLanguage: languageIds[translationLanguage],
   });
-  return { ...message, translation };
+  return {
+    ...message,
+    translations: {
+      ...message.translations,
+      [translationLanguage]: {
+        language: translationLanguage,
+        message: translationText,
+        expires: translation.expiration,
+      },
+    },
+  };
 };
 
 export const translateMessages = async (messageIds, targetLanguage, userId) => {
+  let messageIdsInt = messageIds.map((m) => {
+    return parseInt(m);
+  });
   //Get the messages from the database
-  const messages = await getMessagesByIds(
-    messageIds.map((m) => {
-      return parseInt(m);
-    })
-  );
+  let messages = await getMessagesByIds(messageIdsInt);
+  const existingTranslations = await getAllTranslations(messageIdsInt);
   if (!messages || messages.length === 0) {
     return messages;
   }
+  messages = messages.map((m) => {
+    m.translations = {};
+    let translationsForMessage = existingTranslations.filter(
+      (translation) => translation.messageId === m.id
+    );
+    translationsForMessage.map((translation) => {
+      let languageIso = Object.keys(languageIds).find(
+        (key) => languageIds[key] === translation.toLanguageName
+      );
+      m.translations[languageIso] = {
+        language: languageIso,
+        message: translation.targetText,
+        expires: translation.expiration,
+      };
+    });
+    return m;
+  });
 
   const translatedMessages = await Promise.all(
-    messages.map((m) => {
+    messages.map(async (m) => {
       //Don't translate to same language
       if (m.originalLanguageName === languageIds[targetLanguage]) return m;
 
-      //Check message for cached translation
-      const cachedTranslation = getCachedTranslationForMessage(
-        m,
-        targetLanguage
-      );
+      const today = new Date();
 
-      //Return valid cached translation
-      if (cachedTranslation) {
+      if (
+        m.translations &&
+        m.translations[targetLanguage] &&
+        today.isBefore(m.translations[targetLanguage].expires)
+      ) {
         m.id = m.id.toString();
         m["message"] = m["text"];
         m["sent"] = m["sendTime"];
@@ -301,14 +342,11 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
           "senderId",
           "originalLanguageName",
         ].forEach((key) => delete m[key]);
-        return {
-          ...m,
-          translation: cachedTranslation,
-        };
+        return m;
       }
 
       //Fetch a new translation
-      const translationResult = translateMessage(m, targetLanguage);
+      const translationResult = await translateMessage(m, targetLanguage);
       if (!translationResult.ok) {
         throw Error(
           `Error translating message to ${targetLanguage}: ${m.message}`
@@ -316,7 +354,7 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
       }
 
       //Get the return for a translation and cache the translation
-      const newTranslation = addTranslationToMessage(
+      const newTranslation = await addTranslationToMessage(
         m,
         translationResult.translation,
         targetLanguage,
@@ -336,6 +374,7 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
         "senderId",
         "originalLanguageName",
       ].forEach((key) => delete newTranslation[key]);
+
       return newTranslation;
     })
   );

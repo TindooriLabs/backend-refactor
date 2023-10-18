@@ -95,17 +95,7 @@ export const upsertChat = async (existingConversationId, participantIds) => {
   }
   return { ok: true, result };
 };
-export const getTranslations = async (messageIds) => {
-  const result = await prisma.cachedTranslation.findMany({
-    where: { messageId: { in: messageIds } },
-    select: {
-      messageId: true,
-      toLanguageName: true,
-      targetText: true,
-    },
-  });
-  return result;
-};
+
 export const insertMessage = async (
   message,
   fromUserId,
@@ -161,17 +151,20 @@ export const getUsersLanguages = async (userIds) => {
   return result;
 };
 
-export const getTranslation = async (
-  id,
-  originalLanguage,
-  targetLanguage,
-  text
-) => {
+export const getTranslation = async (id, originalLanguage, targetLanguage) => {
   const result = await prisma.cachedTranslation.findFirst({
     where: {
       messageId: id,
       fromLanguageName: originalLanguage,
       toLanguageName: targetLanguage,
+    },
+  });
+  return result;
+};
+export const getAllTranslations = async (ids) => {
+  const result = await prisma.cachedTranslation.findMany({
+    where: {
+      messageId: { in: ids },
     },
   });
   return result;

@@ -14,6 +14,7 @@ import {
   insertCachedTranslation,
   getUsersLanguages,
   updateMessageById,
+  // getTranslations,
 } from "../database/queries/conversation.js";
 import { languageLevelIds, languageIds } from "../database/constants.js";
 import { translator } from "../clients/translate.js";
@@ -44,16 +45,22 @@ export const getUserConversations = async (userId) => {
   const result = await getUserChatsWithLastMessage(userId);
   const answer = await getChatsWithUserNames(result);
   answer.forEach((chat) => {
-    chat.lastMessage["message"] = chat.lastMessage["text"];
-    chat.lastMessage["sent"] = chat.lastMessage["sendTime"];
-    chat.lastMessage["fromUserId"] = chat.lastMessage["senderId"];
-    chat.lastMessage["language"] = Object.keys(languageIds).find(
-      (key) => languageIds[key] === chat.lastMessage["originalLanguageName"]
-    );
-    chat.lastMessage["id"] = chat.lastMessage["id"].toString();
-    ["chatId", "text", "sendTime", "senderId", "originalLanguageName"].forEach(
-      (e) => delete chat.lastMessage[e]
-    );
+    if (chat.lastMessage) {
+      chat.lastMessage["message"] = chat.lastMessage["text"];
+      chat.lastMessage["sent"] = chat.lastMessage["sendTime"];
+      chat.lastMessage["fromUserId"] = chat.lastMessage["senderId"];
+      chat.lastMessage["language"] = Object.keys(languageIds).find(
+        (key) => languageIds[key] === chat.lastMessage["originalLanguageName"]
+      );
+      chat.lastMessage["id"] = chat.lastMessage["id"].toString();
+      [
+        "chatId",
+        "text",
+        "sendTime",
+        "senderId",
+        "originalLanguageName",
+      ].forEach((e) => delete chat.lastMessage[e]);
+    }
   });
 
   return { ok: true, conversations: answer };
@@ -92,7 +99,7 @@ export const getConversation = async (
   const participantNamesResult = await getParticipantNames(
     conversationResult.participants.map((p) => p.id)
   );
-  
+
   conversationResult.participants = conversationResult.participants.map((c) => {
     let selected = participantNamesResult.find((p) => p.userId === c.id);
     return {
@@ -100,7 +107,9 @@ export const getConversation = async (
       name: selected.firstName,
     };
   });
-  conversationResult.messages = conversationResult.messages.map((e) => {
+  // let messageIds = conversationResult.messages.map((m) => m.id);
+  // let messageTranslations = await getTranslations(messageIds);
+  conversationResult.messages = conversationResult.messages.map(async (e) => {
     e.id = e.id.toString();
     e["message"] = e["text"];
     e["sent"] = e["sendTime"];
@@ -142,7 +151,7 @@ export const sendMessage = async (
     existingConversationId,
     participants
   );
-  
+
   if (!conversationResponse.ok) {
     return conversationResponse;
   }
@@ -161,7 +170,7 @@ export const sendMessage = async (
   //Emit the notification to participants
   const participantNamesResult = await getParticipantNames(participants);
 
-  conversationResponse.participants = participantNamesResult.map((p)=>{
+  conversationResponse.participants = participantNamesResult.map((p) => {
     p.name = p.firstName;
     p.id = p.userId;
     delete p.firstName;

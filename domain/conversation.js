@@ -265,8 +265,7 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
   //Get the messages from the database
   const messages = await getMessagesByIds(
     messageIds.map((m) => {
-      m.id = parseInt(m.id);
-      return m;
+      return parseInt(m);
     })
   );
   if (!messages || messages.length === 0) {

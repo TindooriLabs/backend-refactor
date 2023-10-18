@@ -50,7 +50,7 @@ export const getUserConversations = async (userId) => {
     chat.lastMessage["language"] = Object.keys(languageIds).find(
       (key) => languageIds[key] === chat.lastMessage["originalLanguageName"]
     );
-    chat.lastMessage['id'] = chat.lastMessage['id'].toString();
+    chat.lastMessage["id"] = chat.lastMessage["id"].toString();
     ["chatId", "text", "sendTime", "senderId", "originalLanguageName"].forEach(
       (e) => delete chat.lastMessage[e]
     );
@@ -92,13 +92,11 @@ export const getConversation = async (
   const participantNamesResult = await getParticipantNames(
     conversationResult.participants.map((p) => p.id)
   );
-  conversationResult.participants = participantNamesResult;
-  if (conversationResult.messages.length > 0) {
-    conversationResult.lastMessage = conversationResult.messages[0];
-  } else {
-    conversationResult.lastMessage = {};
-  }
-  delete conversationResult.messages;
+  conversationResult.messages = conversationResult.messages.map((e) => {
+    e.id = e.id.toString();
+    return e;
+  });
+  
   //Get default target language
   const targetLanguageResult = await getDefaultTargetLanguage(
     conversationResult,

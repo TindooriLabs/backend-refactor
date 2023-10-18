@@ -4,8 +4,22 @@ import { v4 as uuid } from "uuid";
 const prisma = new PrismaClient();
 
 export const getChatById = async (chatId, page, pageLength) => {
-  const pageLengthInt = parseInt(pageLength);
-  const pageInt = parseInt(page);
+  let pageLengthInt,
+    pageInt,
+    pageLengthObj = {},
+    pageObj = {};
+  if (pageLength) {
+    pageLengthInt = parseInt(pageLength);
+    pageLengthObj = { take: pageLengthInt };
+  }
+  if (page) {
+    pageInt = parseInt(page);
+    if (pageLength) {
+      pageObj = { skip: pageLengthInt * (pageInt - 1) };
+    } else {
+      pageObj = { skip: 0 };
+    }
+  }
   const result = await prisma.chat.findFirst({
     where: { id: chatId.toString() },
     include: {
@@ -14,8 +28,8 @@ export const getChatById = async (chatId, page, pageLength) => {
         orderBy: {
           sendTime: "desc",
         },
-        take: pageLengthInt,
-        skip: pageLengthInt * (pageInt - 1),
+        ...pageLengthObj,
+        ...pageObj,
       },
     },
   });

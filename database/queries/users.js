@@ -16,6 +16,7 @@ export const getUserInfo = async (id) => {
   pr.hometown,
   pr.bio,
   iu."imageUploads" "images",
+  ll."userLanguages",
   se."subscriptionKind" "subscriptionTier",
   pr.interests,
   prompt."promptResponses" "prompts",
@@ -34,6 +35,13 @@ select "userId", json_agg(json_build_object(
 from "ImageUpload" iu 
 group by "userId"
 ) iu on iu."userId" = pr."userId"
+left join (
+  select "userId", json_agg(json_build_object(
+    'languageName', ll."languageName", 'languageLevel', ll."languageLevel"
+  )) "userLanguages"
+  from "LanguageAndLevel" ll
+  group by "userId"
+) ll on ll."userId" = pr."userId"
 left join (
 select "userId", json_build_object(prompt."questionId", prompt.response) "promptResponses"
 from "PromptResponse" prompt

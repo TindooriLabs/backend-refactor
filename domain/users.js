@@ -14,7 +14,9 @@ import {
   ethnicityIds,
   subscriptionTierIds,
   genderIdentityIds,
-  sexualityIds
+  sexualityIds,
+  languageIds,
+  languageLevelIds
 } from "../database/constants.js";
 
 export const getUser = async (userId, requestingUserId) => {
@@ -89,6 +91,35 @@ export const getUser = async (userId, requestingUserId) => {
       });
     } else {
       sqlResult["userSexualities"] = [];
+    }
+  }
+
+  if (sqlResult.hasOwnProperty("userLanguages")) {
+    if (sqlResult["userLanguages"]) {
+      sqlResult["userLanguages"] = sqlResult["userLanguages"].map((lang) => {
+        if (lang.hasOwnProperty("languageLevel")) {
+          if (lang["languageLevel"]) {
+            lang["languageLevelId"] = languageLevelIds[lang["languageLevel"]];
+          } else {
+            lang["languageLevelId"] = null;
+          }
+          delete lang["languageLevel"];
+        }
+        if (lang.hasOwnProperty("languageName")) {
+          if (lang["languageName"]) {
+            lang["languageId"] = Object.keys(languageIds).find(
+              (key) => languageIds[key] === lang["languageName"]
+            );
+          } else {
+            lang["languageId"] = null;
+          }
+          delete lang["languageName"];
+        }
+
+        return lang;
+      });
+    } else {
+      sqlResult["userLanguages"] = [];
     }
   }
 

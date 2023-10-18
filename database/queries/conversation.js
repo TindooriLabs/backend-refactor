@@ -14,8 +14,8 @@ export const getChatById = async (chatId, page, pageLength) => {
         orderBy: {
           sendTime: "desc",
         },
-        take: pageLength,
-        skip: pageLength * (page - 1),
+        take: pageLengthInt,
+        skip: pageLengthInt * (pageInt - 1),
       },
     },
   });

@@ -142,6 +142,7 @@ export const sendMessage = async (
     existingConversationId,
     participants
   );
+  
   if (!conversationResponse.ok) {
     return conversationResponse;
   }
@@ -160,19 +161,25 @@ export const sendMessage = async (
   //Emit the notification to participants
   const participantNamesResult = await getParticipantNames(participants);
 
-  conversationResponse.participants = participantNamesResult;
+  conversationResponse.participants = participantNamesResult.map((p)=>{
+    p.name = p.firstName;
+    p.id = p.userId;
+    delete p.firstName;
+    delete p.userId;
+    return p;
+  });
   const notification = {
     type: "message",
     recipients: conversationResponse.participants.filter(
-      (p) => p.userId != fromUserId.toString()
+      (p) => p.id != fromUserId.toString()
     ),
     body: {
       conversation: { ...conversationResponse },
       message: {
         ...messageResult,
         fromUserName: conversationResponse.participants.find(
-          (p) => p.userId === fromUserId.toString()
-        ).firstName,
+          (p) => p.id === fromUserId.toString()
+        ).name,
       },
     },
   };

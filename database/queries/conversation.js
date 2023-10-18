@@ -53,26 +53,23 @@ export const getParticipantNames = async (participants) => {
 };
 
 export const upsertChat = async (existingConversationId, participantIds) => {
-  let result;
+  let result, participants;
   try {
-    const participants = participantIds.map((p) => {
-      return {
-        id: p,
-      };
-    });
     if (existingConversationId) {
-      result = await prisma.chat.update({
+      result = await prisma.chat.findFirst({
         where: { id: existingConversationId.toString() },
-        data: {
-          participants: {
-            connect: participants,
-          },
-        },
         include: {
           participants: true,
         },
       });
     } else {
+      if (participantIds && participantIds.length > 0) {
+        participants = participantIds.map((p) => {
+          return {
+            id: p,
+          };
+        });
+      }
       result = await prisma.chat.create({
         data: {
           participants: {

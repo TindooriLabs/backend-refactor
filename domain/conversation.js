@@ -109,7 +109,7 @@ export const getConversation = async (
   });
   // let messageIds = conversationResult.messages.map((m) => m.id);
   // let messageTranslations = await getTranslations(messageIds);
-  conversationResult.messages = conversationResult.messages.map(async (e) => {
+  conversationResult.messages = conversationResult.messages.map((e) => {
     e.id = e.id.toString();
     e["message"] = e["text"];
     e["sent"] = e["sendTime"];

@@ -224,7 +224,7 @@ const addTranslationToMessage = async (
 
   const addTranslationResult = await insertCachedTranslation(translation);
   const updateMessageResult = await updateMessageById(message.id, {
-    lastTranslationLanguage: translationLanguage,
+    lastTranslationLanguage: languageIds[translationLanguage],
   });
   return { ...message, translation };
 };

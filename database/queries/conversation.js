@@ -169,7 +169,7 @@ export const getTranslation = async (
 ) => {
   const result = await prisma.cachedTranslation.findFirst({
     where: {
-      messageId: id.toString(),
+      messageId: id,
       fromLanguageName: originalLanguage,
       toLanguageName: targetLanguage,
     },

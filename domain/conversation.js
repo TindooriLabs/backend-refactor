@@ -50,6 +50,7 @@ export const getUserConversations = async (userId) => {
     chat.lastMessage["language"] = Object.keys(languageIds).find(
       (key) => languageIds[key] === chat.lastMessage["originalLanguageName"]
     );
+    chat.lastMessage['id'] = chat.lastMessage['id'].toString();
     ["chatId", "text", "sendTime", "senderId", "originalLanguageName"].forEach(
       (e) => delete chat.lastMessage[e]
     );

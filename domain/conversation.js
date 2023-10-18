@@ -224,6 +224,7 @@ const translateMessage = async (message, targetLanguage) =>
   );
 
 const configureTranslationForMessage = async (
+  message,
   translationText,
   translationLanguage,
   userId
@@ -249,6 +250,7 @@ const addTranslationToMessage = async (
   userId
 ) => {
   const translation = configureTranslationForMessage(
+    message,
     translationText,
     translationLanguage,
     userId

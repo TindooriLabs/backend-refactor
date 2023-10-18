@@ -102,6 +102,15 @@ export const getConversation = async (
   });
   conversationResult.messages = conversationResult.messages.map((e) => {
     e.id = e.id.toString();
+    e["message"] = e["text"];
+    e["sent"] = e["sendTime"];
+    e["fromUserId"] = e["senderId"];
+    e["language"] = Object.keys(languageIds).find(
+      (key) => languageIds[key] === e["originalLanguageName"]
+    );
+    ["chatId", "text", "sendTime", "senderId", "originalLanguageName"].forEach(
+      (key) => delete e[key]
+    );
     return e;
   });
 

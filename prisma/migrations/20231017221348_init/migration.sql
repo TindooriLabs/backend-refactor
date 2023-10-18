@@ -392,13 +392,13 @@ create view UserImpressionAggregate as
 			as "userImpressionAggregateType"
 	from (
 		select distinct 
-		uib."fromUserId" as "userId_A",
-        uib."toUserId" as "userId_B",
+		LEAST(uib."fromUserId", uib."toUserId") as "userId_A",
+        GREATEST(uib."fromUserId", uib."toUserId") as "userId_B",
 		uib.impression impression_1, 
 		uib2.impression impression_2 
 		from "UserImpressionBallot" uib
 		--Reciprocal relationship
-		left join "UserImpressionBallot" uib2 on 
+		inner join "UserImpressionBallot" uib2 on 
 			uib."toUserId" = uib2."fromUserId" and 
 			uib."fromUserId" = uib2."toUserId") uib;
 

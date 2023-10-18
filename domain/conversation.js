@@ -275,18 +275,32 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
   }
 
   const translatedMessages = await Promise.all(
-    messages.map(async (m) => {
+    messages.map((m) => {
       //Don't translate to same language
       if (m.originalLanguageName === languageIds[targetLanguage]) return m;
 
       //Check message for cached translation
-      const cachedTranslation = await getCachedTranslationForMessage(
+      const cachedTranslation = getCachedTranslationForMessage(
         m,
         targetLanguage
       );
 
       //Return valid cached translation
       if (cachedTranslation) {
+        m.id = m.id.toString();
+        m["message"] = m["text"];
+        m["sent"] = m["sendTime"];
+        m["fromUserId"] = m["senderId"];
+        m["language"] = Object.keys(languageIds).find(
+          (key) => languageIds[key] === m["originalLanguageName"]
+        );
+        [
+          "chatId",
+          "text",
+          "sendTime",
+          "senderId",
+          "originalLanguageName",
+        ].forEach((key) => delete m[key]);
         return {
           ...m,
           translation: cachedTranslation,
@@ -294,7 +308,7 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
       }
 
       //Fetch a new translation
-      const translationResult = await translateMessage(m, targetLanguage);
+      const translationResult = translateMessage(m, targetLanguage);
       if (!translationResult.ok) {
         throw Error(
           `Error translating message to ${targetLanguage}: ${m.message}`
@@ -302,13 +316,26 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
       }
 
       //Get the return for a translation and cache the translation
-      const newTranslation = await addTranslationToMessage(
+      const newTranslation = addTranslationToMessage(
         m,
         translationResult.translation,
         targetLanguage,
         userId
       );
-
+      newTranslation.id = newTranslation.id.toString();
+      newTranslation["message"] = newTranslation["text"];
+      newTranslation["sent"] = newTranslation["sendTime"];
+      newTranslation["fromUserId"] = newTranslation["senderId"];
+      newTranslation["language"] = Object.keys(languageIds).find(
+        (key) => languageIds[key] === newTranslation["originalLanguageName"]
+      );
+      [
+        "chatId",
+        "text",
+        "sendTime",
+        "senderId",
+        "originalLanguageName",
+      ].forEach((key) => delete newTranslation[key]);
       return newTranslation;
     })
   );

@@ -143,7 +143,7 @@ export const getMessagesByIds = async (messageIds) => {
 
 export const updateMessageById = async (messageId, message) => {
   const result = await prisma.message.update({
-    where: { id: messageId.toString() },
+    where: { id: messageId },
     data: {
       ...message,
     },

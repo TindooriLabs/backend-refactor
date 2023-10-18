@@ -92,11 +92,19 @@ export const getConversation = async (
   const participantNamesResult = await getParticipantNames(
     conversationResult.participants.map((p) => p.id)
   );
+  
+  conversationResult.participants = conversationResult.participants.map((c) => {
+    let selected = participantNamesResult.find((p) => p.userId === c.id);
+    return {
+      id: selected.userId,
+      name: selected.firstName,
+    };
+  });
   conversationResult.messages = conversationResult.messages.map((e) => {
     e.id = e.id.toString();
     return e;
   });
-  
+
   //Get default target language
   const targetLanguageResult = await getDefaultTargetLanguage(
     conversationResult,

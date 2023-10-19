@@ -8,13 +8,13 @@ CREATE TYPE "DeviceKind" AS ENUM ('IOS', 'ANDROID');
 CREATE TYPE "Ethnicity" AS ENUM ('ASIAN', 'AFRICAN_AMERICAN', 'ALASKA_NATIVE', 'PACIFIC_ISLANDER', 'WHITE', 'LATIN_AMERICAN');
 
 -- CreateEnum
-CREATE TYPE "GenderIdentity" AS ENUM ('MAN', 'WOMAN', 'NONBINARY');
+CREATE TYPE "GenderIdentity" AS ENUM ('MAN', 'WOMAN', 'NONBINARY', 'MORE');
 
 -- CreateEnum
 CREATE TYPE "LanguageProficiencyLevel" AS ENUM ('WANT_TO_LEARN', 'BEGINNER', 'INTERMEDIATE', 'FLUENT');
 
 -- CreateEnum
-CREATE TYPE "Sexuality" AS ENUM ('STRAIGHT', 'GAY', 'LESBIAN', 'BISEXUAL', 'PANSEXUAL', 'PREFER_NOT_TO_SAY');
+CREATE TYPE "Sexuality" AS ENUM ('STRAIGHT', 'GAY', 'LESBIAN', 'BISEXUAL', 'PANSEXUAL', 'OTHER', 'PREFER_NOT_TO_SAY');
 
 -- CreateEnum
 CREATE TYPE "UserImpressionKind" AS ENUM ('LIKE', 'SKIP', 'UNMATCH');
@@ -398,7 +398,7 @@ create view UserImpressionAggregate as
 		uib2.impression impression_2 
 		from "UserImpressionBallot" uib
 		--Reciprocal relationship
-		inner join "UserImpressionBallot" uib2 on 
+		left join "UserImpressionBallot" uib2 on 
 			uib."toUserId" = uib2."fromUserId" and 
 			uib."fromUserId" = uib2."toUserId") uib;
 

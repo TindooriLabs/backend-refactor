@@ -50,6 +50,8 @@ export const setGendersInterested = async req => {
     }
     const { genderIdentityIds } = req.body;
     const { userId } = req.user;
+
+    console.log(genderIdentityIds);
    
   
     const result = await setGendersInterestedDomain(userId, genderIdentityIds);
@@ -70,7 +72,6 @@ export const setGendersInterested = async req => {
     }
     const { sexualityIds } = req.body;
     const { userId } = req.user;
-    
   
     const result = await setSexualitiesDomain(userId, sexualityIds);
   

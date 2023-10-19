@@ -33,7 +33,8 @@ export const statusIds = {
     LESBIAN: 3,
     BISEXUAL: 4,
     PANSEXUAL: 5,
-    PREFER_NOT_TO_SAY: 6
+    OTHER: 6,
+    PREFER_NOT_TO_SAY: 7
   }
   export const languageLevelIds = {
     WANT_TO_LEARN: 1,

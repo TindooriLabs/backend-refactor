@@ -398,7 +398,7 @@ create view UserImpressionAggregate as
 		uib2.impression impression_2 
 		from "UserImpressionBallot" uib
 		--Reciprocal relationship
-		inner join "UserImpressionBallot" uib2 on 
+		left join "UserImpressionBallot" uib2 on 
 			uib."toUserId" = uib2."fromUserId" and 
 			uib."fromUserId" = uib2."toUserId") uib;
 

@@ -75,6 +75,7 @@ enum GenderIdentity {
   MAN
   WOMAN
   NONBINARY
+  MORE
 }
 
 enum LanguageProficiencyLevel {
@@ -90,6 +91,7 @@ enum Sexuality {
   LESBIAN
   BISEXUAL
   PANSEXUAL
+  OTHER
   PREFER_NOT_TO_SAY
 }
 

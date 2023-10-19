@@ -16,7 +16,7 @@ import {
   genderIdentityIds,
   sexualityIds,
   languageIds,
-  languageLevelIds
+  languageLevelIds,
 } from "../database/constants.js";
 
 export const getUser = async (userId, requestingUserId) => {
@@ -59,17 +59,15 @@ export const getUser = async (userId, requestingUserId) => {
         );
         return image;
       });
-    }else{
+    } else {
       sqlResult["images"] = [];
     }
   }
-  if (
-    sqlResult.hasOwnProperty("subscriptionTier")
-  ) {
-    if(sqlResult["subscriptionTier"]){
-    sqlResult["subscriptionTierId"] =
-      subscriptionTierIds[sqlResult["subscriptionTier"]];
-    }else{
+  if (sqlResult.hasOwnProperty("subscriptionTier")) {
+    if (sqlResult["subscriptionTier"]) {
+      sqlResult["subscriptionTierId"] =
+        subscriptionTierIds[sqlResult["subscriptionTier"]];
+    } else {
       sqlResult["subscriptionTierId"] = 1;
     }
     delete sqlResult["subscriptionTier"];
@@ -77,7 +75,8 @@ export const getUser = async (userId, requestingUserId) => {
 
   if (sqlResult.hasOwnProperty("genderIdentity")) {
     if (sqlResult["genderIdentity"]) {
-      sqlResult["genderIdentityId"] = genderIdentityIds[sqlResult["genderIdentity"]];
+      sqlResult["genderIdentityId"] =
+        genderIdentityIds[sqlResult["genderIdentity"]];
     } else {
       sqlResult["genderIdentityId"] = null;
     }
@@ -121,6 +120,9 @@ export const getUser = async (userId, requestingUserId) => {
     } else {
       sqlResult["userLanguages"] = [];
     }
+  }
+  if (sqlResult.hasOwnProperty("karmaScore") && sqlResult["karmaScore"]) {
+    sqlResult.karmaScore = sqlResult.karmaScore.toString();
   }
 
   //Get requesting user information

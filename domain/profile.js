@@ -45,7 +45,7 @@ export const getPrompts = async (userId) => {
   let prompts = await getProfilePrompts(userId);
   prompts = prompts.map((prompt) => {
     return {
-      id: prompt.question.id.toString(),
+      id: prompt.question.text,
       text: prompt.response,
     };
   });

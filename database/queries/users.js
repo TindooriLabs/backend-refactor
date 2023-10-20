@@ -43,11 +43,11 @@ left join (
   group by "userId"
 ) ll on ll."userId" = pr."userId"
 left join (
-select "userId", json_build_object(pq.text, prompt.response) "promptResponses"
-from "PromptResponse" prompt
-inner join "PromptQuestion" pq
-on prompt."questionId" = pq.id
-group by "userId", "questionId", pq.text
+	select "userId", json_object_agg(pq.text, prompt.response) "promptResponses"
+	from "PromptResponse" prompt
+	left join "PromptQuestion" pq
+	on prompt."questionId" = pq.id
+	group by "userId"
 ) prompt on prompt."userId" = pr."userId"
 where pr."userId" = ${id.toString()}`;
   return userInfo;

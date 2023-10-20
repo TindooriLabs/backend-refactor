@@ -225,45 +225,11 @@ export const findUsers = async (
     minAge
   )} and ${parseFloat(maxAge)}
   and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
-  and ((uib."fromUserId" = ${userIdStr} and uib.impression is null) or (uib.impression is null))
+  and ((uib."fromUserId" = ${userIdStr} and uib.impression is null) or ((SELECT "fromUserId" FROM "UserImpressionBallot" WHERE "fromUserId" = ${userIdStr} LIMIT 1) is null))
   limit ${parseInt(maxResults)};
 `
   )}`;
-  console.log(`with base_profile as (select * from "Profile" where "userId" = ${userIdStr} limit 1),
-  base_profile_interested_in_genders as (select "userId", "gendersOfInterest" from "Profile" pr where "userId" = ${userIdStr})
-  select pr."userId" "id", pr."firstName" "name", date_part('year', age(now(), pr."birthDate")) age,
-  pr."genderIdentity", pr.ethnicity, ROUND(km.sum::decimal/km.count, 2)::float8 "karmaScore",
-  round(point(pr.longitude,pr.latitude) <@> point((select longitude from base_profile),(select latitude from base_profile))) "distance",
-  case when ${showRelationshipInfo} then uib.impression else null end "existingRelationshipType",
-  case when ${showRelationshipInfo} then uia."userImpressionAggregateType" else null end  "userRelationshipAggregateType",
-  ll.user_languages "languages", iu."imageUploads" "images"
-  from "Profile" pr left join "KarmaScore" km ON pr."userId" = km."userId"
-  left join "UserImpressionBallot" uib on uib."toUserId" = ${userIdStr} and pr."userId" = uib."fromUserId"
-  left join "userimpressionaggregate" uia on (pr."userId" = uia."userId_A" or pr."userId" = uia."userId_B") and (${userIdStr} = uia."userId_A" or ${userIdStr} = uia."userId_B")
-  left join (
-    select  "userId", json_agg(json_build_object('languageName', ll."languageName",'languageLevel', ll."languageLevel")) user_languages
-    from "LanguageAndLevel" ll 
-    group by "userId"	
-  ) ll on ll."userId" = pr."userId"
-  left join (
-  select "userId", json_agg(json_build_object(
-  'id', iu.id, 'userId', iu."userId", 'ordinal', iu.ordinal, 
-  's3Path', iu."s3Path", 'nameWithoutExtension', iu."nameWithoutExtension", 
-  'extension', iu.extension)) "imageUploads" 
-  from "ImageUpload" iu 
-  group by "userId"
-  ) iu on iu."userId" = pr."userId"
-  where
-  pr."userId" != ${userIdStr}
-  and ${parseFloat(
-    maxDistance
-  )} >= (point(pr.longitude,pr.latitude) <@> point((select longitude from base_profile),(select latitude from base_profile)))
-  and date_part('year', age(now(), pr."birthDate")) between ${parseFloat(
-    minAge
-  )} and ${parseFloat(maxAge)}
-  and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
-  and ((uib."fromUserId" = ${userIdStr} and uib.impression is null) or (uib.impression is null))
-  limit ${parseInt(maxResults)};`)
+  
   return result;
 };
 

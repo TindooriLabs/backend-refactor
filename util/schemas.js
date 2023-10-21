@@ -142,7 +142,7 @@ schemas.verifyMobileBody = Joi.object().keys({
     promptId: Joi.string().required()
   });
   schemas.setInterestsBody = Joi.object().keys({
-    interests: Joi.array().items(interest).required()
+    interests: Joi.array().items(interest).max(5).required()
   });
   schemas.findProfilesQuery = Joi.object().keys({
     minAge: age.required(),

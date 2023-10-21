@@ -225,7 +225,7 @@ export const findUsers = async (
     minAge
   )} and ${parseFloat(maxAge)}
   and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
-  and ((uib."fromUserId" = ${userIdStr} and uib.impression is null) or (uib.updated is null))
+  and pr."userId" NOT IN (SELECT "toUserId" FROM "UserImpressionBallot" uib WHERE uib."fromUserId" = 'b7ad10a7-c3d1-43fe-af0a-df5dab1fcd33')
   limit ${parseInt(maxResults)};
 `
   )}`;

@@ -75,13 +75,8 @@ export const removePromptResponse = async (userId, promptId) => {
 export const addInterests = async (userId, interests) => {
   interests = interests.map((interest) => interest.trim().toLowerCase());
   let interestsUnique = [...new Set(interests)];
-  let existingInterests = await getInterests(userId);
-  if (existingInterests && existingInterests.interests) {
-    interestsUnique = interestsUnique.filter(
-      (interest) => !existingInterests.interests.includes(interest)
-    );
-  }
-  const result = await insertInterests(userId, interestsUnique);
+
+  const result = await updateInterests(userId, interestsUnique);
 
   return result;
 };

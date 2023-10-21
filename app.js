@@ -61,8 +61,4 @@ app.use(
   conversationRouter
 );
 
-app.get("/", (req, res) => {
-  res.send("Hello world!");
-})
-
 export default app;

@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  createConversation,
   getConversation,
   sendMessage,
   translateMessages
@@ -35,5 +36,11 @@ router.post(
     res.status(status).send(body);
   })
 );
+
+router.post("/create",
+errorWrapper(async (req, res) => {
+  const { status, body } = await createConversation(req);
+  res.status(status).send(body);
+}))
 
 export default router;

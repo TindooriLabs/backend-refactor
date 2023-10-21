@@ -15,6 +15,7 @@ import {
   getUsersLanguages,
   updateMessageById,
   getAllTranslations,
+  createChat,
  
 } from "../database/queries/conversation.js";
 import { languageLevelIds, languageIds } from "../database/constants.js";
@@ -22,6 +23,10 @@ import { translator } from "../clients/translate.js";
 
 import { sendNotification } from "./notify.js";
 
+export const createConversation = async (userId, otherUserId) => {
+  const result = await createChat(userId, otherUserId);
+  return result;
+}
 const getChatsWithUserNames = (arr) => {
   const promises = arr.map(async (chat) => {
     let chatResult = {};

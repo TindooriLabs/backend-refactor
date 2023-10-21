@@ -12,6 +12,7 @@ import {
   insertImageData,
   deleteImageData,
   updateImageData,
+  deleteAllUserPrompts,
 } from "../database/queries/profile.js";
 import config from "../config/default.js";
 import { v4 as uuid } from "uuid";
@@ -53,9 +54,12 @@ export const getPrompts = async (userId) => {
 };
 
 export const addPromptResponse = async (userId, prompts) => {
-  let result;
+  let result, deleteResult;
   try {
-    result = await createOrUpdatePrompt(userId, prompts);
+    deleteResult = await deleteAllUserPrompts(userId);
+    if (deleteResult.ok) {
+      result = await createOrUpdatePrompt(userId, prompts);
+    }
   } catch (e) {
     return {
       ok: false,
@@ -179,29 +183,29 @@ export const findProfiles = async (
             }
             delete lang["languageName"];
           }
-  
+
           return lang;
         });
       } else {
         result["languages"] = [];
       }
     }
-   
-  if (result.hasOwnProperty("images")) {
-    if (result["images"]) {
-      result["images"] = result["images"].map((image) => {
-        image["s3Dir"] = image["s3Path"] || "";
-        image["originalName"] =
-          `${image["nameWithoutExtension"]}.${image["extension"]}` || "";
-        ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
-          (key) => delete image[key]
-        );
-        return image;
-      });
-    }else{
-      result["images"] = [];
+
+    if (result.hasOwnProperty("images")) {
+      if (result["images"]) {
+        result["images"] = result["images"].map((image) => {
+          image["s3Dir"] = image["s3Path"] || "";
+          image["originalName"] =
+            `${image["nameWithoutExtension"]}.${image["extension"]}` || "";
+          ["userId", "s3Path", "nameWithoutExtension", "extension"].map(
+            (key) => delete image[key]
+          );
+          return image;
+        });
+      } else {
+        result["images"] = [];
+      }
     }
-  }
     return result;
   });
 

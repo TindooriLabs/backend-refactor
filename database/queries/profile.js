@@ -87,6 +87,28 @@ export const createOrUpdatePrompt = async (userId, prompts) => {
   return { ok: true };
 };
 
+export const deleteAllUserPrompts = async (userId) => {
+  try {
+    await prisma.promptResponse.deleteMany({
+      where: {
+       userId: userId.toString()
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2025") {
+        return {
+          ok: false,
+          reason: "not-found",
+          message: "Could not find the user prompt in the SQL database.",
+        };
+      }
+    }
+  }
+
+  return { ok: true };
+}
+
 export const deletePromptResponse = async (userId, promptId) => {
   try {
     await prisma.promptResponse.deleteMany({

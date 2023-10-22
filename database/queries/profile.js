@@ -91,7 +91,7 @@ export const deleteAllUserPrompts = async (userId) => {
   try {
     await prisma.promptResponse.deleteMany({
       where: {
-       userId: userId.toString()
+        userId: userId.toString(),
       },
     });
   } catch (e) {
@@ -107,7 +107,7 @@ export const deleteAllUserPrompts = async (userId) => {
   }
 
   return { ok: true };
-}
+};
 
 export const deletePromptResponse = async (userId, promptId) => {
   try {
@@ -223,7 +223,7 @@ export const findUsers = async (
   case when ${showRelationshipInfo} then uia."userImpressionAggregateType" else null end  "userRelationshipAggregateType",
   ll.user_languages "languages", iu."imageUploads" "images"
   from "Profile" pr left join "KarmaScore" km ON pr."userId" = km."userId"
-  left join "UserImpressionBallot" uib on uib."fromUserId" = ${userIdStr} and pr."userId" = uib."fromUserId"
+  left join "UserImpressionBallot" uib on uib."toUserId" = ${userIdStr} and pr."userId" = uib."fromUserId"
   left join "userimpressionaggregate" uia on (pr."userId" = uia."userId_A" or pr."userId" = uia."userId_B") and (${userIdStr} = uia."userId_A" or ${userIdStr} = uia."userId_B")
   left join (
     select  "userId", json_agg(json_build_object('languageName', ll."languageName",'languageLevel', ll."languageLevel")) user_languages
@@ -247,11 +247,11 @@ export const findUsers = async (
     minAge
   )} and ${parseFloat(maxAge)}
   and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
-  and pr."userId" NOT IN (SELECT "toUserId" FROM "UserImpressionBallot" uib WHERE uib."fromUserId" = 'b7ad10a7-c3d1-43fe-af0a-df5dab1fcd33')
+  and pr."userId" NOT IN (SELECT "toUserId" FROM "UserImpressionBallot" uib WHERE uib."fromUserId" = ${userIdStr})
   limit ${parseInt(maxResults)};
 `
   )}`;
-  
+
   return result;
 };
 

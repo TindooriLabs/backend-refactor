@@ -2,16 +2,7 @@ import { PrismaClient, Prisma } from "@prisma/client";
 import { v4 as uuid } from "uuid";
 
 const prisma = new PrismaClient();
-export const createChat = async (userId, otherUserId) => {
-  const result = await prisma.chat.create({
-    data: {
-      participants: {
-        connect: [{ id: userId.toString() }, { id: otherUserId.toString() }],
-      },
-    },
-  });
-  return { ok: true, result };
-};
+
 export const getChatById = async (chatId, page, pageLength) => {
   let pageLengthInt,
     pageInt,

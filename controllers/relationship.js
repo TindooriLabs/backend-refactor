@@ -1,6 +1,7 @@
 import {
     createRelationship as createRelationshipDomain,
-    getRelationshipsByType as getRelationshipsByTypeDomain
+    getRelationshipsByType as getRelationshipsByTypeDomain,
+    getLikesForUser
   } from "../domain/relationship.js";
   import { getFailureBody } from "./controller-helper.js";
   import { validateSchema } from "../util/schemas.js";
@@ -59,4 +60,18 @@ import {
   
     return getFailureBody(result);
   };
+
+  export const getLikes = async req => {
+    const { userId } = req.user;
+    const result = await getLikesForUser(userId);
+  
+    //Return success
+    if (result.ok) {
+      if (!result.relationships?.length) return { status: 204 };
+  
+      return { status: 200, body: result.relationships };
+    }
+  
+    return getFailureBody(result);
+  }
   

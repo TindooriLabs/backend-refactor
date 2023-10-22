@@ -1,7 +1,8 @@
 import express from "express";
 import {
   createRelationship,
-  getUserRelationshipsByType
+  getUserRelationshipsByType,
+  getLikes
 } from "../controllers/relationship.js";
 import { errorWrapper } from "./error.js";
 
@@ -21,6 +22,14 @@ router.get(
   "/:relationshipType",
   errorWrapper(async (req, res) => {
     const { status, body } = await getUserRelationshipsByType(req);
+    res.status(status).send(body);
+  })
+);
+
+router.get(
+  "/premium/likes",
+  errorWrapper(async (req, res) => {
+    const { status, body } = await getLikes(req);
     res.status(status).send(body);
   })
 );

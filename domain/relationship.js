@@ -4,6 +4,7 @@ import {
   upsertRelationship,
   updateUserSwipeCache,
   getUserRelationshipAggregatesByType,
+  fetchLikesForUser
 } from "../database/queries/relationship.js";
 import { aggregateRelationshipType } from "../util/relationship.js";
 import { sendNotification } from "./notify.js";
@@ -124,5 +125,10 @@ export const getRelationshipsByType = async (userId, relationshipType) => {
     delete element["userRelationshipAggregateType"];
     return element;
   });
+  return { ok: true, relationships: result };
+};
+
+export const getLikesForUser = async (userId) => {
+  let result = await fetchLikesForUser(userId);
   return { ok: true, relationships: result };
 };

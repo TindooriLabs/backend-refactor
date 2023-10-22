@@ -98,3 +98,16 @@ export const getUserRelationshipAggregatesByType = async (
 
   return result;
 };
+
+export const fetchLikesForUser = async (userId) => {
+  const result = await prisma.userImpressionBallot.findMany({
+    where: {
+      toUserId: userId.toString(),
+      impression: "LIKE",
+    },
+    select: {
+      fromUserId: true,
+    },
+  });
+  return result;
+};

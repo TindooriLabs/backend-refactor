@@ -5,18 +5,8 @@ import {
   getConversation as getConversationDomain,
   sendMessage as sendMessageDomain,
   translateMessages as translateMessagesDomain,
-  createConversation as createConversationDomain
 } from "../domain/conversation.js";
 
-
-export const createConversation = async (req) => {
-  const { userId } = req.user;
-  const { otherUserId } = req.body;
-  const result = await createConversationDomain(userId, otherUserId);
-  if(result.ok){
-    return { status: 200, body: result.result };
-  }
-}
 export const getUserConversations = async (req) => {
   //Validate params and query
   const paramsValidation = validateSchema(

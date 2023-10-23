@@ -18,7 +18,7 @@ const longitude = Joi.number().min(-180).max(180);
   const pageLength = Joi.number().positive();
   const page = Joi.number().positive();
 const imageOrdinal = Joi.number();
-const phoneNumber = Joi.string().min(10).max(15);
+const phoneNumber = Joi.string().length(11);
 const verificationCode = Joi.string().length(6);
   const statusName = Joi.string().valid(
     ...Object.keys(statusIds)

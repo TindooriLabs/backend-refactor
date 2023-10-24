@@ -193,3 +193,13 @@ export const setUserVerified = async (userId) => {
 
   return { ok: true, account };
 };
+
+export const getDevice = async (userId, deviceId) => {
+  const result = await prisma.deviceRecord.findFirst({
+    where: {
+      identifier: deviceId.toString(),
+      userId: userId.toString(),
+    },
+  });
+  return result;
+};

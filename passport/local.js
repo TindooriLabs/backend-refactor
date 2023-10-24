@@ -1,6 +1,9 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import { authenticateUser } from "../domain/auth.js";
-import { addDevice } from "../database/queries/auth.js";
+import {
+  getDevice,
+  getUserByEmail,
+} from "../database/queries/auth.js";
 const localStrategy = new LocalStrategy(
   {
     usernameField: "email",
@@ -24,11 +27,14 @@ const localStrategy = new LocalStrategy(
       : undefined;
 
     if (device) {
-      const addDeviceResult = await addDevice(authResult.userId, device);
-      if (!addDeviceResult.ok) {
-        console.log(
-          `Error adding ${device.kind} device on login for user ${authResult.userId}.`
-        );
+      const currentUser = await getUserByEmail(email);
+      const storedDevice = await getDevice(currentUser.userId, device.id);
+      if (!storedDevice) {
+        return done(null, false, {
+          ok: false,
+          reason: "forbidden",
+          message: "Invalid device! Please login from your device.",
+        });
       }
     }
 

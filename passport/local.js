@@ -36,6 +36,12 @@ const localStrategy = new LocalStrategy(
           message: "Invalid device! Please login from your device.",
         });
       }
+    }else{
+      return done(null, false, {
+        ok: false,
+        reason: "bad-request",
+        message: "appleDeviceId is required",
+      });
     }
 
     done(null, authResult.user, { ok: true });

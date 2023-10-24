@@ -70,7 +70,6 @@ export const setSchemas = async () => {
   });
   schemas.verifyMobileBody = Joi.object().keys({
     code: verificationCode.required(),
-    appleDeviceId: apnId.required(),
   });
   schemas.setSubscriptionBody = Joi.object().keys({
     subscriptionTierId: subscriptionTierId.required(),
@@ -182,7 +181,7 @@ export const setSchemas = async () => {
     lastLon: longitude.optional(),
     lastLat: latitude.optional(),
     statusId: statusId.optional(),
-    appleDeviceId: apnId.optional(),
+    appleDeviceId: apnId.required(),
     mobile: phoneNumber.required(),
   });
 };

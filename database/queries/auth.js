@@ -18,7 +18,18 @@ export const addUserAndProfile = async (userDetails) => {
         longitude: userDetails.lastLon,
       },
     });
-
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          ok: false,
+          reason: "conflict",
+          message: `${e.meta.target[0]} already exists!`,
+        };
+      }
+    }
+  }
+  try {
     const userMetaDataCreate = await prisma.userMetadata.create({
       data: {
         user: {
@@ -32,6 +43,7 @@ export const addUserAndProfile = async (userDetails) => {
       },
     });
   } catch (e) {
+    await deleteProfile(profileCreate.userId);
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return {
@@ -41,6 +53,7 @@ export const addUserAndProfile = async (userDetails) => {
         };
       }
     }
+    
   }
   return { ok: true, profile: profileCreate };
 };
@@ -69,41 +82,9 @@ export const registerUser = async (userDetails) => {
         attemptMadeAt: new Date(),
       },
     });
-    const subsciptionCreate = await prisma.subscriptionEntry.create({
-      data: {
-        userId: userDetails.userId.toString(),
-        subscriptionKind: "FREE",
-      },
-    });
-    const today = new Date();
-    const userSwipeCacheCreate = await updateUserSwipeCache(
-      userDetails.userId.toString(),
-      today
-        .addHours(config.subscriptionToggles.swipeLimit.FREE.windowLength)
-        .toUTCString(),
-      30
-    );
-    const addDeviceResult = await prisma.deviceRecord.create({
-      data: {
-        userId: userDetails.userId.toString(),
-        kind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
-        identifier: userDetails.appleDeviceId || "",
-      },
-    });
-    const deviceId = addDeviceResult?.id;
-    if (deviceId) {
-      const updateUserMetadataResult = await prisma.userMetadata.update({
-        where: { userId: userDetails.userId.toString() },
-        data: {
-          devices: {
-            connect: {
-              id: deviceId,
-            },
-          },
-        },
-      });
-    }
   } catch (e) {
+    await deleteUserMetadata(userDetails.userId);
+    await deleteProfile(userDetails.userId);
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2002") {
         return {
@@ -113,7 +94,77 @@ export const registerUser = async (userDetails) => {
         };
       }
     }
+   
   }
+  try {
+    const subsciptionCreate = await prisma.subscriptionEntry.create({
+      data: {
+        userId: userDetails.userId.toString(),
+        subscriptionKind: "FREE",
+      },
+    });
+  } catch (e) {
+    await deleteAccount(userDetails.userId);
+    await deleteUserMetadata(userDetails.userId);
+    await deleteProfile(userDetails.userId);
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          ok: false,
+          reason: "conflict",
+          message: `${e.meta.target[0]} already exists!`,
+        };
+      }
+    
+    }
+  }
+  const today = new Date();
+  const userSwipeCacheCreate = await updateUserSwipeCache(
+    userDetails.userId.toString(),
+    today
+      .addHours(config.subscriptionToggles.swipeLimit.FREE.windowLength)
+      .toUTCString(),
+    30
+  );
+  let addDeviceResult;
+  try {
+     addDeviceResult = await prisma.deviceRecord.create({
+      data: {
+        userId: userDetails.userId.toString(),
+        kind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
+        identifier: userDetails.appleDeviceId || "",
+      },
+    });
+  } catch (e) {
+    await deleteSubscription(userDetails.userId);
+    await deleteAccount(userDetails.userId);
+    await deleteUserMetadata(userDetails.userId);
+    await deleteProfile(userDetails.userId);
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          ok: false,
+          reason: "conflict",
+          message: `${e.meta.target[0]} already exists!`,
+        };
+      }
+    
+    }
+  }
+  const deviceId = addDeviceResult?.id;
+  if (deviceId) {
+    const updateUserMetadataResult = await prisma.userMetadata.update({
+      where: { userId: userDetails.userId.toString() },
+      data: {
+        devices: {
+          connect: {
+            id: deviceId,
+          },
+        },
+      },
+    });
+  }
+
   return { ok: true, account: accountCreate };
 };
 
@@ -129,30 +180,6 @@ export const getUserByEmail = async (email, includePassword = false) => {
     },
   });
   return result;
-};
-
-export const addDevice = async (userId, device) => {
-  const addDeviceResult = await prisma.deviceRecord.create({
-    data: {
-      userId: userId.toString(),
-      kind: device.kind ? "IOS" : "ANDROID",
-      identifier: device.id || "",
-    },
-  });
-  const deviceId = addDeviceResult?.id;
-  if (deviceId) {
-    const updateUserMetadataResult = await prisma.userMetadata.update({
-      where: { userId: userId.toString() },
-      data: {
-        devices: {
-          connect: {
-            id: deviceId,
-          },
-        },
-      },
-    });
-  }
-  return { ok: true };
 };
 
 export const getUserVerificationInfo = async (userId) => {
@@ -236,4 +263,36 @@ export const getDevice = async (deviceId) => {
     },
   });
   return result;
+};
+
+const deleteProfile = async (userId) => {
+  const result = await prisma.profile.delete({
+    where: {
+      userId,
+    },
+  });
+};
+
+const deleteSubscription = async (userId) => {
+  const result = await prisma.subscriptionEntry.delete({
+    where: {
+      userId,
+    },
+  });
+};
+
+const deleteAccount = async (userId) => {
+  const result = await prisma.account.delete({
+    where: {
+      userId,
+    },
+  });
+};
+
+const deleteUserMetadata = async (userId) => {
+  const result = await prisma.userMetadata.delete({
+    where: {
+      userId,
+    },
+  });
 };

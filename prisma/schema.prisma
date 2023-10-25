@@ -41,13 +41,12 @@ enum DeviceKind {
 }
 
 model DeviceRecord {
-  id            String       @id @default(uuid())
-  userId        String
+  userId        String       @id
   metadataEntry UserMetadata @relation(fields: [userId], references: [userId])
 
   // Identifier for iOS: APN device ID, for Android: FCM token
   kind       DeviceKind
-  identifier String
+  identifier String         @unique
 }
 
 model UserMetadata {
@@ -288,9 +287,10 @@ enum SubscriptionKind {
 }
 
 model SubscriptionEntry {
-  userId           String
+  userId           String           @unique
   user             User             @relation(fields: [userId], references: [id])
   subscriptionKind SubscriptionKind
+  expiration       DateTime         @db.Timestamptz(3) 
 
   @@id([userId, subscriptionKind])
 }

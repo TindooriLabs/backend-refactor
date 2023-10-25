@@ -7,12 +7,11 @@ import {
   setEthnicity as setEthnicityDomain,
   setDob as setDobDomain,
   setKarmaResponses as setKarmaResponsesBody,
+  getSubscription as getSubscriptionDomain,
 } from "../domain/users.js";
 import { validateSchema } from "../util/schemas.js";
 export const getOwnUser = async (req) => {
- 
   const { userId } = req.user;
-  
 
   const result = await getUserDomain(userId);
 
@@ -53,7 +52,6 @@ export const setStatus = async (req) => {
   const { status: statusLabel } = req.body;
   const { userId } = req.user;
 
-
   const result = await setStatusDomain(userId, statusLabel);
 
   //Return success
@@ -72,13 +70,24 @@ export const setSubscription = async (req) => {
   }
   const { subscriptionTierId } = req.body;
   const { userId } = req.user;
-  
 
   const result = await setSubscriptionDomain(userId, subscriptionTierId);
 
   //Return success
   if (result.ok) {
     return { status: 204 };
+  }
+
+  return getFailureBody(result);
+};
+
+export const getSubscription = async (req) => {
+  const { userId } = req.user;
+  const result = await getSubscriptionDomain(userId);
+
+  //Return success
+  if (result.ok) {
+    return { status: 200, body: result.result };
   }
 
   return getFailureBody(result);
@@ -92,7 +101,6 @@ export const setLocation = async (req) => {
   }
   const { lat, lon } = req.body;
   const { userId } = req.user;
-  
 
   const result = await setLocationDomain(userId, lat, lon);
 
@@ -112,7 +120,6 @@ export const setEthnicity = async (req) => {
   }
   const { ethnicityId } = req.body;
   const { userId } = req.user;
-  
 
   const result = await setEthnicityDomain(userId, ethnicityId);
 
@@ -132,7 +139,6 @@ export const setDob = async (req) => {
   // }
   const { dob } = req.body;
   const { userId } = req.user;
- 
 
   const result = await setDobDomain(userId, dob);
 
@@ -153,7 +159,6 @@ export const setKarmaResponses = async (req) => {
   const { karmaResponses } = req.body;
   const { userId } = req.params;
   const { userId: ratingUserId } = req.user;
-  
 
   const result = await setKarmaResponsesBody(
     userId,

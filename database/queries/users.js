@@ -54,8 +54,7 @@ where pr."userId" = ${id.toString()}`;
 };
 
 export const getRequestingUserInfo = async (id) => {
-  const requestingUserInfo =
-    await prisma.$queryRaw`select  pr."userId" "id",
+  const requestingUserInfo = await prisma.$queryRaw`select  pr."userId" "id",
   pr."firstName" "name",
   pr."birthDate" "dob",
   pr."longitude" "lastLon",
@@ -145,12 +144,17 @@ export const updateUserStatus = async (userId, status) => {
   return { ok: true };
 };
 
-export const updateUserSubscriptionTier = async (userId, subscriptionTier) => {
+export const updateUserSubscriptionTier = async (
+  userId,
+  subscriptionTier,
+  expiration
+) => {
   try {
     await prisma.subscriptionEntry.update({
       where: { userId: userId.toString() },
       data: {
         subscriptionKind: subscriptionTier.toString(),
+        expiration,
       },
     });
   } catch (e) {
@@ -167,6 +171,13 @@ export const updateUserSubscriptionTier = async (userId, subscriptionTier) => {
   }
 
   return { ok: true };
+};
+
+export const getSubscriptionEntryForUser = async (userId) => {
+  const result = await prisma.subscriptionEntry.findFirst({
+    where: { userId },
+  });
+  return result;
 };
 
 export const updateLocation = async (userId, lat, lon) => {

@@ -43,12 +43,11 @@ CREATE TABLE "Account" (
 
 -- CreateTable
 CREATE TABLE "DeviceRecord" (
-    "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "kind" "DeviceKind" NOT NULL,
     "identifier" TEXT NOT NULL,
 
-    CONSTRAINT "DeviceRecord_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "DeviceRecord_pkey" PRIMARY KEY ("userId")
 );
 
 -- CreateTable
@@ -198,6 +197,7 @@ CREATE TABLE "KarmaScore" (
 CREATE TABLE "SubscriptionEntry" (
     "userId" TEXT NOT NULL,
     "subscriptionKind" "SubscriptionKind" NOT NULL,
+    "expiration" TIMESTAMPTZ(3) NOT NULL,
 
     CONSTRAINT "SubscriptionEntry_pkey" PRIMARY KEY ("userId","subscriptionKind")
 );
@@ -231,6 +231,9 @@ CREATE UNIQUE INDEX "Account_email_key" ON "Account"("email");
 CREATE UNIQUE INDEX "Account_mobile_key" ON "Account"("mobile");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "DeviceRecord_identifier_key" ON "DeviceRecord"("identifier");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex
@@ -238,6 +241,9 @@ CREATE UNIQUE INDEX "PromptQuestion_text_key" ON "PromptQuestion"("text");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ImageUpload_userId_ordinal_key" ON "ImageUpload"("userId", "ordinal");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SubscriptionEntry_userId_key" ON "SubscriptionEntry"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ChatToUser_AB_unique" ON "_ChatToUser"("A", "B");

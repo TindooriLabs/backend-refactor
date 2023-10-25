@@ -49,10 +49,7 @@ export const setGendersInterested = async req => {
       return getFailureBody(validation);
     }
     const { genderIdentityIds } = req.body;
-    const { userId } = req.user;
-
-    console.log(genderIdentityIds);
-   
+    const { userId } = req.user;   
   
     const result = await setGendersInterestedDomain(userId, genderIdentityIds);
   

@@ -7,6 +7,7 @@ import {
   updateEthnicity,
   updateDob,
   createOrUpdateKarmaResponses,
+  getSubscriptionEntryForUser,
 } from "../database/queries/users.js";
 import { getDistanceBetweenUsers } from "../util/location.js";
 import {
@@ -161,8 +162,30 @@ export const setSubscription = async (userId, subscriptionTierId) => {
   let subscriptionTier = Object.keys(subscriptionTierIds).find(
     (key) => subscriptionTierIds[key] === subscriptionTierId
   );
-  const result = await updateUserSubscriptionTier(userId, subscriptionTier);
+  let expiration = null;
+  if (subscriptionTierId === 2) {
+    expiration = new Date(new Date().addMonths(1).setUTCHours(23,59,59,999));
+  } else {
+    expiration = new Date();
+  }
+  const result = await updateUserSubscriptionTier(
+    userId,
+    subscriptionTier,
+    expiration
+  );
   return result;
+};
+
+export const getSubscription = async (userId) => {
+  const result = await getSubscriptionEntryForUser(userId);
+  if (result) {
+    return { ok: true, result };
+  }
+  return {
+    ok: false,
+    reason: "not-found",
+    message: "Could not find user subscription info in the database",
+  };
 };
 
 export const setLocation = async (userId, lat, lon) => {

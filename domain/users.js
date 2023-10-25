@@ -164,7 +164,7 @@ export const setSubscription = async (userId, subscriptionTierId) => {
   );
   let expiration = null;
   if (subscriptionTierId === 2) {
-    expiration = new Date().setUTCHours(23,59,59,999).addMonths(1);
+    expiration = new Date(new Date().addMonths(1).setUTCHours(23,59,59,999));
   } else {
     expiration = new Date();
   }

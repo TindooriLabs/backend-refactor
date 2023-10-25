@@ -53,7 +53,6 @@ export const addUserAndProfile = async (userDetails) => {
         };
       }
     }
-    
   }
   return { ok: true, profile: profileCreate };
 };
@@ -94,13 +93,17 @@ export const registerUser = async (userDetails) => {
         };
       }
     }
-   
   }
   try {
     const subsciptionCreate = await prisma.subscriptionEntry.create({
       data: {
-        userId: userDetails.userId.toString(),
+        user: {
+          connect: {
+            id: userDetails.userId,
+          },
+        },
         subscriptionKind: "FREE",
+        expiration: new Date(),
       },
     });
   } catch (e) {
@@ -115,7 +118,6 @@ export const registerUser = async (userDetails) => {
           message: `${e.meta.target[0]} already exists!`,
         };
       }
-    
     }
   }
   const today = new Date();
@@ -128,7 +130,7 @@ export const registerUser = async (userDetails) => {
   );
   let addDeviceResult;
   try {
-     addDeviceResult = await prisma.deviceRecord.create({
+    addDeviceResult = await prisma.deviceRecord.create({
       data: {
         userId: userDetails.userId.toString(),
         kind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
@@ -148,7 +150,6 @@ export const registerUser = async (userDetails) => {
           message: `${e.meta.target[0]} already exists!`,
         };
       }
-    
     }
   }
   const deviceId = addDeviceResult?.id;

@@ -161,7 +161,17 @@ export const setSubscription = async (userId, subscriptionTierId) => {
   let subscriptionTier = Object.keys(subscriptionTierIds).find(
     (key) => subscriptionTierIds[key] === subscriptionTierId
   );
-  const result = await updateUserSubscriptionTier(userId, subscriptionTier);
+  let expiration = null;
+  if (subscriptionTierId === 2) {
+    expiration = new Date().addMonths(1);
+  } else {
+    expiration = new Date();
+  }
+  const result = await updateUserSubscriptionTier(
+    userId,
+    subscriptionTier,
+    expiration
+  );
   return result;
 };
 

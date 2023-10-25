@@ -8,7 +8,8 @@ import {
   setDob,
   setKarmaResponses,
   setLocation,
-  setEthnicity
+  setEthnicity,
+  getSubscription
 } from "../controllers/users.js";
 import { getUserConversations } from "../controllers/conversation.js";
 
@@ -57,6 +58,14 @@ router.patch(
   "/subscription",
   errorWrapper(async (req, res) => {
     const { status, body } = await setSubscription(req);
+    res.status(status).send(body);
+  })
+);
+
+router.get(
+  "/subscription/data",
+  errorWrapper(async (req, res) => {
+    const { status, body } = await getSubscription(req);
     res.status(status).send(body);
   })
 );

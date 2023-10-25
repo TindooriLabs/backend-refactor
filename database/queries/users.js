@@ -173,6 +173,13 @@ export const updateUserSubscriptionTier = async (
   return { ok: true };
 };
 
+export const getSubscriptionEntryForUser = async (userId) => {
+  const result = await prisma.subscriptionEntry.findFirst({
+    where: { userId },
+  });
+  return result;
+};
+
 export const updateLocation = async (userId, lat, lon) => {
   try {
     await prisma.profile.update({

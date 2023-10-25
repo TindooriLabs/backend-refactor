@@ -7,6 +7,7 @@ import {
   updateEthnicity,
   updateDob,
   createOrUpdateKarmaResponses,
+  getSubscriptionEntryForUser,
 } from "../database/queries/users.js";
 import { getDistanceBetweenUsers } from "../util/location.js";
 import {
@@ -163,7 +164,7 @@ export const setSubscription = async (userId, subscriptionTierId) => {
   );
   let expiration = null;
   if (subscriptionTierId === 2) {
-    expiration = new Date().addMonths(1);
+    expiration = new Date().setUTCHours(23,59,59,999).addMonths(1);
   } else {
     expiration = new Date();
   }
@@ -173,6 +174,18 @@ export const setSubscription = async (userId, subscriptionTierId) => {
     expiration
   );
   return result;
+};
+
+export const getSubscription = async (userId) => {
+  const result = await getSubscriptionEntryForUser(userId);
+  if (result) {
+    return { ok: true, result };
+  }
+  return {
+    ok: false,
+    reason: "not-found",
+    message: "Could not find user subscription info in the database",
+  };
 };
 
 export const setLocation = async (userId, lat, lon) => {

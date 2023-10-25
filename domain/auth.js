@@ -4,6 +4,7 @@ import {
   getUserByEmail,
   getUserVerificationInfo,
   setUserVerified,
+  getDevice,
 } from "../database/queries/auth.js";
 import { generateOtp, validateOtp } from "../util/otp.js";
 import { featureToggle } from "../config/deps.js";
@@ -24,6 +25,16 @@ export const createUser = async (userDetails) => {
       message: "User must be atleast 18 years old.",
     };
   }
+  let deviceId = userDetails.appleDeviceId;
+  let existingDevice = await getDevice(deviceId);
+  if (existingDevice) {
+    return {
+      ok: false,
+      reason: "conflict",
+      message:
+        "Device already in use by another user. Please register though another device.",
+    };
+  }
   //Create user in Postgres
   const sqlUserDetails = {
     ...userDetails,
@@ -35,8 +46,10 @@ export const createUser = async (userDetails) => {
   };
 
   const sqlCreateResult = await addUserAndProfile(sqlUserDetails);
-
-  userDetails.userId = sqlCreateResult.userId;
+  if (!sqlCreateResult.ok) {
+    return sqlCreateResult;
+  }
+  userDetails.userId = sqlCreateResult.profile.userId;
 
   //Generate a verification code
   const mobileVerification = generateOtp(
@@ -54,6 +67,10 @@ export const createUser = async (userDetails) => {
     ...userDetails,
     ...mobileVerification,
   });
+
+  if (!userRegisterResult.ok) {
+    return userRegisterResult;
+  }
 
   //Send mobile verification code
   // const sms = app.get("smsClient");

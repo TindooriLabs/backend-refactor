@@ -1,7 +1,7 @@
 import { Strategy as LocalStrategy } from "passport-local";
 import { authenticateUser } from "../domain/auth.js";
 import {
-  getDevice,
+  getDeviceByUserId,
   getUserByEmail,
 } from "../database/queries/auth.js";
 const localStrategy = new LocalStrategy(
@@ -28,7 +28,7 @@ const localStrategy = new LocalStrategy(
 
     if (device) {
       const currentUser = await getUserByEmail(email);
-      const storedDevice = await getDevice(currentUser.userId, device.id);
+      const storedDevice = await getDeviceByUserId(currentUser.userId, device.id);
       if (!storedDevice) {
         return done(null, false, {
           ok: false,

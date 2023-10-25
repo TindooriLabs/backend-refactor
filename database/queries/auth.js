@@ -5,32 +5,44 @@ import config from "../../config/default.js";
 import { updateUserSwipeCache } from "./relationship.js";
 
 export const addUserAndProfile = async (userDetails) => {
-  const profileCreate = await prisma.profile.create({
-    data: {
-      user: {
-        create: {},
-      },
-      firstName: userDetails.name || "",
-      birthDate: new Date(userDetails.dob),
-      latitude: userDetails.lastLat,
-      longitude: userDetails.lastLon,
-    },
-  });
-
-  const userMetaDataCreate = await prisma.userMetadata.create({
-    data: {
-      user: {
-        connect: {
-          id: profileCreate.userId,
+  let profileCreate;
+  try {
+    profileCreate = await prisma.profile.create({
+      data: {
+        user: {
+          create: {},
         },
+        firstName: userDetails.name || "",
+        birthDate: new Date(userDetails.dob),
+        latitude: userDetails.lastLat,
+        longitude: userDetails.lastLon,
       },
-      creationTime: new Date(),
-      accountStatus: userDetails.status,
-      lastLogin: new Date(),
-    },
-  });
+    });
 
-  return profileCreate;
+    const userMetaDataCreate = await prisma.userMetadata.create({
+      data: {
+        user: {
+          connect: {
+            id: profileCreate.userId,
+          },
+        },
+        creationTime: new Date(),
+        accountStatus: userDetails.status,
+        lastLogin: new Date(),
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          ok: false,
+          reason: "conflict",
+          message: `${e.meta.target[0]} already exists!`,
+        };
+      }
+    }
+  }
+  return { ok: true, profile: profileCreate };
 };
 
 export const registerUser = async (userDetails) => {
@@ -42,54 +54,67 @@ export const registerUser = async (userDetails) => {
     userDetails.password,
     config.bcrypt.saltRounds
   );
-  const accountCreate = await prisma.account.create({
-    data: {
-      userId: userDetails.userId.toString(),
-      email: userDetails.email,
-      passwordHash,
-      mobile: userDetails.mobile,
-      verificationExpiration: userDetails.verificationExpiration,
-      deviceKind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
-      deviceIdentifier: userDetails.appleDeviceId || "",
-      verificationCodeHash: codeHash,
-      attemptMadeAt: new Date(),
-    },
-  });
-  const subsciptionCreate = await prisma.subscriptionEntry.create({
-    data: {
-      userId: userDetails.userId.toString(),
-      subscriptionKind: "FREE",
-    },
-  });
-  const today = new Date();
-  const userSwipeCacheCreate = await updateUserSwipeCache(
-    userDetails.userId.toString(),
-    today
-      .addHours(config.subscriptionToggles.swipeLimit.FREE.windowLength)
-      .toUTCString(),
-    30
-  );
-  const addDeviceResult = await prisma.deviceRecord.create({
-    data: {
-      userId: userDetails.userId.toString(),
-      kind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
-      identifier: userDetails.appleDeviceId || "",
-    },
-  });
-  const deviceId = addDeviceResult?.id;
-  if (deviceId) {
-    const updateUserMetadataResult = await prisma.userMetadata.update({
-      where: { userId: userDetails.userId.toString() },
+  let accountCreate;
+  try {
+    accountCreate = await prisma.account.create({
       data: {
-        devices: {
-          connect: {
-            id: deviceId,
-          },
-        },
+        userId: userDetails.userId.toString(),
+        email: userDetails.email,
+        passwordHash,
+        mobile: userDetails.mobile,
+        verificationExpiration: userDetails.verificationExpiration,
+        deviceKind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
+        deviceIdentifier: userDetails.appleDeviceId || "",
+        verificationCodeHash: codeHash,
+        attemptMadeAt: new Date(),
       },
     });
+    const subsciptionCreate = await prisma.subscriptionEntry.create({
+      data: {
+        userId: userDetails.userId.toString(),
+        subscriptionKind: "FREE",
+      },
+    });
+    const today = new Date();
+    const userSwipeCacheCreate = await updateUserSwipeCache(
+      userDetails.userId.toString(),
+      today
+        .addHours(config.subscriptionToggles.swipeLimit.FREE.windowLength)
+        .toUTCString(),
+      30
+    );
+    const addDeviceResult = await prisma.deviceRecord.create({
+      data: {
+        userId: userDetails.userId.toString(),
+        kind: userDetails.appleDeviceId ? "IOS" : "ANDROID",
+        identifier: userDetails.appleDeviceId || "",
+      },
+    });
+    const deviceId = addDeviceResult?.id;
+    if (deviceId) {
+      const updateUserMetadataResult = await prisma.userMetadata.update({
+        where: { userId: userDetails.userId.toString() },
+        data: {
+          devices: {
+            connect: {
+              id: deviceId,
+            },
+          },
+        },
+      });
+    }
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2002") {
+        return {
+          ok: false,
+          reason: "conflict",
+          message: `${e.meta.target[0]} already exists!`,
+        };
+      }
+    }
   }
-  return accountCreate;
+  return { ok: true, account: accountCreate };
 };
 
 export const getUserByEmail = async (email, includePassword = false) => {
@@ -194,11 +219,20 @@ export const setUserVerified = async (userId) => {
   return { ok: true, account };
 };
 
-export const getDevice = async (userId, deviceId) => {
+export const getDeviceByUserId = async (userId, deviceId) => {
   const result = await prisma.deviceRecord.findFirst({
     where: {
       identifier: deviceId.toString(),
       userId: userId.toString(),
+    },
+  });
+  return result;
+};
+
+export const getDevice = async (deviceId) => {
+  const result = await prisma.deviceRecord.findFirst({
+    where: {
+      identifier: deviceId.toString(),
     },
   });
   return result;

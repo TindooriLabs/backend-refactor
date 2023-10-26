@@ -18,7 +18,8 @@ export const setSchemas = async () => {
   const dbId = Joi.string().uuid();
   const dbIdArray = Joi.array().items(dbId);
   //   const mongoId = Joi.objectId();
-  const email = Joi.string().email();
+  // const email = Joi.string().email();
+  const email = Joi.string()
   const password = Joi.string();
   const dob = Joi.string().isoDate();
   const age = Joi.number();

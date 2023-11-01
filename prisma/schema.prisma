@@ -46,7 +46,7 @@ model DeviceRecord {
 
   // Identifier for iOS: APN device ID, for Android: FCM token
   kind       DeviceKind
-  identifier String         @unique
+  identifier String         
 }
 
 model UserMetadata {

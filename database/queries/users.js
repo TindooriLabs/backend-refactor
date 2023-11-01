@@ -48,8 +48,7 @@ left join (
 	from "PromptResponse" prompt
 	left join "PromptQuestion" pq
 	on prompt."questionId" = pq.id
-	group by "userId", prompt."questionId"
-  order by prompt."questionId"
+	group by "userId"
 ) prompt on prompt."userId" = pr."userId"
 where pr."userId" = ${id.toString()}`;
   return userInfo;
@@ -80,7 +79,7 @@ group by "userId"
 left join (
 select "userId", json_build_object(prompt."questionId", prompt.response) "promptResponses"
 from "PromptResponse" prompt
-group by "userId", "questionId"
+group by "userId"
 ) prompt on prompt."userId" = pr."userId"
 where pr."userId" = ${id.toString()}`;
   return requestingUserInfo;

@@ -84,6 +84,16 @@ export const getUser = async (userId, requestingUserId) => {
     delete sqlResult["genderIdentity"];
   }
 
+  if (sqlResult.hasOwnProperty("gendersOfInterest")) {
+    if (sqlResult["gendersOfInterest"]) {
+      sqlResult["gendersOfInterest"] = sqlResult["gendersOfInterest"].map(
+        (gender) => genderIdentityIds[gender]
+      );
+    } else {
+      sqlResult["gendersOfInterest"] = null;
+    }
+  }
+
   if (sqlResult.hasOwnProperty("userSexualities")) {
     if (sqlResult["userSexualities"]) {
       sqlResult["userSexualities"] = sqlResult["userSexualities"].map((s) => {
@@ -164,7 +174,7 @@ export const setSubscription = async (userId, subscriptionTierId) => {
   );
   let expiration = null;
   if (subscriptionTierId === 2) {
-    expiration = new Date(new Date().addMonths(1).setUTCHours(23,59,59,999));
+    expiration = new Date(new Date().addMonths(1).setUTCHours(23, 59, 59, 999));
   } else {
     expiration = new Date();
   }

@@ -21,6 +21,7 @@ export const getUserInfo = async (id) => {
   pr.interests,
   prompt."promptResponses" "prompts",
   pr.sexuality "userSexualities",
+  pr."gendersOfInterest",
   pr."genderIdentity"
 from "Profile" pr
 left join "UserMetadata" um ON pr."userId" = um."userId"

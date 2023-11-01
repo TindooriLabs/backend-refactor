@@ -47,7 +47,8 @@ left join (
 	from "PromptResponse" prompt
 	left join "PromptQuestion" pq
 	on prompt."questionId" = pq.id
-	group by "userId"
+	group by "userId", prompt."questionId"
+  order by prompt."questionId"
 ) prompt on prompt."userId" = pr."userId"
 where pr."userId" = ${id.toString()}`;
   return userInfo;

@@ -31,6 +31,9 @@ export const getProfilePrompts = async (userId) => {
       question: true,
       response: true,
     },
+    orderBy: {
+      questionId: "asc",
+    },
   });
   return prompts;
 };

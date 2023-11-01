@@ -27,15 +27,15 @@ const localStrategy = new LocalStrategy(
       : undefined;
 
     if (device) {
-      const currentUser = await getUserByEmail(email);
-      const storedDevice = await getDeviceByUserId(currentUser.userId, device.id);
-      if (!storedDevice) {
-        return done(null, false, {
-          ok: false,
-          reason: "forbidden",
-          message: "Invalid device! Please login from your device.",
-        });
-      }
+      // const currentUser = await getUserByEmail(email);
+      // const storedDevice = await getDeviceByUserId(currentUser.userId, device.id);
+      // if (!storedDevice) {
+      //   return done(null, false, {
+      //     ok: false,
+      //     reason: "forbidden",
+      //     message: "Invalid device! Please login from your device.",
+      //   });
+      // }
     }else{
       return done(null, false, {
         ok: false,

@@ -231,9 +231,6 @@ CREATE UNIQUE INDEX "Account_email_key" ON "Account"("email");
 CREATE UNIQUE INDEX "Account_mobile_key" ON "Account"("mobile");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "DeviceRecord_identifier_key" ON "DeviceRecord"("identifier");
-
--- CreateIndex
 CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
 
 -- CreateIndex

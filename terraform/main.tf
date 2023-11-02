@@ -22,11 +22,11 @@ resource "aws_ecr_repository" "ecr_repo" {
 }
 
 resource "aws_instance" "servernode" {
-  ami                    = "ami-053b0d53c279acc90"
-  instance_type          = var.instance_type
-  key_name               = var.key_name
-  vpc_security_group_ids = [aws_security_group.main_security_group.id]
-  iam_instance_profile   = aws_iam_instance_profile.ec2-profile.name
+  ami                         = "ami-053b0d53c279acc90"
+  instance_type               = var.instance_type
+  key_name                    = var.key_name
+  vpc_security_group_ids      = [aws_security_group.main_security_group.id]
+  iam_instance_profile        = aws_iam_instance_profile.ec2-profile.name
   subnet_id                   = aws_subnet.my_public_subnet.id
   associate_public_ip_address = true
   connection {
@@ -44,7 +44,7 @@ resource "aws_instance" "servernode" {
 
 resource "aws_eip" "server_eip" {
   instance = aws_instance.servernode.id
-  domain = "vpc"
+  domain   = "vpc"
 }
 
 resource "aws_iam_instance_profile" "ec2-profile" {
@@ -147,7 +147,7 @@ resource "aws_security_group" "database_security_group" {
       from_port        = 5432
       to_port          = 5432
       protocol         = "tcp"
-      cidr_blocks      = [aws_eip.server_eip.public_ip]
+      cidr_blocks      = [aws_eip.server_eip.public_ip] / 32
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       security_groups  = []
@@ -176,7 +176,7 @@ resource "aws_instance" "dbnode" {
   key_name      = var.key_name
   user_data = templatefile("install_postgres.sh", {
     pg_hba_file = templatefile("pg_hba.conf", { allowed_ip = aws_eip.server_eip.public_ip }),
-    allowed_ip = aws_eip.server_eip.public_ip
+    allowed_ip  = aws_eip.server_eip.public_ip
   })
   subnet_id                   = aws_subnet.my_public_subnet.id
   associate_public_ip_address = true

@@ -94,7 +94,7 @@ resource "aws_subnet" "my_public_subnet" {
 
 # AWS Security Group
 resource "aws_security_group" "main_security_group" {
-  name        = "PostgreSQL"
+  name        = "Backend"
   description = "Allow SSH and PostgreSQL inbound traffic"
   vpc_id      = aws_vpc.main.id
 

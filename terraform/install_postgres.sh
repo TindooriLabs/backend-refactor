@@ -21,7 +21,7 @@ ${pg_hba_file}
 EOF
 
 # Update the IPs of the address to listen from PostgreSQL config
-sed -i "59i listen_addresses = '*'" /etc/postgresql/12/main/postgresql.conf
+sed -i "59i listen_addresses = '${allowed_ip}'" /etc/postgresql/12/main/postgresql.conf
 
 # Start the db service
 sudo systemctl restart postgresql.service

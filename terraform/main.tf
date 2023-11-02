@@ -94,7 +94,7 @@ resource "aws_subnet" "my_public_subnet" {
 
 # AWS Security Group
 resource "aws_security_group" "main_security_group" {
-  name        = "PostgreSQL"
+  name        = "Backend"
   description = "Allow SSH and PostgreSQL inbound traffic"
   vpc_id      = aws_vpc.main.id
 
@@ -108,17 +108,6 @@ resource "aws_security_group" "main_security_group" {
     prefix_list_ids  = []
     security_groups  = []
     self             = false
-    },
-    {
-      description      = "POSTGRES"
-      from_port        = 5432
-      to_port          = 5432
-      protocol         = "tcp"
-      cidr_blocks      = ["0.0.0.0/0"]
-      ipv6_cidr_blocks = []
-      prefix_list_ids  = []
-      security_groups  = []
-      self             = false
     },
     {
       description      = "HTTP"
@@ -147,7 +136,38 @@ resource "aws_security_group" "main_security_group" {
   }
 }
 
+resource "aws_security_group" "database_security_group" {
+  name        = "PostgreSQL"
+  description = "Allow SSH and PostgreSQL inbound traffic"
+  vpc_id      = aws_vpc.main.id
 
+  ingress = [
+    {
+      description      = "POSTGRES"
+      from_port        = 5432
+      to_port          = 5432
+      protocol         = "tcp"
+      cidr_blocks      = []
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
+      security_groups  = [aws_security_group.main_security_group.id]
+      self             = false
+    },
+  ]
+
+
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "allow_tls"
+  }
+}
 
 # PostgreSQL DB Instance
 resource "aws_instance" "dbnode" {
@@ -159,7 +179,7 @@ resource "aws_instance" "dbnode" {
   })
   subnet_id                   = aws_subnet.my_public_subnet.id
   associate_public_ip_address = true
-  vpc_security_group_ids      = [aws_security_group.main_security_group.id]
+  vpc_security_group_ids      = [aws_security_group.database_security_group.id]
   tags = {
     Name = "PostgreSQL"
   }

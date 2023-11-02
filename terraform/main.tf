@@ -147,10 +147,10 @@ resource "aws_security_group" "database_security_group" {
       from_port        = 5432
       to_port          = 5432
       protocol         = "tcp"
-      cidr_blocks      = []
+      cidr_blocks      = ["0.0.0.0/0"]
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
-      security_groups  = [aws_security_group.main_security_group.id]
+      security_groups  = []
       self             = false
     },
   ]
@@ -175,7 +175,7 @@ resource "aws_instance" "dbnode" {
   instance_type = var.instance_type
   key_name      = var.key_name
   user_data = templatefile("install_postgres.sh", {
-    pg_hba_file = templatefile("pg_hba.conf", { allowed_ip = "0.0.0.0/0" }),
+    pg_hba_file = templatefile("pg_hba.conf", { allowed_ip = aws_eip.server_eip.public_ip }),
   })
   subnet_id                   = aws_subnet.my_public_subnet.id
   associate_public_ip_address = true

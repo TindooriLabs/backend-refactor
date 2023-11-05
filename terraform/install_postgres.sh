@@ -10,7 +10,7 @@ sudo apt update
 sudo apt -y install postgresql-12 postgresql-client-12
 
 sudo -u postgres psql template1
-ALTER USER postgres with encrypted password 'testpassword';
+CREATE USER 'tindoori-labs-user' WITH ENCRYPTED PASSWORD 'md50d9a55ff4c0c65fedefd75d71845c7a4';
 
 # Backup PostgreSQL authentication config file
 mv /etc/postgresql/12/main/pg_hba.conf /etc/postgresql/12/main/pg_hba.bak

@@ -176,7 +176,8 @@ resource "aws_instance" "dbnode" {
   key_name      = var.key_name
   user_data = templatefile("install_postgres.sh", {
     pg_hba_file = templatefile("pg_hba.conf", { allowed_ip = aws_eip.server_eip.public_ip }),
-    allowed_ip  = aws_eip.server_eip.public_ip
+    allowed_ip  = aws_eip.server_eip.public_ip,
+    db_password = var.db_password
   })
   subnet_id                   = aws_subnet.my_public_subnet.id
   associate_public_ip_address = true

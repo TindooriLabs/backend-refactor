@@ -5,6 +5,7 @@ import {
   updateUserSwipeCache,
   getUserRelationshipAggregatesByType,
   fetchLikesForUser,
+  deleteConversation
 } from "../database/queries/relationship.js";
 import { aggregateRelationshipType } from "../util/relationship.js";
 import { sendNotification } from "./notify.js";
@@ -58,14 +59,16 @@ export const createRelationship = async (
     }
   }
 
-  const relationshipTypeId = relationshipTypeIds[relationshipTypeName];
-
   //Create the relationship
   const result = await upsertRelationship(
     agentUserId,
     relationshipTypeName,
     patientUserId
   );
+
+  if(relationshipTypeName === "UNMATCH"){
+    const deleteResponse = await deleteConversation(agentUserId, patientUserId);
+  }
 
   //Check if there is a match
   const aggregateRelationshipTypeName = aggregateRelationshipType(

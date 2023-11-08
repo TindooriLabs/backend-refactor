@@ -25,3 +25,6 @@ variable "public_key" {
 variable "private_key" {
 
 }
+variable "db_password" {
+
+}

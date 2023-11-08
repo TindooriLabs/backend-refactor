@@ -47,6 +47,7 @@ jobs:
           -var="public_key=$PUBLIC_SSH_KEY" \
           -var="private_key=$PRIVATE_SSH_KEY" \
           -var="key_name=$AWS_KEY_PAIR_NAME" \
+          -var="db_password=$POSTGRES_PASSWORD" \
           -out=PLAN
         working-directory: ./terraform
       - name: Terraform Apply

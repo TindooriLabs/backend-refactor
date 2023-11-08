@@ -111,3 +111,30 @@ export const fetchLikesForUser = async (userId) => {
   });
   return result;
 };
+
+export const deleteConversation = async (fromUserId, toUserId) => {
+  // const deleteMessages = await prisma.message.delete({
+  //   where: {
+  //     senderId: fromUserId,
+  //   }
+  // })
+
+  const deleteResponse = await prisma.chat.deleteMany({
+    where: {
+      participants: {
+        every: {
+          OR: [
+            {
+              id: fromUserId,
+            },
+            {
+              id: toUserId,
+            },
+          ],
+        },
+      },
+    },
+  });
+
+  return deleteResponse;
+};

@@ -46,7 +46,7 @@ model DeviceRecord {
 
   // Identifier for iOS: APN device ID, for Android: FCM token
   kind       DeviceKind
-  identifier String         
+  identifier String
 }
 
 model UserMetadata {
@@ -210,7 +210,7 @@ model Chat {
 model Message {
   id                      Int                 @id @default(autoincrement())
   chatId                  String
-  chat                    Chat                @relation(fields: [chatId], references: [id])
+  chat                    Chat                @relation(fields: [chatId], references: [id], onDelete: Cascade)
   senderId                String
   sender                  User                @relation(fields: [senderId], references: [id])
   text                    String
@@ -290,7 +290,7 @@ model SubscriptionEntry {
   userId           String           @unique
   user             User             @relation(fields: [userId], references: [id])
   subscriptionKind SubscriptionKind
-  expiration       DateTime         @db.Timestamptz(3) 
+  expiration       DateTime         @db.Timestamptz(3)
 
   @@id([userId, subscriptionKind])
 }

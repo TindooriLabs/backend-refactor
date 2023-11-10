@@ -440,7 +440,7 @@ export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
     targetLanguage = null;
   } else {
     targetLanguage = Object.keys(languageIds).find((key) => {
-      languageIds[key] === targetLanguages[0].languageName;
+      return languageIds[key] === targetLanguages[0].languageName;
     });
   }
 

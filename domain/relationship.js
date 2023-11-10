@@ -86,7 +86,7 @@ export const createRelationship = async (
       },
     };
 
-    // sendNotification(notification);
+    sendNotification(notification);
   }
 
   //Update the swipe counter

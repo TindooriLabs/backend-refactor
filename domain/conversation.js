@@ -207,7 +207,7 @@ export const sendMessage = async (
     },
   };
 
-  // sendNotification(notification);
+  sendNotification(notification);
 
   return { ok: true, conversation: conversationResponse };
 };

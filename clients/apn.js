@@ -42,7 +42,6 @@ export default class ApnClient {
   mapNotificationToApn(notification) {
     const apnNotification = new apn.Notification();
     if (notification.type === "message") {
-      apnNotification.badge = 3;
       apnNotification.sound = "ping.aiff";
       apnNotification.alert = `New Message: ${notification.recipients.join()}`;
       apnNotification.payload = {
@@ -52,8 +51,11 @@ export default class ApnClient {
       };
       apnNotification.messageId = notification.body.message.id;
       apnNotification.conversationId = notification.body.conversation.id;
+    }else{
+      apnNotification.sound = "ping.aiff";
+      apnNotification.alert = notification.body.message;
     }
-
+    
     return apnNotification;
   }
 }

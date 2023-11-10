@@ -251,6 +251,7 @@ export const findUsers = async (
   )} and ${parseFloat(maxAge)}
   and pr."genderIdentity" = ANY(ARRAY(select "gendersOfInterest" from base_profile_interested_in_genders))
   and pr."userId" NOT IN (SELECT "toUserId" FROM "UserImpressionBallot" uib WHERE uib."fromUserId" = ${userIdStr})
+  and (ARRAY(select "languageName" from "LanguageAndLevel" where "userId"= pr."userId" and not "isLearning")) && (ARRAY(select "languageName" from "LanguageAndLevel" where "userId"=${userIdStr} and "isLearning"))
   limit ${parseInt(maxResults)};
 `
   )}`;

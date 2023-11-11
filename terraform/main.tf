@@ -321,7 +321,7 @@ resource "aws_db_instance" "rds_instance" {
   engine                       = "postgres"
   engine_version               = "15.4"
   instance_class               = "db.m7g.large"
-  username                     = "tindooriDBUser"
+  username                     = var.db_username
   db_name                      = "tindooriDB"
   password                     = var.db_password
   parameter_group_name         = aws_db_parameter_group.rds_parameter_group.name

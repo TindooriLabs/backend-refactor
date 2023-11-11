@@ -322,7 +322,7 @@ resource "aws_db_instance" "rds_instance" {
   engine_version               = "15.4"
   instance_class               = "db.m7g.large"
   username                     = var.db_username
-  db_name                      = "tindooriDB"
+  db_name                      = var.db_name
   password                     = var.db_password
   parameter_group_name         = aws_db_parameter_group.rds_parameter_group.name
   db_subnet_group_name         = aws_db_subnet_group.rds_subnet_group.name

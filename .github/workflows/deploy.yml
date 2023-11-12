@@ -66,6 +66,8 @@ jobs:
         run: |-
           echo "::set-output name=db_instance_endpoint::$(terraform output db_instance_endpoint)"
         working-directory: ./terraform
+      - name: Check database endpoint
+        run: echo db_instance_endpoint 
   deploy-app:
     runs-on: ubuntu-latest
     needs: deploy-infra

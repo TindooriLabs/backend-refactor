@@ -27,7 +27,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       SERVER_PUBLIC_IP: ${{ steps.set-server-ip.outputs.app_instance_ip_addr}}
-      POSTGRES_HOST: ${{ steps.set-db-ip.outputs.db_instance_endpoint}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -61,21 +60,32 @@ jobs:
         run: |-
           echo "::set-output name=app_instance_ip_addr::$(terraform output app_instance_ip_addr)"
         working-directory: ./terraform
-      - name: Set db ip address
-        id: set-db-ip
-        run: |-
-          echo "::set-output name=db_instance_endpoint::$(terraform output db_instance_endpoint)"
+      - name: Extract DB Endpoint
+        id: extract-db-endpoint
+        run: |
+          db_instance_endpoint=$(terraform output db_instance_endpoint)
+          echo $db_instance_endpoint > db_endpoint.txt
         working-directory: ./terraform
+      - name: Store DB Endpoint as Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: db-endpoint
+          path: ./terraform/db_endpoint.txt
   deploy-app:
     runs-on: ubuntu-latest
     needs: deploy-infra
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Download DB Endpoint Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: db-endpoint
+          path: ./db_endpoint
       - name: Set Server IP env variable
         run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
-      - name: Set DB IP env variable
-        run: echo POSTGRES_HOST=${{ needs.deploy-infra.outputs.POSTGRES_HOST }} >> $GITHUB_ENV
+      - name: Assign DB IP to env
+        run:  echo POSTGRES_HOST=$( cat ./db_endpoint/db_endpoint.txt ) >> $GITHUB_ENV
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

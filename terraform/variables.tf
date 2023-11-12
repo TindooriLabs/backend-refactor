@@ -11,7 +11,7 @@ variable "instance_type" {
 }
 variable "aws_public_availability_zone" {
   type    = string
-  default = "us-east-1a"
+  default = "us-east-1c"
 }
 variable "aws_private_availability_zone_1" {
   type    = string

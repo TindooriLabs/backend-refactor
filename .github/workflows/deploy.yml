@@ -73,7 +73,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Check output db
-        run: echo ${{ needs.deploy-infra.outputs.POSTGRES_HOST }}
+        run: echo ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
       - name: Set Server IP env variable
         run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
       - name: Set DB IP env variable

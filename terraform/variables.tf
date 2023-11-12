@@ -15,11 +15,11 @@ variable "aws_public_availability_zone" {
 }
 variable "aws_private_availability_zone_1" {
   type    = string
-  default = "us-east-1a"
+  default = "us-east-1b"
 }
 variable "aws_private_availability_zone_2" {
   type    = string
-  default = "us-east-1b"
+  default = "us-east-1c"
 }
 variable "key_name" {
 

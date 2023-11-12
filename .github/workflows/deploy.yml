@@ -85,7 +85,7 @@ jobs:
       - name: Set Server IP env variable
         run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> $GITHUB_ENV
       - name: Assign DB IP to env
-        run:  echo POSTGRES_HOST=${ cat ./db_endpoint/db_endpoint.txt } >> $GITHUB_ENV
+        run:  echo POSTGRES_HOST=$( cat ./db_endpoint/db_endpoint.txt ) >> $GITHUB_ENV
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:

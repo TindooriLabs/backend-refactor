@@ -343,8 +343,8 @@ resource "aws_db_instance" "rds_instance" {
 }
 
 # Show the public IP of the newly created instance
-output "db_instance_ip_addr" {
-  value = aws_db_instance.rds_instance.endpoint
+output "db_instance_endpoint" {
+  value = replace(aws_db_instance.rds_instance.endpoint, ":\d+", "")
 }
 
 output "app_instance_ip_addr" {

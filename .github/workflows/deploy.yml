@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       SERVER_PUBLIC_IP: ${{ steps.set-server-ip.outputs.app_instance_ip_addr}}
-      POSTGRES_HOST: ${{ steps.set-db-ip.outputs.db_instance_ip_addr}}
+      POSTGRES_HOST: ${{ steps.set-db-ip.outputs.db_instance_endpoint}}
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -64,7 +64,7 @@ jobs:
       - name: Set db ip address
         id: set-db-ip
         run: |-
-          echo "::set-output name=db_instance_ip_addr::$(terraform output db_instance_ip_addr)"
+          echo "::set-output name=db_instance_endpoint::$(terraform output db_instance_endpoint)"
         working-directory: ./terraform
   deploy-app:
     runs-on: ubuntu-latest

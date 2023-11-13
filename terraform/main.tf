@@ -8,30 +8,18 @@ provider "aws" {
   region = var.aws_region # Set to your desired AWS region
 }
 
-locals {
-  folders = file("../prisma/migrations")
-}
-
-data "local_file" "chosen_folder" {
-  for_each = local.folders
-
-  content = each.value.content
-  filename = each.value.filename
-  directory = each.value.directory
-}
-
-locals {
-  folder_to_use = [for folder, value in data.local_file.chosen_folder : folder if regex(".*_init$", folder)]
+data "local_file" "migration_file" {
+  filename = pathexpand("${path.module}/../prisma/migrations/migration.sql")
 }
 
 resource "aws_s3_bucket" "migration_bucket" {
   bucket = "tindoori-prisma-migration"
 }
 
-resource "aws_s3_bucket_object" "migration_sql" {
+resource "aws_s3_object" "migration_sql" {
   bucket = aws_s3_bucket.migration_bucket.bucket
-  key    = "migration.sql" 
-  source = "../prisma/migrations/${local.folder_to_use[0]}/migration.sql"  
+  key    = "migration.sql"
+  source = data.local_file.migration_file.filename
 }
 
 resource "aws_iam_role" "prisma_migration_role" {
@@ -80,7 +68,7 @@ resource "aws_iam_role_policy_attachment" "prisma_migration_attachment" {
 resource "aws_ssm_document" "prisma_migration" {
   name          = "prisma_migration"
   document_type = "Command"
-  content = <<EOF
+  content       = <<EOF
     {
       "schemaVersion": "2.2",
       "description": "Prisma migration script",

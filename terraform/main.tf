@@ -17,7 +17,7 @@ locals {
 
 resource "null_resource" "ssh_tunnel" {
   provisioner "local-exec" {
-    command = "scp tunnel.sh ec2-user@${aws_eip.server_eip.public_ip}:tunnel.sh"
+    command = "scp tunnel.sh ubuntu@${aws_eip.server_eip.public_ip}:tunnel.sh"
   }
 
   triggers = {

@@ -8,6 +8,112 @@ provider "aws" {
   region = var.aws_region # Set to your desired AWS region
 }
 
+locals {
+  folders = file("../prisma/migrations")
+}
+
+data "local_file" "chosen_folder" {
+  for_each = local.folders
+
+  content = each.value.content
+  filename = each.value.filename
+  directory = each.value.directory
+}
+
+locals {
+  folder_to_use = [for folder, value in data.local_file.chosen_folder : folder if regex(".*_init$", folder)]
+}
+
+resource "aws_s3_bucket" "migration_bucket" {
+  bucket = "tindoori-prisma-migration"
+}
+
+resource "aws_s3_bucket_object" "migration_sql" {
+  bucket = aws_s3_bucket.migration_bucket.bucket
+  key    = "migration.sql" 
+  source = "../prisma/migrations/${local.folder_to_use[0]}/migration.sql"  
+}
+
+resource "aws_iam_role" "prisma_migration_role" {
+  name = "PrismaMigrationRole"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Principal = {
+          Service = "ssm.amazonaws.com"
+        },
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "prisma_migration_policy" {
+  name = "PrismaMigrationPolicy"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "ssm:SendCommand",
+          "ssm:ListAssociations",
+          "ssm:UpdateAssociationStatus",
+          "ssm:ListInstanceAssociations",
+          "ssm:GetDocument"
+        ],
+        Resource = ["*"]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "prisma_migration_attachment" {
+  role       = aws_iam_role.prisma_migration_role.name
+  policy_arn = aws_iam_policy.prisma_migration_policy.arn
+}
+
+resource "aws_ssm_document" "prisma_migration" {
+  name          = "prisma_migration"
+  document_type = "Command"
+  content = <<EOF
+    {
+      "schemaVersion": "2.2",
+      "description": "Prisma migration script",
+      "mainSteps": [
+        {
+          "action": "aws:runShellScript",
+          "name": "prisma_migration",
+          "inputs": {
+            "runCommand": [
+              "aws s3 cp s3://tindoori-prisma-migration/migration.sql /tmp/migration.sql",
+              "while ! npx prisma migrate reset -f; do sleep 2; done",
+              "npx prisma migrate deploy --preview-feature --schema /tmp/migration.sql",
+              "npx prisma generate"
+            ]
+          }
+        }
+      ]
+    }
+EOF
+}
+
+resource "aws_ssm_association" "prisma_migration_rds" {
+  name = "prisma_migration_rds"
+  targets {
+    key    = "InstanceIds"
+    values = [aws_db_instance.rds_instance.id]
+  }
+  document_version = "$LATEST"
+  parameters = {
+    "sourceType" = "instance"
+  }
+}
+
 resource "aws_vpc" "main" {
   cidr_block = var.cidr_block
   tags = {

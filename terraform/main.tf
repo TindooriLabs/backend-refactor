@@ -15,15 +15,15 @@ locals {
   migration_folders = fileset(local.migration_folder, "*_init")
 }
 
-resource "null_resource" "ssh_tunnel" {
-  provisioner "local-exec" {
-    command = "scp tunnel.sh ubuntu@${aws_eip.server_eip.public_ip}:tunnel.sh"
-  }
+# resource "null_resource" "ssh_tunnel" {
+#   provisioner "local-exec" {
+#     command = "scp tunnel.sh ubuntu@${aws_eip.server_eip.public_ip}:tunnel.sh"
+#   }
 
-  triggers = {
-    always_run = "${timestamp()}"
-  }
-}
+#   triggers = {
+#     always_run = "${timestamp()}"
+#   }
+# }
 
 resource "aws_s3_bucket" "migration_bucket" {
   bucket = "tindoori-prisma-migration"

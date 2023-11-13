@@ -4,6 +4,8 @@ terraform {
     region = "us-east-1"
   }
 }
+
+
 provider "aws" {
   region = var.aws_region # Set to your desired AWS region
 }
@@ -11,6 +13,16 @@ provider "aws" {
 locals {
   migration_folder = pathexpand("${path.module}/../prisma/migrations")
   migration_folders = fileset(local.migration_folder, "*_init")
+}
+
+resource "null_resource" "ssh_tunnel" {
+  provisioner "local-exec" {
+    command = "scp tunnel.sh ec2-user@${aws_eip.server_eip.public_ip}:tunnel.sh"
+  }
+
+  triggers = {
+    always_run = "${timestamp()}"
+  }
 }
 
 resource "aws_s3_bucket" "migration_bucket" {
@@ -200,6 +212,11 @@ resource "aws_route_table_association" "private_subnet_association_2" {
   route_table_id = aws_vpc.main.default_route_table_id
 }
 
+# user_data = templatefile("install_postgres.sh", {
+#     pg_hba_file = templatefile("pg_hba.conf", { allowed_ip = aws_eip.server_eip.public_ip }),
+#     allowed_ip  = aws_eip.server_eip.public_ip,
+#     db_password = var.db_password
+#   })
 resource "aws_instance" "servernode" {
   ami                         = "ami-053b0d53c279acc90"
   instance_type               = var.instance_type
@@ -208,6 +225,9 @@ resource "aws_instance" "servernode" {
   iam_instance_profile        = aws_iam_instance_profile.ec2_profile.name
   subnet_id                   = aws_subnet.public_subnet.id
   associate_public_ip_address = true
+  user_data = templatefile("tunnel.sh", {
+    server_ip = aws_eip.server_eip.public_ip
+  })
   tags = {
     Name = "tindoori-server"
   }

@@ -8,18 +8,21 @@ provider "aws" {
   region = var.aws_region # Set to your desired AWS region
 }
 
-data "local_file" "migration_file" {
-  filename = pathexpand("${path.module}/../prisma/migrations/migration.sql")
+locals {
+  migration_folder = pathexpand("${path.module}/../prisma/migrations")
+  migration_folders = fileset(local.migration_folder, "*_init")
 }
 
 resource "aws_s3_bucket" "migration_bucket" {
   bucket = "tindoori-prisma-migration"
 }
 
-resource "aws_s3_object" "migration_sql" {
-  bucket = aws_s3_bucket.migration_bucket.bucket
-  key    = "migration.sql"
-  source = data.local_file.migration_file.filename
+resource "null_resource" "upload_migration_files" {
+  for_each = toset(local.migration_folders)
+
+  provisioner "local-exec" {
+    command = "aws s3 cp ${each.value}/migration.sql s3://tindoori-prisma-migration/"
+  }
 }
 
 resource "aws_iam_role" "prisma_migration_role" {

@@ -130,8 +130,12 @@ resource "aws_iam_role_policy_attachment" "rds_monitoring_attachment" {
 }
 
 resource "aws_eip" "server_eip" {
-  instance = aws_instance.servernode.id
   domain   = "vpc"
+}
+
+resource "aws_eip_association" "eip_assoc" {
+  allocation_id = aws_eip.server_eip.id
+  instance_id   = aws_instance.servernode.id
 }
 
 # Public Subnet
@@ -212,11 +216,6 @@ resource "aws_route_table_association" "private_subnet_association_2" {
   route_table_id = aws_vpc.main.default_route_table_id
 }
 
-# user_data = templatefile("install_postgres.sh", {
-#     pg_hba_file = templatefile("pg_hba.conf", { allowed_ip = aws_eip.server_eip.public_ip }),
-#     allowed_ip  = aws_eip.server_eip.public_ip,
-#     db_password = var.db_password
-#   })
 resource "aws_instance" "servernode" {
   ami                         = "ami-053b0d53c279acc90"
   instance_type               = var.instance_type

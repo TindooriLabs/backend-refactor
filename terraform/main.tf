@@ -226,7 +226,8 @@ resource "aws_instance" "servernode" {
   subnet_id                   = aws_subnet.public_subnet.id
   associate_public_ip_address = true
   user_data = templatefile("tunnel.sh", {
-    server_ip = aws_eip.server_eip.public_ip
+    server_ip = aws_eip.server_eip.public_ip,
+    rds_endpoint = split(":", aws_db_instance.rds_instance.endpoint)[0]
   })
   tags = {
     Name = "tindoori-server"

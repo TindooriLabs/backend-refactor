@@ -82,6 +82,7 @@ resource "aws_ssm_document" "prisma_migration" {
           "inputs": {
             "runCommand": [
               "aws s3 cp s3://tindoori-prisma-migration/migration.sql /tmp/migration.sql",
+              "while ! npx prisma migrate reset -f; do sleep 2; done",
               "npx prisma migrate deploy --preview-feature --schema /tmp/migration.sql",
               "npx prisma generate"
             ]

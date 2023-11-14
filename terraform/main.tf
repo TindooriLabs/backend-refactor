@@ -130,7 +130,7 @@ resource "aws_subnet" "db_subnet_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = var.aws_db_availability_zone_1
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "tindoori-db-subnet-1"
@@ -142,7 +142,7 @@ resource "aws_subnet" "db_subnet_2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = var.aws_db_availability_zone_2
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "tindoori-db-subnet-2"
@@ -181,14 +181,14 @@ resource "aws_route_table_association" "public_subnet_association" {
 }
 
 # Private Subnet Association with Default Route Table
-resource "aws_route_table_association" "db_subnet_association_1" {
+resource "aws_route_table_association" "private_subnet_association_1" {
   subnet_id      = aws_subnet.db_subnet_1.id
-  route_table_id = aws_route_table.public_route_table.id
+  route_table_id = aws_vpc.main.default_route_table_id
 }
 
-resource "aws_route_table_association" "db_subnet_association_2" {
+resource "aws_route_table_association" "private_subnet_association_2" {
   subnet_id      = aws_subnet.db_subnet_2.id
-  route_table_id = aws_route_table.public_route_table.id
+  route_table_id = aws_vpc.main.default_route_table_id
 }
 
 resource "aws_instance" "servernode" {

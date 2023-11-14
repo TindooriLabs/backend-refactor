@@ -15,16 +15,6 @@ locals {
   migration_folders = fileset(local.migration_folder, "*_init")
 }
 
-# resource "null_resource" "ssh_tunnel" {
-#   provisioner "local-exec" {
-#     command = "scp tunnel.sh ubuntu@${aws_eip.server_eip.public_ip}:tunnel.sh"
-#   }
-
-#   triggers = {
-#     always_run = "${timestamp()}"
-#   }
-# }
-
 resource "aws_s3_bucket" "migration_bucket" {
   bucket = "tindoori-prisma-migration"
 }
@@ -224,10 +214,10 @@ resource "aws_instance" "servernode" {
   iam_instance_profile        = aws_iam_instance_profile.ec2_profile.name
   subnet_id                   = aws_subnet.public_subnet.id
   associate_public_ip_address = true
-  user_data = templatefile("tunnel.sh", {
-    server_ip = aws_eip.server_eip.public_ip,
-    rds_endpoint = split(":", aws_db_instance.rds_instance.endpoint)[0]
-  })
+  # user_data = templatefile("tunnel.sh", {
+  #   server_ip = aws_eip.server_eip.public_ip,
+  #   rds_endpoint = split(":", aws_db_instance.rds_instance.endpoint)[0]
+  # })
   tags = {
     Name = "tindoori-server"
   }

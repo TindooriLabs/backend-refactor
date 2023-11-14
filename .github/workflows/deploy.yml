@@ -140,6 +140,7 @@ jobs:
             sudo docker stop myappcontainer || true
             sudo docker rm myappcontainer || true
             sudo docker image prune -a -f
+            sudo rm amazon-cloudwatch-agent.deb -f
             sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
             sudo dpkg -i amazon-cloudwatch-agent.deb
             echo '{

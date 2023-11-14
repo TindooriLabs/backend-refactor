@@ -125,21 +125,6 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
-resource "aws_network_acl" "rds_subnet_acl" {
-  vpc_id = aws_vpc.main.id
-  subnet_ids = [aws_subnet.db_subnet_1.id, aws_subnet.db_subnet_2.id]
-}
-
-resource "aws_network_acl_rule" "allow_postgresql_inbound" {
-  network_acl_id = aws_network_acl.rds_subnet_acl.id
-  rule_number    = 100
-  type           = "ingress"
-  protocol       = "6"  
-  rule_action    = "allow"
-  cidr_block     = "${aws_eip.server_eip.public_ip}/32" 
-  from_port      = 5432
-  to_port        = 5432
-}
 
 resource "aws_subnet" "db_subnet_1" {
   vpc_id                  = aws_vpc.main.id
@@ -196,14 +181,14 @@ resource "aws_route_table_association" "public_subnet_association" {
 }
 
 # Private Subnet Association with Default Route Table
-resource "aws_route_table_association" "db_subnet_association_1" {
+resource "aws_route_table_association" "private_subnet_association_1" {
   subnet_id      = aws_subnet.db_subnet_1.id
-  route_table_id =aws_route_table.public_route_table.id
+  route_table_id = aws_vpc.main.default_route_table_id
 }
 
-resource "aws_route_table_association" "db_subnet_association_2" {
+resource "aws_route_table_association" "private_subnet_association_2" {
   subnet_id      = aws_subnet.db_subnet_2.id
-  route_table_id = aws_route_table.public_route_table.id
+  route_table_id = aws_vpc.main.default_route_table_id
 }
 
 resource "aws_instance" "servernode" {

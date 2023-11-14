@@ -341,7 +341,6 @@ resource "aws_db_instance" "rds_instance" {
   performance_insights_enabled    = true
   monitoring_role_arn             = aws_iam_role.rds_monitoring_role.arn
   monitoring_interval             = 60
-  publicly_accessible             = true
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
 

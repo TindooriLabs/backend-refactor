@@ -10,23 +10,6 @@ provider "aws" {
   region = var.aws_region # Set to your desired AWS region
 }
 
-locals {
-  migration_folder = pathexpand("${path.module}/../prisma/migrations")
-  migration_folders = fileset(local.migration_folder, "*_init")
-}
-
-resource "aws_s3_bucket" "migration_bucket" {
-  bucket = "tindoori-prisma-migration"
-}
-
-resource "null_resource" "upload_migration_files" {
-  for_each = toset(local.migration_folders)
-
-  provisioner "local-exec" {
-    command = "aws s3 cp ${each.value}/migration.sql s3://tindoori-prisma-migration/"
-  }
-}
-
 resource "aws_vpc" "main" {
   cidr_block = var.cidr_block
   tags = {
@@ -140,27 +123,27 @@ resource "aws_subnet" "public_subnet" {
   }
 }
 
-# Private Subnet 1
-resource "aws_subnet" "private_subnet_1" {
+
+resource "aws_subnet" "db_subnet_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = var.aws_private_availability_zone_1
-  map_public_ip_on_launch = false
+  availability_zone       = var.aws_db_availability_zone_1
+  map_public_ip_on_launch = true
 
   tags = {
-    Name = "tindoori-private-subnet-1"
+    Name = "tindoori-db-subnet-1"
   }
 }
 
-# Private Subnet 2
-resource "aws_subnet" "private_subnet_2" {
+
+resource "aws_subnet" "db_subnet_2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = var.aws_private_availability_zone_2
-  map_public_ip_on_launch = false
+  availability_zone       = var.aws_db_availability_zone_2
+  map_public_ip_on_launch = true
 
   tags = {
-    Name = "tindoori-private-subnet-2"
+    Name = "tindoori-db-subnet-2"
   }
 }
 
@@ -197,12 +180,12 @@ resource "aws_route_table_association" "public_subnet_association" {
 
 # Private Subnet Association with Default Route Table
 resource "aws_route_table_association" "private_subnet_association_1" {
-  subnet_id      = aws_subnet.private_subnet_1.id
+  subnet_id      = aws_subnet.db_subnet_1.id
   route_table_id = aws_vpc.main.default_route_table_id
 }
 
 resource "aws_route_table_association" "private_subnet_association_2" {
-  subnet_id      = aws_subnet.private_subnet_2.id
+  subnet_id      = aws_subnet.db_subnet_2.id
   route_table_id = aws_vpc.main.default_route_table_id
 }
 
@@ -214,10 +197,6 @@ resource "aws_instance" "servernode" {
   iam_instance_profile        = aws_iam_instance_profile.ec2_profile.name
   subnet_id                   = aws_subnet.public_subnet.id
   associate_public_ip_address = true
-  user_data = templatefile("tunnel.sh", {
-    server_ip = aws_eip.server_eip.public_ip,
-    rds_endpoint = split(":", aws_db_instance.rds_instance.endpoint)[0]
-  })
   tags = {
     Name = "tindoori-server"
   }
@@ -336,7 +315,7 @@ resource "aws_db_parameter_group" "rds_parameter_group" {
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name        = "rds-subnet-group"
   description = "RDS Subnet Group for private subnet"
-  subnet_ids  = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
+  subnet_ids  = [aws_subnet.db_subnet_1.id, aws_subnet.db_subnet_2.id]
 }
 
 # RDS Instance in Private Subnet

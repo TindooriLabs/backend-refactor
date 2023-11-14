@@ -103,7 +103,7 @@ resource "aws_iam_role_policy_attachment" "rds_monitoring_attachment" {
 }
 
 resource "aws_eip" "server_eip" {
-  domain   = "vpc"
+  domain = "vpc"
 }
 
 resource "aws_eip_association" "eip_assoc" {
@@ -128,7 +128,7 @@ resource "aws_subnet" "db_subnet_1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
   availability_zone       = var.aws_db_availability_zone_1
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "tindoori-db-subnet-1"
@@ -140,7 +140,7 @@ resource "aws_subnet" "db_subnet_2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
   availability_zone       = var.aws_db_availability_zone_2
-  map_public_ip_on_launch = true
+  map_public_ip_on_launch = false
 
   tags = {
     Name = "tindoori-db-subnet-2"
@@ -320,26 +320,26 @@ resource "aws_db_subnet_group" "rds_subnet_group" {
 
 # RDS Instance in Private Subnet
 resource "aws_db_instance" "rds_instance" {
-  identifier                   = "tindoori-db-instance"
-  allocated_storage            = 20
-  max_allocated_storage        = 100
-  storage_type                 = "gp2"
-  engine                       = "postgres"
-  engine_version               = "15.4"
-  instance_class               = "db.m7g.large"
-  username                     = var.db_username
-  db_name                      = var.db_name
-  password                     = var.db_password
-  parameter_group_name         = aws_db_parameter_group.rds_parameter_group.name
-  db_subnet_group_name         = aws_db_subnet_group.rds_subnet_group.name
-  multi_az                     = true
-  backup_retention_period      = 7
-  vpc_security_group_ids       = [aws_security_group.database_security_group.id]
-  skip_final_snapshot          = true
-  performance_insights_enabled = true
-  monitoring_role_arn          = aws_iam_role.rds_monitoring_role.arn
-  monitoring_interval          = 60
-
+  identifier                      = "tindoori-db-instance"
+  allocated_storage               = 20
+  max_allocated_storage           = 100
+  storage_type                    = "gp2"
+  engine                          = "postgres"
+  engine_version                  = "15.4"
+  instance_class                  = "db.m7g.large"
+  username                        = var.db_username
+  db_name                         = var.db_name
+  password                        = var.db_password
+  parameter_group_name            = aws_db_parameter_group.rds_parameter_group.name
+  db_subnet_group_name            = aws_db_subnet_group.rds_subnet_group.name
+  multi_az                        = true
+  backup_retention_period         = 7
+  vpc_security_group_ids          = [aws_security_group.database_security_group.id]
+  skip_final_snapshot             = true
+  performance_insights_enabled    = true
+  monitoring_role_arn             = aws_iam_role.rds_monitoring_role.arn
+  monitoring_interval             = 60
+  publicly_accessible             = true
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
 

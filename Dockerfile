@@ -1,11 +1,11 @@
-FROM node:lts-alpine3.16
+FROM node:18.18-alpine3.17
 
 WORKDIR /app
 
 COPY ["package.json", "package-lock.json", "./"]
 COPY prisma ./prisma/
 
-RUN npm ci --legacy-peer-deps 
+RUN npm i
 
 COPY . .
 
@@ -50,7 +50,6 @@ ENV POSTGRES_PASSWORD $POSTGRES_PASSWORD
 
 ARG PORT
 ENV PORT $PORT
-
 
 CMD ["npm", "run", "start:migrate"]
 

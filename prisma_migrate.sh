@@ -2,11 +2,11 @@
 
 printenv DATABASE_URL
 
-while ! npx prisma migrate reset -f
+while ! prisma migrate reset -f
 do  
     sleep 2
 done
 
-npx prisma migrate deploy
+prisma migrate deploy
 
-npx prisma generate
+prisma generate

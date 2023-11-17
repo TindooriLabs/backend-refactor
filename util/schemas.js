@@ -186,6 +186,10 @@ export const setSchemas = async () => {
     appleDeviceId: apnId.required(),
     mobile: phoneNumber.required(),
   });
+
+  schemas.updateApiBody = Joi.object().keys({
+    isApi: Joi.boolean().required()
+  })
 };
 
 export const validateSchema = (value, schemaName) => {

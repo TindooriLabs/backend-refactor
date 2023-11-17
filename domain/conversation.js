@@ -318,14 +318,13 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
   const translatedMessages = await Promise.all(
     messages.map(async (m) => {
       //Don't translate to same language
-      if (m.originalLanguageName === languageIds[targetLanguage]) return m;
-
       const today = new Date();
 
       if (
-        m.translations &&
+        (m.translations &&
         m.translations[targetLanguage] &&
-        today.isBefore(m.translations[targetLanguage].expires)
+        today.isBefore(m.translations[targetLanguage].expires)) ||
+        (m.originalLanguageName === languageIds[targetLanguage])
       ) {
         m.id = m.id.toString();
         m["message"] = m["text"];

@@ -101,7 +101,6 @@ export const deleteLanguages = async (userId, languages) => {
       },
     });
   } catch (e) {
-    console.log(e)
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === "P2025") {
         return {

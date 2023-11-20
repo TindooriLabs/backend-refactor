@@ -28,7 +28,6 @@ export const getStatusByReason = reason => {
       reason: response.reason,
       message: response.message
     };
-  
     return { status, body };
   };
   

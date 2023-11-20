@@ -434,7 +434,7 @@ export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
     console.log(
       `Unable to find common conversation target language for the two users: ${JSON.stringify(
         participants
-      )} where ${fromUserId} is the active user.`
+      )} where ${fromUserId} is the active user!`
     );
     targetLanguage = null;
   } else {

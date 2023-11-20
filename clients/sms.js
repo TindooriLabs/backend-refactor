@@ -54,7 +54,7 @@ export default class SMS {
     const message = `Your Tindoori one-time authentication code is: ${code}.
 
 This code will expire in ${config.mobile.verificationCodeExpiration} minutes.`;
-    return this.send(this.twilioPhoneNumber, to, message);
+    return this.send(this.twilioPhoneNumber, "+"+to, message);
   }
 }
 

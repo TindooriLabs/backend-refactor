@@ -116,6 +116,7 @@ model Profile {
   promptResponses PromptResponse[]
   imageUploads    ImageUpload[]
   languages       LanguageAndLevel[]
+  isApi           Boolean?
 }
 
 model PromptResponse {
@@ -158,7 +159,7 @@ model LanguageAndLevel {
   languageLevel LanguageProficiencyLevel
   isLearning    Boolean
 
-  @@id([userId, languageName])
+  @@id([userId, languageName, isLearning])
 }
 
 // MARK: Matching-related

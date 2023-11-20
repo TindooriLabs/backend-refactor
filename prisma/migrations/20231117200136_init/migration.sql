@@ -74,7 +74,8 @@ CREATE TABLE "Profile" (
     "latitude" DOUBLE PRECISION,
     "hometown" TEXT,
     "bio" TEXT NOT NULL DEFAULT '',
-    "interests" TEXT[]
+    "interests" TEXT[],
+    "isApi" BOOLEAN
 );
 
 -- CreateTable
@@ -114,7 +115,7 @@ CREATE TABLE "LanguageAndLevel" (
     "languageLevel" "LanguageProficiencyLevel" NOT NULL,
     "isLearning" BOOLEAN NOT NULL,
 
-    CONSTRAINT "LanguageAndLevel_pkey" PRIMARY KEY ("userId","languageName")
+    CONSTRAINT "LanguageAndLevel_pkey" PRIMARY KEY ("userId","languageName","isLearning")
 );
 
 -- CreateTable

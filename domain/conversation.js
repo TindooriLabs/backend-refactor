@@ -318,14 +318,13 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
   const translatedMessages = await Promise.all(
     messages.map(async (m) => {
       //Don't translate to same language
-      if (m.originalLanguageName === languageIds[targetLanguage]) return m;
-
       const today = new Date();
 
       if (
-        m.translations &&
+        (m.translations &&
         m.translations[targetLanguage] &&
-        today.isBefore(m.translations[targetLanguage].expires)
+        today.isBefore(m.translations[targetLanguage].expires)) ||
+        (m.originalLanguageName === languageIds[targetLanguage])
       ) {
         m.id = m.id.toString();
         m["message"] = m["text"];
@@ -435,7 +434,7 @@ export const getDefaultTargetLanguage = async (conversation, fromUserId) => {
     console.log(
       `Unable to find common conversation target language for the two users: ${JSON.stringify(
         participants
-      )} where ${fromUserId} is the active user.`
+      )} where ${fromUserId} is the active user!`
     );
     targetLanguage = null;
   } else {

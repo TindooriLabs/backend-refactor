@@ -5,6 +5,8 @@ import {
   updateSexualities,
   addOrUpdateLanguages,
   deleteLanguages,
+  updateIsApi,
+  getApi
 } from "../database/queries/preferences.js";
 import {
   statusIds,
@@ -138,11 +140,12 @@ export const setLanguages = async (userId, userLanguages) => {
     });
     let langMap = {};
     let langSet = new Set();
+    /*
     languages.map((lang) => {
       if (langSet.has(lang.languageName)) {
-        if (lang.languageLevel !== "WANT_TO_LEARN") {
+        //if (lang.languageLevel !== "WANT_TO_LEARN") {
           langMap[lang.languageName].languageLevel = lang.languageLevel;
-        }
+        //}
         langMap[lang.languageName].isLearning = true;
       } else {
         langSet.add(lang.languageName);
@@ -160,6 +163,7 @@ export const setLanguages = async (userId, userLanguages) => {
         isLearning: langMap[key].isLearning,
       });
     }
+    */
     const deleteResult = await deleteLanguages(userId, languages);
     const upsertResult = await addOrUpdateLanguages(userId, languages);
   } catch (e) {
@@ -171,4 +175,17 @@ export const setLanguages = async (userId, userLanguages) => {
   }
 
   return { ok: true };
+};
+
+export const setApi= async (userId, isApi) => {
+  const result = await updateIsApi(
+    userId,
+    isApi
+  );
+  return result;
+};
+
+export const getIsApi = async (userId) => {
+  let isApi = await getApi(userId);
+  return { ok: true, isApi };
 };

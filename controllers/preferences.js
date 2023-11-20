@@ -3,7 +3,9 @@ import {
   setGenderIdentity as setGenderIdentityDomain,
   setGendersInterested as setGendersInterestedDomain,
   setSexualities as setSexualitiesDomain,
-  setLanguages as setLanguagesDomain
+  setLanguages as setLanguagesDomain,
+  setApi as setApiDomain,
+  getIsApi as getIsApiDomain
 } from "../domain/preferences.js";
 import { getFailureBody } from "./controller-helper.js";
 import { validateSchema } from "../util/schemas.js";
@@ -95,6 +97,40 @@ export const setGendersInterested = async req => {
     //Return success
     if (result.ok) {
       return { status: 204 };
+    }
+  
+    return getFailureBody(result);
+  };
+
+  export const setApi = async req => {
+    //Validate body
+    const validation = validateSchema(req.body, "updateApiBody");
+    if (!validation.ok) {
+      return getFailureBody(validation);
+    }
+    const { isApi } = req.body;
+    const { userId } = req.user;
+    
+  
+    const result = await setApiDomain(userId, isApi);
+  
+    //Return success
+    if (result.ok) {
+      return { status: 204 };
+    }
+  
+    return getFailureBody(result);
+  };
+
+  export const getIsApi = async (req) => {
+    const { userId } = req.user;
+    
+  
+    const result = await getIsApiDomain(userId);
+  
+    //Return success
+    if (result.ok) {
+      return { status: 200, body: result.isApi };
     }
   
     return getFailureBody(result);

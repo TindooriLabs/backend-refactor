@@ -4,7 +4,9 @@ import {
   setGenderIdentity,
   setSexualities,
   setGendersInterested,
-  setLanguages
+  setLanguages,
+  setApi,
+  getIsApi
 } from "../controllers/preferences.js";
 import { errorWrapper } from "./error.js";
 
@@ -51,6 +53,24 @@ router.patch(
   "/languages",
   errorWrapper(async (req, res) => {
     const { status, body } = await setLanguages(req);
+    res.status(status).send(body);
+  })
+);
+
+//Languages
+router.patch(
+  "/isApi",
+  errorWrapper(async (req, res) => {
+    const { status, body } = await setApi(req);
+    res.status(status).send(body);
+  })
+);
+
+//Get profile prompts
+router.get(
+  "/isApi",
+  errorWrapper(async (req, res) => {
+    const { status, body } = await getIsApi(req);
     res.status(status).send(body);
   })
 );

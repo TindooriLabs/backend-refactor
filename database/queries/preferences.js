@@ -98,7 +98,6 @@ export const deleteLanguages = async (userId, languages) => {
     await prisma.languageAndLevel.deleteMany({
       where: {
         userId: userId.toString(),
-        languageName: { notIn: languages.map((lang) => lang.languageName) },
       },
     });
   } catch (e) {
@@ -131,7 +130,7 @@ export const addOrUpdateLanguages = async (userId, languages) => {
     const result =
       await prisma.$queryRaw`${Prisma.raw(`INSERT INTO "LanguageAndLevel" 
    VALUES ${values} 
-   ON CONFLICT ("userId", "languageName") DO
+   ON CONFLICT ("userId", "languageName", "isLearning") DO
    UPDATE SET "languageLevel" = EXCLUDED."languageLevel", "isLearning" = EXCLUDED."isLearning";`)}`;
 
     return result;
@@ -142,4 +141,35 @@ export const addOrUpdateLanguages = async (userId, languages) => {
       message: "Error setting languages for user",
     };
   }
+};
+
+export const updateIsApi = async (userId, isApi) => {
+  try {
+    await prisma.profile.update({
+      where: { userId: userId.toString() },
+      data: {
+        isApi: isApi,
+      },
+    });
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError) {
+      if (e.code === "P2025") {
+        return {
+          ok: false,
+          reason: "not-found",
+          message: "Could not find the user in the SQL database.",
+        };
+      }
+    }
+  }
+
+  return { ok: true };
+};
+
+export const getApi = async (userId) => {
+  const result = await prisma.profile.findFirst({
+    where: { userId },
+    select: {isApi: true}
+  });
+  return result;
 };

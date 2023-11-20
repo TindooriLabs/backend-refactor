@@ -53,7 +53,7 @@ const sendPushNotificationToUser = async (userId, notification) => {
     await Promise.all(
       devices.map(async (device) => {
         if (device.kind === "IOS") {
-          return sendApn(device.id, notification);
+          return sendApn(device.identifier, notification);
         }
       })
     );

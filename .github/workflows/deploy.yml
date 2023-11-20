@@ -142,5 +142,5 @@ jobs:
             sudo docker image prune -a -f
             sudo rm amazon-cloudwatch-agent.deb -f
             sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
-            sudo docker run -it --log-driver=awslogs --log-opt awslogs-region=us-east-1 --log-opt awslogs-group=tindoori-server-lg --log-opt awslogs-create-group=true --log-opt -d --name myappcontainer -p 3000:3000 $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            sudo docker run -it --log-driver=awslogs --log-opt awslogs-region=us-east-1 --log-opt awslogs-group=tindoori-server-lg --log-opt awslogs-create-group=true -d --name myappcontainer -p 3000:3000 $REGISTRY/$REPOSITORY:$IMAGE_TAG
             

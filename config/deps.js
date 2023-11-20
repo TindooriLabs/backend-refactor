@@ -40,8 +40,8 @@ export const featureToggle = toggleName => {
 
   //Temp for testing quick fix - override toggles for testing
   const toggles = {
-    "sms-otp-override": true,
-    "google-translate-override": true
+    "sms-otp-override": false,
+    "google-translate-override": false
   };
 
   return toggles?.[toggleName];

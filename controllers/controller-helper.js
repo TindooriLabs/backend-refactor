@@ -28,7 +28,8 @@ export const getStatusByReason = reason => {
       reason: response.reason,
       message: response.message
     };
-  
+
+    console.log(response.message)
     return { status, body };
   };
   

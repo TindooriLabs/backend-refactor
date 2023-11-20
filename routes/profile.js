@@ -77,7 +77,6 @@ router.get(
   "/find",
   errorWrapper(async (req, res) => {
     const { status, body } = await findProfiles(req);
-    console.log(body)
     res.status(status).send(body);
   })
 );

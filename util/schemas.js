@@ -69,7 +69,7 @@ export const setSchemas = async () => {
   schemas.setStatusBody = Joi.object().keys({
     status: statusName.required(),
   });
-  schemas.verifyMobileBody = Joi.object().keys({
+  schemas.verifyAccountBody = Joi.object().keys({
     code: verificationCode.required(),
     appleDeviceId: apnId.required()
   });

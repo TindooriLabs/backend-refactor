@@ -13,6 +13,7 @@ import app from "../app.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { statusIds } from "../database/constants.js";
+import { emailClient } from "../clients/email.js";
 
 export const createUser = async (userDetails) => {
   let userDob = userDetails.dob;
@@ -52,9 +53,14 @@ export const createUser = async (userDetails) => {
   userDetails.userId = sqlCreateResult.profile.userId;
 
   //Generate a verification code
-  const mobileVerification = generateOtp(
+  // const accountVerification = generateOtp(
+  //   config.mobile,
+  //   featureToggle("sms-otp-override")
+  // );
+  
+  const accountVerification = generateOtp(
     config.mobile,
-    featureToggle("sms-otp-override")
+    featureToggle("email-otp-override")
   );
 
   //Add device ID
@@ -65,7 +71,7 @@ export const createUser = async (userDetails) => {
   //Register user
   const userRegisterResult = await registerUser({
     ...userDetails,
-    ...mobileVerification,
+    ...accountVerification,
   });
 
   if (!userRegisterResult.ok) {
@@ -73,28 +79,46 @@ export const createUser = async (userDetails) => {
   }
 
   //Send mobile verification code
-  const sms = app.get("smsClient");
-    const sendMessageResult = await sms.sendOTP(
-      userDetails.mobile,
-      mobileVerification.verificationCode
-    );
-    if (!sendMessageResult.ok) {
-      console.log(
-        `Failed to send SMS verification code to user ${userDetails.userId},`,
-        sendMessageResult
+  // const sms = app.get("smsClient");
+  //   const sendMessageResult = await sms.sendOTP(
+  //     userDetails.mobile,
+  //     mobileVerification.verificationCode
+  //   );
+  //   if (!sendMessageResult.ok) {
+  //     console.log(
+  //       `Failed to send SMS verification code to user ${userDetails.userId},`,
+  //       sendMessageResult
+  //     );
+  //     return {
+  //       ok: false,
+  //       reson: "partial-success",
+  //       message:
+  //         "User was created but the SMS verification code could not be sent. Proceed by calling POST /user/mobile with the user's email and phone number to get a new code.",
+  //     };
+  //   }
+
+  //send email verification code
+  const sendEmailResult = await emailClient.sendEmail(
+    userDetails.email,
+    accountVerification.verificationCode
+  );
+  if (!sendEmailResult.ok) {
+         console.log(
+        `Failed to send email verification code to user ${userDetails.userId},`,
+        sendEmailResult
       );
       return {
         ok: false,
         reson: "partial-success",
         message:
-          "User was created but the SMS verification code could not be sent. Proceed by calling POST /user/mobile with the user's email and phone number to get a new code.",
+          "User was created but the email verification code could not be sent.",
       };
-    }
+  }
 
   return { ok: true };
 };
 
-export const verifyMobile = async (userId, code) => {
+export const verifyAccount = async (userId, code) => {
   //Get the code
   const mobileResult = await getUserVerificationInfo(userId);
   if (!mobileResult.ok) {

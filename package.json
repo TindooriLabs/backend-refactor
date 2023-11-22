@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.231.0",
+    "@aws-sdk/client-ses": "^3.454.0",
     "@babel/cli": "^7.17.10",
     "@babel/node": "^7.18.5",
     "@google-cloud/translate": "^7.0.4",

@@ -2,7 +2,7 @@ import { validateSchema } from "../util/schemas.js";
 import { getFailureBody } from "./controller-helper.js";
 import {
   createUser,
-  verifyMobile as verifyMobileDomain
+  verifyAccount as verifyAccountDomain,
 } from "../domain/auth.js";
 
 export const emailRegister = async req => {
@@ -36,16 +36,16 @@ export const emailLogin = (error, user, authResponse) => {
   return { status: 200, body: { user } };
 };
 
-export const verifyMobile = async req => {
+export const verifyAccount = async req => {
   //Validate body
-  const validation = validateSchema(req.body, "verifyMobileBody");
+  const validation = validateSchema(req.body, "verifyAccountBody");
   if (!validation.ok) {
     return getFailureBody(validation);
   }
   const { userId } = req.user;
   const { code } = req.body;
  
-  const result = await verifyMobileDomain(userId, code);
+  const result = await verifyAccountDomain(userId, code);
 
   //Return success
   if (result.ok) {

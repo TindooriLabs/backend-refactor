@@ -9,8 +9,9 @@ const buildDeps = async app => {
   //Build config
   //Temp - force testing toggles to true while feature toggle server is down until infra changes are merged in
   const tempToggles = {
-    "sms-otp-override": true,
-    "google-translate-override": false
+    "sms-otp-override": false,
+    "google-translate-override": false,
+    "email-otp-override": false
   };
   app.set("featureToggles", tempToggles);
   // await buildUnleashClient(app, env);
@@ -40,8 +41,9 @@ export const featureToggle = toggleName => {
 
   //Temp for testing quick fix - override toggles for testing
   const toggles = {
-    "sms-otp-override": true,
-    "google-translate-override": false
+    "sms-otp-override": false,
+    "google-translate-override": false,
+    "email-otp-override": false
   };
 
   return toggles?.[toggleName];

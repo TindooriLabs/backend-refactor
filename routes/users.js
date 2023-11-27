@@ -9,7 +9,8 @@ import {
   setKarmaResponses,
   setLocation,
   setEthnicity,
-  getSubscription
+  getSubscription,
+  removeUser,
 } from "../controllers/users.js";
 import { getUserConversations } from "../controllers/conversation.js";
 
@@ -102,6 +103,14 @@ router.patch(
   "/:userId/karma",
   errorWrapper(async (req, res) => {
     const { status, body } = await setKarmaResponses(req);
+    res.status(status).send(body);
+  })
+);
+
+router.delete(
+  "/",
+  errorWrapper(async (req, res) => {
+    const { status, body } = await removeUser(req);
     res.status(status).send(body);
   })
 );

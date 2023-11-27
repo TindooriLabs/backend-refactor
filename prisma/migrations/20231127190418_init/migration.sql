@@ -75,7 +75,9 @@ CREATE TABLE "Profile" (
     "hometown" TEXT,
     "bio" TEXT NOT NULL DEFAULT '',
     "interests" TEXT[],
-    "isApi" BOOLEAN
+    "isApi" BOOLEAN,
+
+    CONSTRAINT "Profile_pkey" PRIMARY KEY ("userId")
 );
 
 -- CreateTable
@@ -200,7 +202,7 @@ CREATE TABLE "SubscriptionEntry" (
     "subscriptionKind" "SubscriptionKind" NOT NULL,
     "expiration" TIMESTAMPTZ(3) NOT NULL,
 
-    CONSTRAINT "SubscriptionEntry_pkey" PRIMARY KEY ("userId","subscriptionKind")
+    CONSTRAINT "SubscriptionEntry_pkey" PRIMARY KEY ("userId")
 );
 
 -- CreateTable
@@ -232,16 +234,10 @@ CREATE UNIQUE INDEX "Account_email_key" ON "Account"("email");
 CREATE UNIQUE INDEX "Account_mobile_key" ON "Account"("mobile");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Profile_userId_key" ON "Profile"("userId");
-
--- CreateIndex
 CREATE UNIQUE INDEX "PromptQuestion_text_key" ON "PromptQuestion"("text");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ImageUpload_userId_ordinal_key" ON "ImageUpload"("userId", "ordinal");
-
--- CreateIndex
-CREATE UNIQUE INDEX "SubscriptionEntry_userId_key" ON "SubscriptionEntry"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_ChatToUser_AB_unique" ON "_ChatToUser"("A", "B");

@@ -272,3 +272,99 @@ export const createOrUpdateKarmaResponses = async (
 
   return result;
 };
+
+export const deleteUser = async (userId) => {
+  try {
+    const result = await prisma.$transaction([
+      prisma.account.delete({
+        where: {
+          userId,
+        },
+      }),
+      prisma.deviceRecord.deleteMany({
+        where: {
+          userId,
+        },
+      }),
+      prisma.userMetadata.delete({
+        where: {
+          userId,
+        },
+      }),
+      prisma.promptResponse.deleteMany({
+        where: {
+          userId,
+        },
+      }),
+      prisma.imageUpload.deleteMany({
+        where: {
+          userId,
+        },
+      }),
+      prisma.languageAndLevel.deleteMany({
+        where: {
+          userId,
+        },
+      }),
+      prisma.userImpressionBallot.deleteMany({
+        where: {
+          OR: [
+            {
+              fromUserId: userId,
+            },
+            {
+              toUserId: userId,
+            },
+          ],
+        },
+      }),
+      prisma.userImpressionArchive.deleteMany({
+        where: {
+          OR: [
+            {
+              fromUserId: userId,
+            },
+            {
+              toUserId: userId,
+            },
+          ],
+        },
+      }),
+      prisma.karmaBallot.deleteMany({
+        where: {
+          OR: [
+            {
+              fromUserId: userId,
+            },
+            {
+              toUserId: userId,
+            },
+          ],
+        },
+      }),
+      prisma.karmaScore.deleteMany({
+        where: {
+          userId,
+        },
+      }),
+      prisma.subscriptionEntry.delete({
+        where: {
+          userId,
+        },
+      }),
+      prisma.userSwipeCache.delete({
+        where: {
+          userId,
+        },
+      }),
+    ]);
+  } catch (e) {
+    return {
+      ok: false,
+      reason: "not-found",
+      message: "Could not find the user in the SQL database.",
+    };
+  }
+
+  return { ok: true };
+};

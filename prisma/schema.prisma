@@ -95,7 +95,7 @@ enum Sexuality {
 }
 
 model Profile {
-  userId String @unique
+  userId String @id
   user   User   @relation(fields: [userId], references: [id])
 
   firstName         String
@@ -288,12 +288,10 @@ enum SubscriptionKind {
 }
 
 model SubscriptionEntry {
-  userId           String           @unique
+  userId           String           @id
   user             User             @relation(fields: [userId], references: [id])
   subscriptionKind SubscriptionKind
   expiration       DateTime         @db.Timestamptz(3)
-
-  @@id([userId, subscriptionKind])
 }
 
 model UserSwipeCache {

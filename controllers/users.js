@@ -8,6 +8,7 @@ import {
   setDob as setDobDomain,
   setKarmaResponses as setKarmaResponsesBody,
   getSubscription as getSubscriptionDomain,
+  removeUser as removeUserDomain
 } from "../domain/users.js";
 import { validateSchema } from "../util/schemas.js";
 export const getOwnUser = async (req) => {
@@ -173,3 +174,16 @@ export const setKarmaResponses = async (req) => {
 
   return getFailureBody(result);
 };
+
+export const removeUser = async (req) => {
+  const { userId } = req.user;
+
+  const result = await removeUserDomain(userId);
+
+  //Return success
+  if (result.ok) {
+    return { status: 204 };
+  }
+
+  return getFailureBody(result);
+}

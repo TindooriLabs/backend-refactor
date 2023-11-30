@@ -25,7 +25,9 @@ app.set("port", port);
 var server = http.createServer(app);
 
 //Socket integration
-const io = new Server(server);
+const io = new Server(server, {
+  allowEIO3: true,
+});
 io.use(socketLog);
 
 //Socket auth: https://socket.io/docs/v4/middlewares/#sending-credentials
@@ -40,7 +42,7 @@ io.on("connection", (socket) => {
   });
   socket.on("message", (data) => {
     io.in(data.id).emit("message", data.message);
-    console.log("Message => "+data);
+    console.log("Message => " + data);
   });
   socket.on("disconnect", () => {
     console.log("User disconnected.");

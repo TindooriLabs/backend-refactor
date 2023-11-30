@@ -36,17 +36,20 @@ app.set("io", io);
 
 io.on("connection", (socket) => {
   console.log("User connected");
-  socket.on("joinRoom", (conversationId) => {
-    socket.join(conversationId);
-    console.log(`User joined room ${conversationId}`);
-  });
-  socket.on("message", (data) => {
-    io.in(data.id).emit("message", data.message);
-    console.log("Message => " + data);
-  });
-  socket.on("disconnect", () => {
-    console.log("User disconnected.");
-  });
+});
+
+io.on("joinRoom", (conversationId) => {
+  socket.join(conversationId);
+  console.log(`User joined room ${conversationId}`);
+});
+
+io.on("message", (data) => {
+  io.in(data.id).emit("message", data.message);
+  console.log("Message => " + data);
+});
+
+socket.on("disconnect", () => {
+  console.log("User disconnected.");
 });
 
 buildDeps(app).then(() => {

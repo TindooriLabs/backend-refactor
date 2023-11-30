@@ -25,12 +25,12 @@ export const sendNotification = async (notification) => {
 
   //Emit the notification to the recipients
   try {
-    if (notification.type === "message") {
-      io.in(notification.body.conversation.id).emit(
-        notification.type,
-        notification.body
-      );
-    }
+    // if (notification.type === "message") {
+    //   io.in(notification.body.conversation.id).emit(
+    //     notification.type,
+    //     notification.body
+    //   );
+    // }
   } catch (error) {
     console.log(
       `Error emitting socket '${notification.type}' notification.`,

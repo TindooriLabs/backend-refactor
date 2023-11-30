@@ -34,11 +34,11 @@ io.use(socketLog);
 io.use(socketJwtAuth);
 app.set("io", io);
 
-io.on("connection", (socket) => {
+io.on("connection", () => {
   console.log("User connected");
 });
 
-io.on("joinRoom", (conversationId) => {
+io.on("joinRoom", (socket, conversationId) => {
   socket.join(conversationId);
   console.log(`User joined room ${conversationId}`);
 });
@@ -48,7 +48,7 @@ io.on("message", (data) => {
   console.log("Message => " + data);
 });
 
-socket.on("disconnect", () => {
+io.on("disconnect", () => {
   console.log("User disconnected.");
 });
 

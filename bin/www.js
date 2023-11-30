@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
     console.log(`User joined room ${conversationId}`);
   });
   socket.on("message", (data) => {
-    io.in(data.conversation.id).emit("message", data.message);
+    io.in(data.id).emit("message", data.message);
     console.log("Message => "+data);
   });
   socket.on("disconnect", () => {

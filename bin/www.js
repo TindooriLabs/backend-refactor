@@ -10,6 +10,8 @@ import http from "http";
 import buildDeps from "../config/deps.js";
 import { Server } from "socket.io";
 import { socketLog, socketJwtAuth } from "../socket/middleware.js";
+import { server as WebSocketServer } from "websocket";
+import { getStatusByReason } from "../controllers/controller-helper.js";
 
 /**
  * Get port from environment and store in Express.
@@ -24,33 +26,87 @@ app.set("port", port);
 
 var server = http.createServer(app);
 
-//Socket integration
-const io = new Server(server, {
-  allowEIO3: true,
+let wsServer = new WebSocketServer({
+  httpServer: server,
 });
-io.use(socketLog);
+
+let clients = new Map();
+
+function originIsAllowed(request) {
+  // put logic here to detect whether the specified origin is allowed.
+  const token = request.resourceURL.query.token;
+  const verificationResult = socketJwtAuth(token);
+  return verificationResult;
+}
+
+wsServer.on("request", function (request) {
+  let verificationResult = originIsAllowed(request);
+  if (!verificationResult.ok) {
+    // Make sure we only accept requests from an allowed origin
+    request.reject(
+      getStatusByReason(verificationResult.reason),
+      verificationResult.message
+    );
+    console.log(
+      new Date() + " Connection from origin " + request.origin + " rejected."
+    );
+    return;
+  }
+
+  var connection = request.accept(request.origin);
+
+  console.log(new Date() + " Connection accepted.");
+  const chatId = request.resourceURL.query.chatId;
+  clients.set(connection, { chatId, userId: verificationResult.userId });
+
+  connection.on("message", function (message) {
+    broadcast(message.utf8Data, connection);
+  });
+
+  connection.on("close", function (reasonCode, description) {
+    clients.delete(connection);
+    console.log(
+      new Date() + " Peer " + connection.remoteAddress + " disconnected."
+    );
+  });
+});
+
+function broadcast(message, sender) {
+  // Broadcast the message to all clients in the same room
+  clients.forEach((client, connection) => {
+    if (client.chatId === clients.get(sender).chatId) {
+      connection.send(message);
+    }
+  });
+}
+
+//Socket integration
+// const io = new Server(server, {
+//   allowEIO3: true,
+// });
+// io.use(socketLog);
 
 //Socket auth: https://socket.io/docs/v4/middlewares/#sending-credentials
-io.use(socketJwtAuth);
-app.set("io", io);
+// io.use(socketJwtAuth);
+// app.set("io", io);
 
-io.on("connection", () => {
-  console.log("User connected");
-});
+// io.on("connection", () => {
+//   console.log("User connected");
+// });
 
-io.on("joinRoom", (socket, conversationId) => {
-  socket.join(conversationId);
-  console.log(`User joined room ${conversationId}`);
-});
+// io.on("joinRoom", (socket, conversationId) => {
+//   socket.join(conversationId);
+//   console.log(`User joined room ${conversationId}`);
+// });
 
-io.on("message", (data) => {
-  io.in(data.id).emit("message", data.message);
-  console.log("Message => " + data);
-});
+// io.on("message", (data) => {
+//   io.in(data.id).emit("message", data.message);
+//   console.log("Message => " + data);
+// });
 
-io.on("disconnect", () => {
-  console.log("User disconnected.");
-});
+// io.on("disconnect", () => {
+//   console.log("User disconnected.");
+// });
 
 buildDeps(app).then(() => {
   server.listen(port);

@@ -118,7 +118,7 @@ export const setSchemas = async () => {
     .keys({
       toUserIds: dbIdArray,
       conversationId: Joi.string(),
-      message: Joi.string().required(),
+      message: Joi.string().min(0),
       language: languageIso.optional(),
     })
     .xor("toUserIds", "conversationId");

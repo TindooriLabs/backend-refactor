@@ -53,7 +53,7 @@ wsServer.on("request", function (request) {
     return;
   }
 
-  var connection = request.accept(request.origin);
+  var connection = request.accept(null, request.origin);
 
   console.log(new Date() + " Connection accepted.");
   const chatId = request.resourceURL.query.chatId;

@@ -172,6 +172,20 @@ export const sendMessage = async (
   conversationResponse = conversationResponse.result;
 
   const conversationId = existingConversationId || conversationResponse.id;
+  var participantNamesResult;
+
+  if (message === "") {
+    participantNamesResult = await getParticipantNames(participants);
+
+    conversationResponse.participants = participantNamesResult.map((p) => {
+      p.name = p.firstName;
+      p.id = p.userId;
+      delete p.firstName;
+      delete p.userId;
+      return p;
+    });
+    return { ok: true, conversation: conversationResponse };
+  }
 
   //Send the message
   const messageResult = await insertMessage(
@@ -182,7 +196,7 @@ export const sendMessage = async (
   );
 
   //Emit the notification to participants
-  const participantNamesResult = await getParticipantNames(participants);
+  participantNamesResult = await getParticipantNames(participants);
 
   conversationResponse.participants = participantNamesResult.map((p) => {
     p.name = p.firstName;

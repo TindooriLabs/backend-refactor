@@ -5,20 +5,20 @@ import { getUserDevices } from "../database/queries/relationship.js";
 export const sendNotification = async (notification) => {
   const io = app.get("io");
   try {
-    // await Promise.all(
-    //   notification.recipients.map(async (recipient) => {
-    //     const roomId = recipient.id.toString();
-    //     //Check connected sockets for each recipient
-    //     const socketConnections = await getSocketConnectionsForRoom(io, roomId);
-    //     //If at least one socket is connected, add them to the socket recipients
-    //     if (socketConnections.length) {
-    //       return io.to(roomId);
-    //     } else {
-    //       //Send async notification
-    //       return sendPushNotificationToUser(recipient.id, notification);
-    //     }
-    //   })
-    // );
+    await Promise.all(
+      notification.recipients.map(async (recipient) => {
+        // const roomId = recipient.id.toString();
+        //Check connected sockets for each recipient
+        // const socketConnections = await getSocketConnectionsForRoom(io, roomId);
+        //If at least one socket is connected, add them to the socket recipients
+        // if (socketConnections.length) {
+          // return io.to(roomId);
+        // } else {
+          //Send async notification
+          return sendPushNotificationToUser(recipient.id, notification);
+        // }
+      })
+    );
   } catch (error) {
     console.log("Error queueing notifications.", error);
   }

@@ -176,7 +176,6 @@ export const sendMessage = async (
 
   if (message === "") {
     participantNamesResult = await getParticipantNames(participants);
-    conversationResponse.lastMessage = {}
     conversationResponse.participants = participantNamesResult.map((p) => {
       p.name = p.firstName;
       p.id = p.userId;

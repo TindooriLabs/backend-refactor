@@ -58,7 +58,6 @@ wsServer.on("request", function (request) {
   console.log(new Date() + " Connection accepted.");
   const chatId = request.resourceURL.query.chatId;
   clients.set(connection, { chatId, userId: verificationResult.userId });
-
   connection.on("message", function (message) {
     broadcast(message.utf8Data, connection);
   });
@@ -72,9 +71,14 @@ wsServer.on("request", function (request) {
 });
 
 function broadcast(message, sender) {
+  let messageJSON = JSON.parse(message);
   // Broadcast the message to all clients in the same room
   clients.forEach((client, connection) => {
-    if (client.chatId === clients.get(sender).chatId) {
+    let senderInfo = clients.get(sender);
+    if (
+      client.chatId === senderInfo?.chatId &&
+      messageJSON.fromUserId === senderInfo?.userId
+    ) {
       connection.send(message);
     }
   });

@@ -225,6 +225,7 @@ export const sendMessage = async (
   let lastMessage = {
     id: messageResult.id.toString(),
     message: messageResult.text,
+    ordinal: messageResult.ordinal,
     sent: messageResult.sendTime,
     fromUserId: messageResult.senderId,
     language: Object.keys(languageIds).find(

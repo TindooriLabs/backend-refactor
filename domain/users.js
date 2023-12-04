@@ -254,7 +254,7 @@ export const validateReceipt = async ( receiptData) => {
         ? "https://buy.itunes.apple.com/verifyReceipt"
         : "https://sandbox.itunes.apple.com/verifyReceipt";
     const receiptDataDecoded = Buffer.from(base64Receipt, 'base64').toString('binary');
-    const validationResponse = await validateReceipt(receiptDataDecoded, url);
+    const validationResponse = await validate(receiptDataDecoded, url);
 
     if (
       validationResponse.status === 200 &&
@@ -279,7 +279,7 @@ export const validateReceipt = async ( receiptData) => {
   }
 };
 
-async function validateReceipt(receiptData, url) {
+async function validate(receiptData, url) {
   const requestData = { "receipt-data": receiptData };
 
   const response = await axios.post(url, requestData);

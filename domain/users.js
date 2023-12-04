@@ -250,7 +250,7 @@ export const validateReceipt = async ( receiptData) => {
   try {
     // Use the sandbox URL during development
     const url =
-      process.env.NODE_ENV === "production"
+      process.env.ENV === "prod"
         ? "https://buy.itunes.apple.com/verifyReceipt"
         : "https://sandbox.itunes.apple.com/verifyReceipt";
     const receiptDataDecoded = Buffer.from(base64Receipt, 'base64').toString('binary');

@@ -8,7 +8,7 @@ import {
   updateDob,
   createOrUpdateKarmaResponses,
   getSubscriptionEntryForUser,
-  deleteUser
+  deleteUser,
 } from "../database/queries/users.js";
 import { getDistanceBetweenUsers } from "../util/location.js";
 import {
@@ -20,6 +20,8 @@ import {
   languageIds,
   languageLevelIds,
 } from "../database/constants.js";
+
+import axios from "axios";
 
 export const getUser = async (userId, requestingUserId) => {
   //Get data from Postgres
@@ -242,4 +244,44 @@ export const setKarmaResponses = async (
 export const removeUser = async (userId) => {
   const deleteResponse = await deleteUser(userId);
   return deleteResponse;
+};
+
+export const validateReceipt = async ( receiptData) => {
+  try {
+    // Use the sandbox URL during development
+    const url =
+      process.env.NODE_ENV === "production"
+        ? "https://buy.itunes.apple.com/verifyReceipt"
+        : "https://sandbox.itunes.apple.com/verifyReceipt";
+
+    const validationResponse = await validateReceipt(receiptData, url);
+
+    if (
+      validationResponse.status === 200 &&
+      validationResponse.data.status === 0
+    ) {
+      // Receipt is valid
+      return { ok: true, result: { isValid: true } };
+    } else {
+      // Receipt is invalid
+      return {
+        ok: true,
+        result: { isValid: false, reason: validationResponse.data },
+      };
+    }
+  } catch (error) {
+    console.error("Error validating receipt:", error);
+    return {
+      ok: false,
+      reason: "server-error",
+      message: error.message,
+    };
+  }
+};
+
+async function validateReceipt(receiptData, url) {
+  const requestData = { "receipt-data": receiptData };
+
+  const response = await axios.post(url, requestData);
+  return response;
 }

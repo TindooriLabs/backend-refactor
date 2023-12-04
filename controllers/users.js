@@ -8,7 +8,8 @@ import {
   setDob as setDobDomain,
   setKarmaResponses as setKarmaResponsesBody,
   getSubscription as getSubscriptionDomain,
-  removeUser as removeUserDomain
+  removeUser as removeUserDomain,
+  validateReceipt as validateReceiptDomain,
 } from "../domain/users.js";
 import { validateSchema } from "../util/schemas.js";
 export const getOwnUser = async (req) => {
@@ -186,4 +187,21 @@ export const removeUser = async (req) => {
   }
 
   return getFailureBody(result);
-}
+};
+
+export const validateReceipt = async (req) => {
+
+  const { receiptData } = req.body;
+
+  const result = await validateReceiptDomain(receiptData);
+
+  //Return success
+  if (result.ok) {
+    return {
+      status: 200,
+      body: { ...result.result },
+    };
+  }
+
+  return getFailureBody(result);
+};

@@ -11,6 +11,7 @@ import {
   setEthnicity,
   getSubscription,
   removeUser,
+  validateReceipt
 } from "../controllers/users.js";
 import { getUserConversations } from "../controllers/conversation.js";
 
@@ -111,6 +112,15 @@ router.delete(
   "/",
   errorWrapper(async (req, res) => {
     const { status, body } = await removeUser(req);
+    res.status(status).send(body);
+  })
+);
+
+router.post(
+  "/validate-subscription-receipt",
+  errorWrapper(async function (req, res) {
+    //Create the user
+    const { status, body } = await validateReceipt(req);
     res.status(status).send(body);
   })
 );

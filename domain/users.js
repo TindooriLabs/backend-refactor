@@ -253,8 +253,8 @@ export const validateReceipt = async ( receiptData) => {
       process.env.NODE_ENV === "production"
         ? "https://buy.itunes.apple.com/verifyReceipt"
         : "https://sandbox.itunes.apple.com/verifyReceipt";
-
-    const validationResponse = await validateReceipt(receiptData, url);
+    const receiptDataDecoded = Buffer.from(base64Receipt, 'base64').toString('binary');
+    const validationResponse = await validateReceipt(receiptDataDecoded, url);
 
     if (
       validationResponse.status === 200 &&

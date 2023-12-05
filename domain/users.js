@@ -246,15 +246,19 @@ export const removeUser = async (userId) => {
   return deleteResponse;
 };
 
-export const validateReceipt = async ( receiptData) => {
+export const validateReceipt = async (receiptData) => {
   try {
     // Use the sandbox URL during development
-    const url =
-      process.env.ENV === "prod"
-        ? "https://buy.itunes.apple.com/verifyReceipt"
-        : "https://sandbox.itunes.apple.com/verifyReceipt";
-    const receiptDataDecoded = Buffer.from(base64Receipt, 'base64').toString('binary');
-    const validationResponse = await validate(receiptDataDecoded, url);
+    const prodURL = "https://buy.itunes.apple.com/verifyReceipt";
+    const sandboxURL = "https://sandbox.itunes.apple.com/verifyReceipt";
+    const receiptDataDecoded = Buffer.from(base64Receipt, "base64").toString(
+      "binary"
+    );
+    const validationResponse = await validate(
+      receiptDataDecoded,
+      prodURL,
+      sandboxURL
+    );
 
     if (
       validationResponse.status === 200 &&
@@ -279,9 +283,15 @@ export const validateReceipt = async ( receiptData) => {
   }
 };
 
-async function validate(receiptData, url) {
-  const requestData = { "receipt-data": receiptData };
+async function validate(receiptData, prodURL, sandboxURL) {
+  const requestData = {
+    "receipt-data": receiptData,
+    password: process.env.IAP_SHARED_SECRET,
+  };
 
-  const response = await axios.post(url, requestData);
+  let response = await axios.post(prodURL, requestData);
+  if (response.status === 21007) {
+    response = await axios.post(sandboxURL, requestData);
+  }
   return response;
 }

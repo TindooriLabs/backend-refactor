@@ -268,7 +268,7 @@ export const validateReceipt = async (receiptData) => {
       // Receipt is invalid
       return {
         ok: true,
-        result: { isValid: false, reason: validationResponse.data },
+        result: { isValid: false, reason: JSON.stringify(validationResponse.data) },
       };
     }
   } catch (error) {

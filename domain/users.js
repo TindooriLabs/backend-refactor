@@ -8,7 +8,7 @@ import {
   updateDob,
   createOrUpdateKarmaResponses,
   getSubscriptionEntryForUser,
-  deleteUser
+  deleteUser,
 } from "../database/queries/users.js";
 import { getDistanceBetweenUsers } from "../util/location.js";
 import {
@@ -242,4 +242,4 @@ export const setKarmaResponses = async (
 export const removeUser = async (userId) => {
   const deleteResponse = await deleteUser(userId);
   return deleteResponse;
-}
+};

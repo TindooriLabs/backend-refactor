@@ -10,7 +10,7 @@ import {
   setLocation,
   setEthnicity,
   getSubscription,
-  removeUser,
+  removeUser
 } from "../controllers/users.js";
 import { getUserConversations } from "../controllers/conversation.js";
 

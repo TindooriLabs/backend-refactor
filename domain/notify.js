@@ -7,17 +7,16 @@ export const sendNotification = async (notification) => {
   try {
     await Promise.all(
       notification.recipients.map(async (recipient) => {
-        const roomId = recipient.id.toString();
+        // const roomId = recipient.id.toString();
         //Check connected sockets for each recipient
-        const socketConnections = await getSocketConnectionsForRoom(io, roomId);
-
+        // const socketConnections = await getSocketConnectionsForRoom(io, roomId);
         //If at least one socket is connected, add them to the socket recipients
-        if (socketConnections.length) {
-          return io.to(roomId);
-        } else {
+        // if (socketConnections.length) {
+          // return io.to(roomId);
+        // } else {
           //Send async notification
           return sendPushNotificationToUser(recipient.id, notification);
-        }
+        // }
       })
     );
   } catch (error) {
@@ -26,7 +25,12 @@ export const sendNotification = async (notification) => {
 
   //Emit the notification to the recipients
   try {
-    io.emit(notification.type, notification.body);
+    // if (notification.type === "message") {
+    //   io.in(notification.body.conversation.id).emit(
+    //     notification.type,
+    //     notification.body
+    //   );
+    // }
   } catch (error) {
     console.log(
       `Error emitting socket '${notification.type}' notification.`,

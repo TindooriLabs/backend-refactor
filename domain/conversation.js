@@ -172,6 +172,19 @@ export const sendMessage = async (
   conversationResponse = conversationResponse.result;
 
   const conversationId = existingConversationId || conversationResponse.id;
+  var participantNamesResult;
+
+  if (message === "") {
+    participantNamesResult = await getParticipantNames(participants);
+    conversationResponse.participants = participantNamesResult.map((p) => {
+      p.name = p.firstName;
+      p.id = p.userId;
+      delete p.firstName;
+      delete p.userId;
+      return p;
+    });
+    return { ok: true, conversation: conversationResponse };
+  }
 
   //Send the message
   const messageResult = await insertMessage(
@@ -182,7 +195,7 @@ export const sendMessage = async (
   );
 
   //Emit the notification to participants
-  const participantNamesResult = await getParticipantNames(participants);
+  participantNamesResult = await getParticipantNames(participants);
 
   conversationResponse.participants = participantNamesResult.map((p) => {
     p.name = p.firstName;
@@ -209,7 +222,17 @@ export const sendMessage = async (
 
   sendNotification(notification);
 
-  return { ok: true, conversation: conversationResponse };
+  let lastMessage = {
+    id: messageResult.id.toString(),
+    message: messageResult.text,
+    ordinal: messageResult.ordinal,
+    sent: messageResult.sendTime,
+    fromUserId: messageResult.senderId,
+    language: Object.keys(languageIds).find(
+      (key) => languageIds[key] === messageResult["originalLanguageName"]
+    ),
+  };
+  return { ok: true, conversation: { ...conversationResponse, lastMessage } };
 };
 
 const getCachedTranslationForMessage = async (message, targetLanguage) => {
@@ -322,9 +345,9 @@ export const translateMessages = async (messageIds, targetLanguage, userId) => {
 
       if (
         (m.translations &&
-        m.translations[targetLanguage] &&
-        today.isBefore(m.translations[targetLanguage].expires)) ||
-        (m.originalLanguageName === languageIds[targetLanguage])
+          m.translations[targetLanguage] &&
+          today.isBefore(m.translations[targetLanguage].expires)) ||
+        m.originalLanguageName === languageIds[targetLanguage]
       ) {
         m.id = m.id.toString();
         m["message"] = m["text"];

@@ -27,6 +27,7 @@
     "@prisma/client": "^5.5.2",
     "apn": "^2.2.0",
     "aws-sdk": "^2.1247.0",
+    "axios": "^1.6.2",
     "babel-plugin-root-import": "^6.6.0",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.20.2",
@@ -49,11 +50,12 @@
     "pm2": "^5.2.0",
     "randomatic": "^3.1.1",
     "sharp": "^0.32.0",
-    "socket.io": "^4.5.3",
+    "socket.io": "^4.7.2",
     "swagger-ui-express": "^4.5.0",
     "twilio": "^3.84.1",
     "unleash-proxy-client": "^2.4.1",
     "uuid": "^9.0.1",
+    "websocket": "^1.0.34",
     "yamljs": "^0.3.0"
   },
   "babel": {

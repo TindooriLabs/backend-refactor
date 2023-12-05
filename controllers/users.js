@@ -186,4 +186,5 @@ export const removeUser = async (req) => {
   }
 
   return getFailureBody(result);
-}
+};
+

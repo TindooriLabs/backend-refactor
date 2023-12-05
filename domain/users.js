@@ -251,11 +251,9 @@ export const validateReceipt = async (receiptData) => {
     // Use the sandbox URL during development
     const prodURL = "https://buy.itunes.apple.com/verifyReceipt";
     const sandboxURL = "https://sandbox.itunes.apple.com/verifyReceipt";
-    const receiptDataDecoded = Buffer.from(base64Receipt, "base64").toString(
-      "binary"
-    );
+   
     const validationResponse = await validate(
-      receiptDataDecoded,
+      receiptData,
       prodURL,
       sandboxURL
     );

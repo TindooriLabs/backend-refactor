@@ -21,8 +21,6 @@ import {
   languageLevelIds,
 } from "../database/constants.js";
 
-import axios from "axios";
-
 export const getUser = async (userId, requestingUserId) => {
   //Get data from Postgres
   let sqlResult = await getUserInfo(userId);
@@ -245,51 +243,3 @@ export const removeUser = async (userId) => {
   const deleteResponse = await deleteUser(userId);
   return deleteResponse;
 };
-
-export const validateReceipt = async (receiptData) => {
-  try {
-    // Use the sandbox URL during development
-    const prodURL = "https://buy.itunes.apple.com/verifyReceipt";
-    const sandboxURL = "https://sandbox.itunes.apple.com/verifyReceipt";
-   
-    const validationResponse = await validate(
-      receiptData,
-      prodURL,
-      sandboxURL
-    );
-
-    if (
-      validationResponse.status === 200 &&
-      validationResponse.data.status === 0
-    ) {
-      // Receipt is valid
-      return { ok: true, result: { isValid: true } };
-    } else {
-      // Receipt is invalid
-      return {
-        ok: true,
-        result: { isValid: false, reason: JSON.stringify(validationResponse.data) },
-      };
-    }
-  } catch (error) {
-    console.error("Error validating receipt:", error);
-    return {
-      ok: false,
-      reason: "server-error",
-      message: error.message,
-    };
-  }
-};
-
-async function validate(receiptData, prodURL, sandboxURL) {
-  const requestData = {
-    "receipt-data": receiptData,
-    password: process.env.IAP_SHARED_SECRET,
-  };
-
-  let response = await axios.post(prodURL, requestData);
-  if (response.status === 21007) {
-    response = await axios.post(sandboxURL, requestData);
-  }
-  return response;
-}

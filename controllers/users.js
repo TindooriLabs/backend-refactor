@@ -69,10 +69,10 @@ export const setSubscription = async (req) => {
   if (!validation.ok) {
     return getFailureBody(validation);
   }
-  const { subscriptionTierId } = req.body;
+  const { subscriptionTierId, expiration } = req.body;
   const { userId } = req.user;
 
-  const result = await setSubscriptionDomain(userId, subscriptionTierId);
+  const result = await setSubscriptionDomain(userId, subscriptionTierId, expiration);
 
   //Return success
   if (result.ok) {

@@ -169,20 +169,19 @@ export const setStatus = async (userId, status) => {
   return result;
 };
 
-export const setSubscription = async (userId, subscriptionTierId) => {
+export const setSubscription = async (
+  userId,
+  subscriptionTierId,
+  expiration
+) => {
   let subscriptionTier = Object.keys(subscriptionTierIds).find(
     (key) => subscriptionTierIds[key] === subscriptionTierId
   );
-  let expiration = null;
-  if (subscriptionTierId === 2) {
-    expiration = new Date(new Date().addMonths(1).setUTCHours(23, 59, 59, 999));
-  } else {
-    expiration = new Date();
-  }
+  
   const result = await updateUserSubscriptionTier(
     userId,
     subscriptionTier,
-    expiration
+    expiration == null ? new Date() : new Date(expiration)
   );
   return result;
 };

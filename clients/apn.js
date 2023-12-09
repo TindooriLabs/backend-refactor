@@ -6,9 +6,10 @@ export default class ApnClient {
   constructor(key, keyFilePath) {
     this.key = key;
     this.keyFilePath = keyFilePath;
-    this.isProduction = process.env.NODE_ENV == "production";
+    this.isProduction = process.env.NODE_ENV === "production";
 
     this.provider = new apn.Provider({
+      // pfx: this.keyFilePath,
       token: {
         key: this.keyFilePath,
         keyId: "7NP8GVWJ5F",

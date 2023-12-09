@@ -75,6 +75,7 @@ export const setSchemas = async () => {
   });
   schemas.setSubscriptionBody = Joi.object().keys({
     subscriptionTierId: subscriptionTierId.required(),
+    expiration: Joi.string().isoDate().optional()
   });
   //   schemas.statusId = statusId.required();
   schemas.setLocationBody = Joi.object().keys({

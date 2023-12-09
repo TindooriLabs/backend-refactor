@@ -12,7 +12,7 @@ export default class ApnClient {
       // pfx: this.keyFilePath,
       token: {
         key: this.keyFilePath,
-        keyId: "7NP8GVWJ5F",
+        keyId: "55NYY66A33",
         teamId: "8R7PR26MLZ"
       },
       production: this.isProduction

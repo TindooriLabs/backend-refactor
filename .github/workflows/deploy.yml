@@ -22,6 +22,7 @@ env:
   JWT_SECRET: ${{ secrets.JWT_SECRET }}
   PORT: ${{ secrets.PORT }}
   AWS_IMAGES_BUCKET: ${{ secrets.AWS_IMAGES_BUCKET }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
 jobs:
   deploy-infra:
     runs-on: ubuntu-latest
@@ -117,6 +118,7 @@ jobs:
           --build-arg POSTGRES_DB=$POSTGRES_DB \
           --build-arg POSTGRES_USER=$POSTGRES_USER \
           --build-arg POSTGRES_PASSWORD=$POSTGRES_PASSWORD \
+          --build-arg NODE_ENV=$NODE_ENV \
           --build-arg PORT=$PORT .
           docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
         working-directory: ./

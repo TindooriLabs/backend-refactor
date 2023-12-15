@@ -44,7 +44,7 @@ const localStrategy = new LocalStrategy(
       });
     }
 
-    done(null, authResult.user, { ok: true });
+    done(null, authResult.user, { ok: true, userId: authResult.userId });
   }
 );
 

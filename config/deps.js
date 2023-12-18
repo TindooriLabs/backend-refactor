@@ -3,15 +3,16 @@ import ApnClient from "../clients/apn.js";
 import { connectPostgres } from "../database/postgres.js";
 import { setSchemas } from "../util/schemas.js";
 import addDateFunctions from "../util/datetime.js";
-//import app from "../app";
+import app from "../app.js";
 
-const buildDeps = async app => {
+const buildDeps = async (app) => {
   //Build config
   //Temp - force testing toggles to true while feature toggle server is down until infra changes are merged in
   const tempToggles = {
     "sms-otp-override": false,
-    "google-translate-override": true,
-    "email-otp-override": false
+    "google-translate-override": false,
+    "email-otp-override": false,
+    "notification-override": true,
   };
   app.set("featureToggles", tempToggles);
   // await buildUnleashClient(app, env);
@@ -36,15 +37,8 @@ const buildDeps = async app => {
   await setSchemas();
 };
 
-export const featureToggle = toggleName => {
-  //const toggles = app.get("featureToggles");
-
-  //Temp for testing quick fix - override toggles for testing
-  const toggles = {
-    "sms-otp-override": false,
-    "google-translate-override": true,
-    "email-otp-override": false
-  };
+export const featureToggle = (toggleName) => {
+  const toggles = app.get("featureToggles");
 
   return toggles?.[toggleName];
 };

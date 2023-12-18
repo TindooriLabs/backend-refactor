@@ -11,7 +11,7 @@ const buildDeps = async (app) => {
   const tempToggles = {
     "sms-otp-override": false,
     "google-translate-override": false,
-    "email-otp-override": true,
+    "email-otp-override": false,
     "notification-override": true,
   };
   app.set("featureToggles", tempToggles);

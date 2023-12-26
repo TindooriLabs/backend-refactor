@@ -39,19 +39,19 @@ export const sendNotification = async (notification) => {
     if (error.response) {
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      console.log("Data => \n"+error.response.data);
-      console.log("Status => \n"+error.response.status);
-      console.log("Headers => \n"+error.response.headers);
+      console.log("Data => \n"+JSON.stringify(error.response.data));
+      console.log("Status => \n"+JSON.stringify(error.response.status));
+      console.log("Headers => \n"+JSON.stringify(error.response.headers));
     } else if (error.request) {
       // The request was made but no response was received
       // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
       // http.ClientRequest in node.js
       console.log("Request => ");
-      console.log(error.request);
+      console.log(JSON.stringify(error.request));
     } else {
       // Something happened in setting up the request that triggered an Error
-      console.log("Error => \n"+error.message);
+      console.log("Error => \n"+JSON.stringify(error.message));
     }
-    console.log("Config => \n"+error.config);
+    console.log("Config => \n"+JSON.stringify(error.config));
   }
 };

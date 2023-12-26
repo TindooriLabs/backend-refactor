@@ -5,7 +5,7 @@ import {
   updateUserSwipeCache,
   getUserRelationshipAggregatesByType,
   fetchLikesForUser,
-  deleteConversation
+  deleteConversation,
 } from "../database/queries/relationship.js";
 import { aggregateRelationshipType } from "../util/relationship.js";
 import { sendNotification } from "./notify.js";
@@ -66,7 +66,7 @@ export const createRelationship = async (
     patientUserId
   );
 
-  if(relationshipTypeName === "UNMATCH"){
+  if (relationshipTypeName === "UNMATCH") {
     const deleteResponse = await deleteConversation(agentUserId, patientUserId);
   }
 
@@ -80,13 +80,11 @@ export const createRelationship = async (
   if (aggregateRelationshipTypeName === "MATCH") {
     const notification = {
       type: "match",
-      recipients: [{ id: patientUserId }],
-      body: {
-        message: "You have a new match!",
-      },
+      recipients: [patientUserId],
+      text: "Congratulations! You have a new match!",
     };
 
-    sendNotification(notification);
+    await sendNotification(notification);
   }
 
   //Update the swipe counter

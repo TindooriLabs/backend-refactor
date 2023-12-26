@@ -206,7 +206,7 @@ export const sendMessage = async (
   });
   const notification = {
     type: "message",
-    recipients: toUserIds,
+    recipients: conversationResponse.participants.filter((p) => p.id !== fromUserId.toString()).map((p)=>p.id),
     subtitle: conversationResponse.participants.find(
       (p) => p.id === fromUserId.toString()
     ).name,

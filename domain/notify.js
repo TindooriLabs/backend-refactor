@@ -7,6 +7,8 @@ export const sendNotification = async (notification) => {
   }
   let requestBody = {
     include_aliases: { external_id: notification.recipients },
+    app_id: process.env.ONESIGNAL_APP_ID,
+    target_channel: "push",
     name: notification.type,
     contents: {
       en: notification.text,

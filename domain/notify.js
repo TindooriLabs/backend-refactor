@@ -1,74 +1,57 @@
-import app from "../app.js";
-import { getUserDevices } from "../database/queries/relationship.js";
+import axios from "axios";
+import { featureToggle } from "../config/deps.js";
 
-//Notification: {type: Joi.string(), recipients: Joi.array().items({id: 1234, name: 'Elmo'}), body: Joi.any}
 export const sendNotification = async (notification) => {
-  const io = app.get("io");
-  try {
-    await Promise.all(
-      notification.recipients.map(async (recipient) => {
-        // const roomId = recipient.id.toString();
-        //Check connected sockets for each recipient
-        // const socketConnections = await getSocketConnectionsForRoom(io, roomId);
-        //If at least one socket is connected, add them to the socket recipients
-        // if (socketConnections.length) {
-          // return io.to(roomId);
-        // } else {
-          //Send async notification
-          return sendPushNotificationToUser(recipient.id, notification);
-        // }
-      })
-    );
-  } catch (error) {
-    console.log("Error queueing notifications.", error);
-  }
-
-  //Emit the notification to the recipients
-  try {
-    // if (notification.type === "message") {
-    //   io.in(notification.body.conversation.id).emit(
-    //     notification.type,
-    //     notification.body
-    //   );
-    // }
-  } catch (error) {
-    console.log(
-      `Error emitting socket '${notification.type}' notification.`,
-      error,
-      notification.recipients
-    );
-  }
-};
-
-const getSocketConnectionsForRoom = (io, roomId) => {
-  return io.in(roomId).fetchSockets();
-};
-
-const sendPushNotificationToUser = async (userId, notification) => {
-  const getDevicesResult = await getUserDevices(userId);
-
-  const { devices } = getDevicesResult;
-
-  if (!devices?.length) {
+  if (featureToggle("notification-override")) {
     return;
   }
-
+  let requestBody = {
+    include_aliases: { external_id: notification.recipients },
+    app_id: process.env.ONESIGNAL_APP_ID,
+    target_channel: "push",
+    name: notification.type,
+    contents: {
+      en: notification.text,
+    },
+    headings: {
+      en: "Tindoori",
+    },
+  };
+  if (notification.subtitle) {
+    requestBody.subtitle = {
+      en: notification.subtitle,
+    };
+  }
   try {
-    await Promise.all(
-      devices.map(async (device) => {
-        if (device.kind === "IOS") {
-          return sendApn(device.identifier, notification);
-        }
-      })
+    const response = await axios.post(
+      "https://onesignal.com/api/v1/notifications",
+      requestBody,
+      {
+        headers: {
+          Authorization: `Basic ${process.env.ONESIGNAL_API_KEY}`,
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+      }
     );
   } catch (error) {
-    console.log("Error sending notifications.", error);
+    console.log(`Error emitting '${notification.type}' notification.`);
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.log("Data => \n"+JSON.stringify(error.response.data));
+      console.log("Status => \n"+JSON.stringify(error.response.status));
+      console.log("Headers => \n"+JSON.stringify(error.response.headers));
+    } else if (error.request) {
+      // The request was made but no response was received
+      // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+      // http.ClientRequest in node.js
+      console.log("Request => ");
+      console.log(JSON.stringify(error.request));
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.log("Error => \n"+JSON.stringify(error.message));
+    }
+    console.log("Config => \n"+JSON.stringify(error.config));
   }
-
-  return getDevicesResult;
-};
-
-const sendApn = (apnId, notification) => {
-  const apnClient = app.get("apnClient");
-  return apnClient.send(apnId, notification);
 };

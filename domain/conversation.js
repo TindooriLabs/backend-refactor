@@ -206,21 +206,14 @@ export const sendMessage = async (
   });
   const notification = {
     type: "message",
-    recipients: conversationResponse.participants.filter(
-      (p) => p.id != fromUserId.toString()
-    ),
-    body: {
-      conversation: { ...conversationResponse },
-      message: {
-        ...messageResult,
-        fromUserName: conversationResponse.participants.find(
-          (p) => p.id === fromUserId.toString()
-        ).name,
-      },
-    },
+    recipients: conversationResponse.participants.filter((p) => p.id !== fromUserId.toString()).map((p)=>p.id),
+    subtitle: conversationResponse.participants.find(
+      (p) => p.id === fromUserId.toString()
+    ).name,
+    text: messageResult.text,
   };
 
-  sendNotification(notification);
+  await sendNotification(notification);
 
   let lastMessage = {
     id: messageResult.id.toString(),

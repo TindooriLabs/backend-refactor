@@ -133,6 +133,7 @@ export const setSchemas = async () => {
   schemas.setProfileBody = Joi.object().keys({
     bio: bio.optional().allow(null, ""),
     hometown: Joi.string().optional().allow(null, ""),
+    isOnboarding: Joi.boolean().optional()
   });
   schemas.addPromptResponseBody = Joi.object().keys({
     // promptId: Joi.string().optional(),

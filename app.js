@@ -2,7 +2,6 @@ import express from "express";
 import Yaml from "yamljs";
 import swaggerUi from "swagger-ui-express";
 import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
 import logger from "morgan";
 import userRouter from "./routes/users.js";
 import userPreferencesRouter from "./routes/preferences.js";
@@ -19,7 +18,7 @@ var app = express();
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 //Serve Swagger docs
@@ -28,9 +27,6 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDoc));
 
 //Clear Tindoori props from req
 app.use(clearTindooriProps);
-
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(passport.initialize());
 passport.use("local", localStrategy);

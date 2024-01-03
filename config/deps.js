@@ -12,7 +12,7 @@ const buildDeps = async (app) => {
     "sms-otp-override": false,
     "google-translate-override": false,
     "email-otp-override": false,
-    "notification-override": true,
+    "notification-override": false,
   };
   app.set("featureToggles", tempToggles);
   // await buildUnleashClient(app, env);

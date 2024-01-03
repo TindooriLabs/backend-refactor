@@ -23,6 +23,8 @@ export const sendNotification = async (notification) => {
     };
   }
   try {
+    console.log("OneSignal API Request Body => ");
+    console.log(requestBody);
     const response = await axios.post(
       "https://onesignal.com/api/v1/notifications",
       requestBody,
@@ -34,6 +36,8 @@ export const sendNotification = async (notification) => {
         },
       }
     );
+    console.log("OneSignal API Response => ");
+    console.log(response)
   } catch (error) {
     console.log(`Error emitting '${notification.type}' notification.`);
     if (error.response) {

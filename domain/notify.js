@@ -39,6 +39,8 @@ export const sendNotification = async (notification) => {
     console.log("OneSignal API Response => ");
     console.log(response);
     console.log("OneSignal API Response Data => ");
+    console.log(response.data);
+    console.log("OneSignal API Response Data Stringify => ");
     console.log(JSON.stringify(response.data));
   } catch (error) {
     console.log(`Error emitting '${notification.type}' notification.`);

@@ -36,8 +36,6 @@ export const sendNotification = async (notification) => {
         },
       }
     );
-    console.log("OneSignal API Response => ");
-    console.log(response);
     console.log("OneSignal API Response Data => ");
     console.log(response.data);
     console.log("OneSignal API Response Data Stringify => ");

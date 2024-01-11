@@ -64,11 +64,13 @@ export const setStatus = async (req) => {
 };
 
 export const setSubscription = async (req) => {
+  console.log("Expiration: ", req.body.expiration);
   //Validate body
   const validation = validateSchema(req.body, "setSubscriptionBody");
   if (!validation.ok) {
     return getFailureBody(validation);
   }
+  
   const { subscriptionTierId, expiration } = req.body;
   const { userId } = req.user;
 

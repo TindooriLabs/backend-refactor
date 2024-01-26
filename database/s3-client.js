@@ -1,4 +1,5 @@
 import AWS from "aws-sdk";
+import { decompress } from "../util/file";
 
 export default class S3 {
   constructor() {
@@ -64,8 +65,10 @@ export default class S3 {
     const { s3Path } = imageMeta;
 
     const dataResponse = await this.getImage(s3Path);
+
+    const decompressedDataResponse = await decompress(dataResponse.body);
     
-    if (dataResponse.ok) return { ...imageMeta, buffer: dataResponse.body };
+    if (dataResponse.ok) return { ...imageMeta, buffer: decompressedDataResponse };
     return { ...imageMeta };
   }
 

@@ -1,5 +1,5 @@
 import AWS from "aws-sdk";
-import { decompress } from "../util/file";
+import { decompress } from "../util/file.js";
 
 export default class S3 {
   constructor() {
